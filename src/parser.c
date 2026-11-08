@@ -580,6 +580,7 @@ Stmt** parse_program(Parser* parser, size_t* out_count) {
         if (parser->panic_mode) {
             // Synchronize on error
             parser->panic_mode = false;
+            advance(parser);
             while (!check(parser, TOKEN_EOF)) {
                 if (parser->previous.type == TOKEN_SEMICOLON) break;
                 switch (parser->current.type) {

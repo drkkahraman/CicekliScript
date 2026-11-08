@@ -113,7 +113,29 @@ mete.deffunction() {
 }();
 ```
 
-### 3. Koşul İfadeleri (`if`, `elif`, `else`)
+### 3. GUI (Pencere ve Grafik) Desteği
+
+MeteScript ile doğrudan donanım hızlandırmalı ve çift arabelleğe (double buffering) sahip GUI pencereleri oluşturabilirsiniz:
+
+```javascript
+// 100x100 boyutunda pencere aç:
+window = mete.window(100, 100);
+
+// Arka plan rengini ayarla:
+window.color(); // veya window.color("red"); veya window.color("#1e1e2e");
+
+// Metin ekle: window.text(metin, renk, boyut, x, y);
+window.text("Mete", "red", 16, 20, 35);
+
+// Geometrik şekiller:
+window.rect(10, 50, 40, 20, "blue");
+window.circle(70, 60, 15, "green");
+
+// Pencereyi açık tutan olay döngüsü:
+window.mainloop();
+```
+
+### 4. Koşul İfadeleri (`if`, `elif`, `else`)
 ```javascript
 puan = 85;
 

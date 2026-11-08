@@ -83,6 +83,14 @@ void gc_mark_obj(Obj* obj) {
         }
         case OBJ_NATIVE:
             break;
+        case OBJ_BOUND_METHOD: {
+            ObjBoundMethod* bm = (ObjBoundMethod*)obj;
+            gc_mark_value(bm->receiver);
+            gc_mark_value(bm->method);
+            break;
+        }
+        case OBJ_WINDOW:
+            break;
         case OBJ_ENV: {
             Environment* env = (Environment*)obj;
             for (size_t i = 0; i < env->count; i++) {
@@ -101,6 +109,8 @@ void gc_mark_env(Environment* env) {
         gc_mark_obj((Obj*)env);
     }
 }
+
+void gui_window_destroy(void* win);
 
 static void free_object(Obj* obj) {
     switch (obj->type) {
@@ -139,6 +149,15 @@ static void free_object(Obj* obj) {
             ObjNative* nat = (ObjNative*)obj;
             free(nat->name);
             free(nat);
+            break;
+        }
+        case OBJ_BOUND_METHOD: {
+            free(obj);
+            break;
+        }
+        case OBJ_WINDOW: {
+            gui_window_destroy(obj);
+            free(obj);
             break;
         }
         case OBJ_ENV: {

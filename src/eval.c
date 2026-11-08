@@ -1,5 +1,6 @@
 #include "eval.h"
 #include "gc.h"
+#include "gui.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,8 +18,8 @@ static void runtime_error(int line, const char* format, ...) {
 }
 
 // Built-in functions
-static Value native_println(size_t arg_count, Value* args, int line) {
-    (void)line;
+static Value native_println(Value self, size_t arg_count, Value* args, int line) {
+    (void)self; (void)line;
     for (size_t i = 0; i < arg_count; i++) {
         print_value(args[i]);
         if (i + 1 < arg_count) {
@@ -30,8 +31,8 @@ static Value native_println(size_t arg_count, Value* args, int line) {
     return make_null();
 }
 
-static Value native_print(size_t arg_count, Value* args, int line) {
-    (void)line;
+static Value native_print(Value self, size_t arg_count, Value* args, int line) {
+    (void)self; (void)line;
     for (size_t i = 0; i < arg_count; i++) {
         print_value(args[i]);
         if (i + 1 < arg_count) {
@@ -42,8 +43,8 @@ static Value native_print(size_t arg_count, Value* args, int line) {
     return make_null();
 }
 
-static Value native_input(size_t arg_count, Value* args, int line) {
-    (void)line;
+static Value native_input(Value self, size_t arg_count, Value* args, int line) {
+    (void)self; (void)line;
     if (arg_count > 0) {
         print_value(args[0]);
         fflush(stdout);
@@ -64,7 +65,8 @@ static Value native_input(size_t arg_count, Value* args, int line) {
     return make_obj((Obj*)copy_string(""));
 }
 
-static Value native_len(size_t arg_count, Value* args, int line) {
+static Value native_len(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     if (arg_count != 1) {
         runtime_error(line, "len() tam olarak 1 argüman bekler!");
         return make_null();
@@ -83,7 +85,8 @@ static Value native_len(size_t arg_count, Value* args, int line) {
     return make_null();
 }
 
-static Value native_range(size_t arg_count, Value* args, int line) {
+static Value native_range(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     double start = 0;
     double end = 0;
     double step = 1;
@@ -131,7 +134,8 @@ static Value native_range(size_t arg_count, Value* args, int line) {
     return make_obj((Obj*)list);
 }
 
-static Value native_append(size_t arg_count, Value* args, int line) {
+static Value native_append(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     if (arg_count != 2) {
         runtime_error(line, "append() tam olarak 2 argüman (liste, eleman) bekler!");
         return make_null();
@@ -145,7 +149,8 @@ static Value native_append(size_t arg_count, Value* args, int line) {
     return args[0];
 }
 
-static Value native_pop(size_t arg_count, Value* args, int line) {
+static Value native_pop(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     if (arg_count < 1 || arg_count > 2) {
         runtime_error(line, "pop() 1 veya 2 argüman bekler!");
         return make_null();
@@ -166,7 +171,8 @@ static Value native_pop(size_t arg_count, Value* args, int line) {
     return list_pop(list, idx);
 }
 
-static Value native_type(size_t arg_count, Value* args, int line) {
+static Value native_type(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     if (arg_count != 1) {
         runtime_error(line, "type() tam olarak 1 argüman bekler!");
         return make_null();
@@ -175,7 +181,8 @@ static Value native_type(size_t arg_count, Value* args, int line) {
     return make_obj((Obj*)copy_string(tname));
 }
 
-static Value native_str(size_t arg_count, Value* args, int line) {
+static Value native_str(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     if (arg_count != 1) {
         runtime_error(line, "str() tam olarak 1 argüman bekler!");
         return make_null();
@@ -186,7 +193,8 @@ static Value native_str(size_t arg_count, Value* args, int line) {
     return make_obj((Obj*)str_obj);
 }
 
-static Value native_int(size_t arg_count, Value* args, int line) {
+static Value native_int(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     if (arg_count != 1) {
         runtime_error(line, "int() tam olarak 1 argüman bekler!");
         return make_null();
@@ -205,7 +213,8 @@ static Value native_int(size_t arg_count, Value* args, int line) {
     return make_null();
 }
 
-static Value native_float(size_t arg_count, Value* args, int line) {
+static Value native_float(Value self, size_t arg_count, Value* args, int line) {
+    (void)self;
     if (arg_count != 1) {
         runtime_error(line, "float() tam olarak 1 argüman bekler!");
         return make_null();
@@ -224,16 +233,16 @@ static Value native_float(size_t arg_count, Value* args, int line) {
     return make_null();
 }
 
-static Value native_time(size_t arg_count, Value* args, int line) {
-    (void)arg_count; (void)args; (void)line;
+static Value native_time(Value self, size_t arg_count, Value* args, int line) {
+    (void)self; (void)arg_count; (void)args; (void)line;
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     double sec = (double)ts.tv_sec + (double)ts.tv_nsec / 1e9;
     return make_number(sec);
 }
 
-static Value native_exit(size_t arg_count, Value* args, int line) {
-    (void)line;
+static Value native_exit(Value self, size_t arg_count, Value* args, int line) {
+    (void)self; (void)line;
     int code = 0;
     if (arg_count > 0 && is_number(args[0])) {
         code = (int)as_number(args[0]);
@@ -270,6 +279,7 @@ Environment* init_global_environment(void) {
     define_native(env, mete, "float", native_float, 1);
     define_native(env, mete, "time", native_time, 0);
     define_native(env, mete, "exit", native_exit, -1);
+    define_native(env, mete, "window", native_mete_window, -1);
 
     env_define(env, "mete", make_obj((Obj*)mete));
     return env;
@@ -454,6 +464,13 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
             }
 
             Value result = make_null();
+            Value receiver = make_null();
+
+            if (is_bound_method(callee)) {
+                ObjBoundMethod* bm = as_bound_method(callee);
+                receiver = bm->receiver;
+                callee = bm->method;
+            }
 
             if (is_native(callee)) {
                 ObjNative* nat = as_native(callee);
@@ -462,7 +479,7 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
                                   nat->name, nat->arity, argc);
                     *had_error = true;
                 } else {
-                    result = nat->fn(argc, args, expr->line);
+                    result = nat->fn(receiver, argc, args, expr->line);
                 }
             } else if (is_function(callee)) {
                 ObjFunction* fn = as_function(callee);
@@ -472,6 +489,10 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
                     *had_error = true;
                 } else {
                     Environment* fn_env = new_environment(fn->closure);
+                    if (!is_null(receiver)) {
+                        env_define(fn_env, "this", receiver);
+                        env_define(fn_env, "self", receiver);
+                    }
                     for (size_t i = 0; i < argc; i++) {
                         env_define(fn_env, fn->params[i], args[i]);
                     }
@@ -499,10 +520,27 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
             Value obj = eval_expression(expr->as.member.object, env, had_error);
             if (*had_error) return make_null();
 
+            if (is_window(obj)) {
+                Value m = gui_window_get_method(obj, expr->as.member.member);
+                if (!is_null(m)) {
+                    return make_obj((Obj*)new_bound_method(obj, m));
+                }
+                Value p = gui_window_get_property(obj, expr->as.member.member);
+                if (!is_null(p)) {
+                    return p;
+                }
+                runtime_error(expr->line, "Pencerede '%s' özelliği veya metodu bulunamadı!", expr->as.member.member);
+                *had_error = true;
+                return make_null();
+            }
+
             if (is_map(obj)) {
                 ObjMap* map = as_map(obj);
                 Value val;
                 if (map_get(map, expr->as.member.member, &val)) {
+                    if (is_native(val) || is_function(val)) {
+                        return make_obj((Obj*)new_bound_method(obj, val));
+                    }
                     return val;
                 }
                 runtime_error(expr->line, "Haritada '%s' özelliği bulunamadı!", expr->as.member.member);

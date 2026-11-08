@@ -18,7 +18,9 @@ typedef enum {
     OBJ_MAP,
     OBJ_FUNCTION,
     OBJ_NATIVE,
-    OBJ_ENV
+    OBJ_ENV,
+    OBJ_BOUND_METHOD,
+    OBJ_WINDOW
 } ObjType;
 
 struct Obj;
@@ -81,7 +83,7 @@ typedef struct {
 } ObjFunction;
 
 // Native function pointer type
-typedef Value (*NativeFn)(size_t arg_count, Value* args, int line);
+typedef Value (*NativeFn)(Value self, size_t arg_count, Value* args, int line);
 
 typedef struct {
     Obj obj;
@@ -89,6 +91,13 @@ typedef struct {
     NativeFn fn;
     int arity; // -1 for variable arguments
 } ObjNative;
+
+// Bound Method object (receiver + method)
+typedef struct {
+    Obj obj;
+    Value receiver;
+    Value method;
+} ObjBoundMethod;
 
 // Value Constructors
 Value make_null(void);
@@ -109,6 +118,8 @@ static inline bool is_list(Value v) { return is_obj_type(v, OBJ_LIST); }
 static inline bool is_map(Value v) { return is_obj_type(v, OBJ_MAP); }
 static inline bool is_function(Value v) { return is_obj_type(v, OBJ_FUNCTION); }
 static inline bool is_native(Value v) { return is_obj_type(v, OBJ_NATIVE); }
+static inline bool is_bound_method(Value v) { return is_obj_type(v, OBJ_BOUND_METHOD); }
+static inline bool is_window(Value v) { return is_obj_type(v, OBJ_WINDOW); }
 
 static inline bool as_bool(Value v) { return v.as.boolean; }
 static inline double as_number(Value v) { return v.as.number; }
@@ -118,6 +129,7 @@ static inline ObjList* as_list(Value v) { return (ObjList*)v.as.obj; }
 static inline ObjMap* as_map(Value v) { return (ObjMap*)v.as.obj; }
 static inline ObjFunction* as_function(Value v) { return (ObjFunction*)v.as.obj; }
 static inline ObjNative* as_native(Value v) { return (ObjNative*)v.as.obj; }
+static inline ObjBoundMethod* as_bound_method(Value v) { return (ObjBoundMethod*)v.as.obj; }
 
 bool values_equal(Value a, Value b);
 bool is_truthy(Value v);
@@ -142,5 +154,6 @@ bool map_get(ObjMap* map, const char* key, Value* out);
 
 ObjFunction* new_function(const char* name, char** params, size_t arity, struct Stmt* body, struct Environment* closure);
 ObjNative* new_native(const char* name, NativeFn fn, int arity);
+ObjBoundMethod* new_bound_method(Value receiver, Value method);
 
 #endif // METESCRIPT_VALUE_H

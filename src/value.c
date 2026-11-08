@@ -176,6 +176,13 @@ ObjNative* new_native(const char* name, NativeFn fn, int arity) {
     return nat;
 }
 
+ObjBoundMethod* new_bound_method(Value receiver, Value method) {
+    ObjBoundMethod* bm = (ObjBoundMethod*)gc_allocate(sizeof(ObjBoundMethod), OBJ_BOUND_METHOD);
+    bm->receiver = receiver;
+    bm->method = method;
+    return bm;
+}
+
 bool values_equal(Value a, Value b) {
     if (a.type != b.type) return false;
     switch (a.type) {
@@ -226,6 +233,8 @@ const char* value_type_name(Value v) {
                 case OBJ_MAP: return "map";
                 case OBJ_FUNCTION: return "function";
                 case OBJ_NATIVE: return "native_fn";
+                case OBJ_BOUND_METHOD: return "method";
+                case OBJ_WINDOW: return "window";
                 case OBJ_ENV: return "env";
             }
         }
@@ -329,6 +338,13 @@ char* value_to_string(Value v) {
                 case OBJ_NATIVE: {
                     ObjNative* nat = as_native(v);
                     snprintf(buffer, sizeof(buffer), "<mete.native %s>", nat->name);
+                    return strdup(buffer);
+                }
+                case OBJ_BOUND_METHOD: {
+                    return strdup("<mete.method>");
+                }
+                case OBJ_WINDOW: {
+                    snprintf(buffer, sizeof(buffer), "<mete.window>");
                     return strdup(buffer);
                 }
                 default:

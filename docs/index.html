@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="auto">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>MeteScript — Dokümantasyon</title>
+<style>
+  /* ============ TEMA DEĞİŞKENLERİ ============ */
+  :root {
+    --sidebar-w: 270px;
+    --radius: 12px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+    --mono: "SF Mono", "Fira Code", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+    --accent-grad: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+  }
+  /* Koyu tema (varsayılan) */
+  :root, [data-theme="dark"] {
+    --bg: #0b0f17;
+    --bg-soft: #111725;
+    --bg-panel: #151c2c;
+    --bg-code: #0f1522;
+    --bg-hover: #1b2436;
+    --border: #232d42;
+    --border-soft: #1c2537;
+    --text: #e8edf6;
+    --text-dim: #93a0b8;
+    --text-faint: #64748b;
+    --accent: #818cf8;
+    --accent-2: #22d3ee;
+    --accent-soft: rgba(129,140,248,.12);
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --shadow: 0 8px 32px rgba(0,0,0,.45);
+    --shadow-sm: 0 2px 10px rgba(0,0,0,.35);
+    --header-bg: rgba(11,15,23,.85);
+    /* token renkler */
+    --tok-kw: #f472b6;
+    --tok-str: #7dd3fc;
+    --tok-num: #fbbf24;
+    --tok-fn: #a5b4fc;
+    --tok-cm: #64748b;
+    --tok-op: #c4b5fd;
+    --tok-inline: #fca5a5;
+  }
+  /* Açık tema */
+  [data-theme="light"] {
+    --bg: #f6f8fc;
+    --bg-soft: #eef2f9;
+    --bg-panel: #ffffff;
+    --bg-code: #f1f5fb;
+    --bg-hover: #e8eef8;
+    --border: #dbe3f0;
+    --border-soft: #e5ebf5;
+    --text: #1a2233;
+    --text-dim: #55617a;
+    --text-faint: #8b96ab;
+    --accent: #6366f1;
+    --accent-2: #0891b2;
+    --accent-soft: rgba(99,102,241,.10);
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+    --shadow: 0 8px 32px rgba(30,41,80,.10);
+    --shadow-sm: 0 2px 10px rgba(30,41,80,.07);
+    --header-bg: rgba(246,248,252,.85);
+    --tok-kw: #db2777;
+    --tok-str: #0284c7;
+    --tok-num: #b45309;
+    --tok-fn: #4f46e5;
+    --tok-cm: #8b96ab;
+    --tok-op: #7c3aed;
+    --tok-inline: #be123c;
+  }
+  /* Cihaz temasına otomatik uyum */
+  @media (prefers-color-scheme: light) {
+    :root[data-theme="auto"] {
+      --bg: #f6f8fc; --bg-soft: #eef2f9; --bg-panel: #ffffff; --bg-code: #f1f5fb;
+      --bg-hover: #e8eef8; --border: #dbe3f0; --border-soft: #e5ebf5;
+      --text: #1a2233; --text-dim: #55617a; --text-faint: #8b96ab;
+      --accent: #6366f1; --accent-2: #0891b2; --accent-soft: rgba(99,102,241,.10);
+      --green: #059669; --amber: #d97706; --red: #dc2626;
+      --shadow: 0 8px 32px rgba(30,41,80,.10); --shadow-sm: 0 2px 10px rgba(30,41,80,.07);
+      --header-bg: rgba(246,248,252,.85);
+      --tok-kw: #db2777; --tok-str: #0284c7; --tok-num: #b45309; --tok-fn: #4f46e5;
+      --tok-cm: #8b96ab; --tok-op: #7c3aed; --tok-inline: #be123c;
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    transition: background .3s, color .3s;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ::selection { background: var(--accent-soft); }
+
+  /* Scroll ilerleme çubuğu */
+  #progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: var(--accent-grad); z-index: 100;
+    transition: width .1s linear;
+  }
+
+  /* ============ HEADER ============ */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 24px;
+    background: var(--header-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--accent-grad);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: #fff; font-size: 19px;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 17px; font-weight: 700; white-space: nowrap; }
+  header h1 span { color: var(--text-dim); font-weight: 400; font-size: 13px; margin-left: 8px; }
+  .spacer { flex: 1; }
+  .search-wrap { position: relative; }
+  .search-wrap svg {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; stroke: var(--text-faint); fill: none; stroke-width: 2;
+    pointer-events: none;
+  }
+  .search {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    color: var(--text); border-radius: 9px; padding: 8px 12px 8px 34px;
+    font-size: 13px; width: 210px; outline: none;
+    transition: border-color .2s, width .25s, box-shadow .2s;
+  }
+  .search:focus { border-color: var(--accent); width: 250px; box-shadow: 0 0 0 3px var(--accent-soft); }
+  .search::placeholder { color: var(--text-faint); }
+  .badge {
+    font-size: 11.5px; padding: 4px 11px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--text-dim);
+    background: var(--bg-panel); font-weight: 600; letter-spacing: .02em;
+    white-space: nowrap;
+  }
+  .badge .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green); margin-right: 6px;
+    box-shadow: 0 0 8px var(--green);
+  }
+  .theme-btn {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--bg-panel); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: transform .2s, border-color .2s;
+    position: relative;
+  }
+  .theme-btn:hover { border-color: var(--accent); transform: scale(1.06); }
+  .theme-btn svg { width: 18px; height: 18px; fill: none; stroke: var(--text-dim); stroke-width: 2; }
+  .theme-btn .ic { display: none; }
+  [data-theme="dark"] .theme-btn .ic-moon,
+  :root[data-theme="auto"] .theme-btn .ic-moon { display: block; }
+  [data-theme="light"] .theme-btn .ic-sun { display: block; }
+  [data-theme="auto"] .theme-btn .ic-auto { display: block; }
+  [data-theme="auto"] .theme-btn .ic-moon { display: none; }
+  .theme-btn .ic-auto { position: absolute; }
+  .theme-btn .ic-auto::after {
+    content: "A"; position: absolute; font-size: 8px; font-weight: 800;
+    color: var(--accent); top: 50%; left: 50%; transform: translate(-50%,-52%);
+  }
+
+  /* ============ LAYOUT ============ */
+  .layout { display: flex; max-width: 1320px; margin: 0 auto; }
+  nav.sidebar {
+    width: var(--sidebar-w); flex-shrink: 0;
+    position: sticky; top: 64px;
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+    padding: 26px 14px 26px 26px;
+    border-right: 1px solid var(--border);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  nav.sidebar h3 {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--text-faint); margin: 22px 0 8px 10px; font-weight: 700;
+  }
+  nav.sidebar h3:first-child { margin-top: 0; }
+  nav.sidebar a {
+    display: flex; align-items: center; gap: 9px;
+    padding: 7px 11px; border-radius: 8px;
+    color: var(--text-dim); font-size: 13.5px; font-weight: 500;
+    border-left: 2px solid transparent;
+    transition: all .15s;
+  }
+  nav.sidebar a:hover { background: var(--bg-hover); color: var(--text); text-decoration: none; }
+  nav.sidebar a.active {
+    background: var(--accent-soft); color: var(--accent);
+    border-left-color: var(--accent); font-weight: 600;
+  }
+  nav.sidebar a .ico { font-size: 14px; width: 18px; text-align: center; opacity: .85; }
+
+  main { flex: 1; min-width: 0; padding: 44px 52px 120px; }
+
+  /* ============ HERO ============ */
+  .hero {
+    position: relative;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 44px 44px 40px;
+    margin-bottom: 52px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .hero::before {
+    content: "";
+    position: absolute; top: -120px; right: -80px;
+    width: 380px; height: 380px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: "";
+    position: absolute; bottom: -140px; left: -60px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(34,211,238,.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero .kicker {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 5px 14px; border-radius: 999px; margin-bottom: 18px;
+  }
+  .hero h2 { font-size: 38px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 14px; line-height: 1.2; }
+  .hero h2 em {
+    font-style: normal;
+    background: var(--accent-grad);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { color: var(--text-dim); font-size: 15.5px; max-width: 700px; margin-bottom: 22px; }
+  .hero .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 10px; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; border: 1px solid transparent;
+    transition: transform .15s, box-shadow .2s;
+  }
+  .btn:hover { text-decoration: none; transform: translateY(-2px); }
+  .btn-primary { background: var(--accent-grad); color: #fff; box-shadow: var(--shadow-sm); }
+  .btn-ghost { background: var(--bg-soft); color: var(--text); border-color: var(--border); }
+  .hero .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    font-size: 12px; padding: 5px 13px; border-radius: 999px;
+    background: var(--bg-soft); border: 1px solid var(--border); color: var(--text-dim);
+    font-weight: 500;
+  }
+  .tag b { color: var(--accent); font-weight: 700; }
+
+  /* ============ SECTIONS ============ */
+  section { margin-bottom: 60px; scroll-margin-top: 84px; }
+  section h2 {
+    font-size: 25px; font-weight: 800; letter-spacing: -.01em;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+  }
+  section h2 .num {
+    font-size: 13px; font-weight: 800; color: var(--accent);
+    background: var(--accent-soft); padding: 3px 11px; border-radius: 8px;
+    font-family: var(--mono);
+  }
+  section h3 { font-size: 17.5px; font-weight: 700; margin: 28px 0 10px; }
+  section p { margin-bottom: 13px; color: var(--text-dim); font-size: 14.5px; }
+  section ul, section ol { margin: 0 0 15px 24px; color: var(--text-dim); font-size: 14.5px; }
+  section li { margin-bottom: 7px; }
+  section li::marker { color: var(--accent); }
+  code.inline {
+    background: var(--bg-code); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 6px; font-size: 12.5px;
+    font-family: var(--mono); color: var(--tok-inline);
+    white-space: nowrap;
+  }
+
+  /* ============ CODE BLOCKS ============ */
+  .codeblock {
+    background: var(--bg-code); border: 1px solid var(--border);
+    border-radius: var(--radius); margin: 16px 0 22px; overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: border-color .2s;
+  }
+  .codeblock:hover { border-color: var(--text-faint); }
+  .codeblock .bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 14px; border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-soft);
+  }
+  .codeblock .bar .left { display: flex; align-items: center; gap: 12px; }
+  .codeblock .bar .dots { display: flex; gap: 6px; }
+  .codeblock .bar .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .codeblock .bar .dots i:nth-child(1){ background:#ff5f57; }
+  .codeblock .bar .dots i:nth-child(2){ background:#febc2e; }
+  .codeblock .bar .dots i:nth-child(3){ background:#28c840; }
+  .lang-badge {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--accent); background: var(--accent-soft);
+    padding: 2px 10px; border-radius: 6px;
+  }
+  .copy-btn {
+    background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-dim);
+    font-size: 11.5px; font-weight: 600; padding: 4px 12px; border-radius: 7px; cursor: pointer;
+    transition: all .15s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--text-faint); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+  pre {
+    padding: 17px 18px; overflow-x: auto;
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .tok-kw  { color: var(--tok-kw); font-weight: 600; }
+  .tok-str { color: var(--tok-str); }
+  .tok-num { color: var(--tok-num); }
+  .tok-fn  { color: var(--tok-fn); }
+  .tok-cm  { color: var(--tok-cm); font-style: italic; }
+  .tok-op  { color: var(--tok-op); }
+
+  /* ============ TABLES ============ */
+  .table-wrap { overflow-x: auto; margin: 16px 0 22px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--bg-panel); }
+  th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--border-soft); }
+  th {
+    background: var(--bg-soft); font-weight: 700; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .05em; color: var(--text-dim);
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr { transition: background .15s; }
+  tbody tr:hover { background: var(--bg-hover); }
+  td code {
+    font-family: var(--mono); font-size: 12.5px;
+    color: var(--tok-inline); background: var(--bg-code);
+    padding: 2px 7px; border-radius: 5px; border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  /* ============ CALLOUTS ============ */
+  .callout {
+    display: flex; gap: 13px;
+    border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    background: var(--bg-panel);
+    padding: 15px 18px; border-radius: 10px; margin: 16px 0; font-size: 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .callout .ci { font-size: 19px; line-height: 1.4; flex-shrink: 0; }
+  .callout b { display: block; margin-bottom: 3px; font-size: 14px; }
+  .callout p { margin: 0; font-size: 13.5px; }
+  .callout.warn { border-left-color: var(--amber); }
+  .callout.success { border-left-color: var(--green); }
+
+  /* ============ FOOTER ============ */
+  footer {
+    border-top: 1px solid var(--border); padding: 26px 48px;
+    color: var(--text-faint); font-size: 13px; text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+  }
+  footer .heart { color: var(--red); }
+
+  /* Back to top */
+  #toTop {
+    position: fixed; bottom: 26px; right: 26px; z-index: 60;
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--accent-grad); color: #fff; border: none;
+    font-size: 18px; cursor: pointer; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transform: translateY(12px);
+    transition: opacity .25s, transform .25s;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  #toTop:hover { transform: translateY(-3px); }
+
+  .no-results {
+    display: none; text-align: center; padding: 60px 20px; color: var(--text-faint);
+  }
+  .no-results .big { font-size: 44px; margin-bottom: 12px; }
+
+  /* ============ ONLINE COMPILER (WEB IDE) ============ */
+  .compiler-wrapper {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    margin: 20px 0 35px;
+    display: flex;
+    flex-direction: column;
+  }
+  .compiler-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border);
+  }
+  .compiler-left, .compiler-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .compiler-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+  }
+  .compiler-select {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .compiler-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .compiler-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    min-height: 480px;
+  }
+  @media (max-width: 960px) {
+    .compiler-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .editor-pane {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    background: var(--bg-code);
+  }
+  @media (max-width: 960px) {
+    .editor-pane {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+    }
+  }
+  .pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: var(--bg-soft);
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+  .pane-header .dots {
+    display: flex; gap: 6px;
+  }
+  .pane-header .dots i {
+    width: 10px; height: 10px; border-radius: 50%; display: block;
+  }
+  .pane-header .dots i:nth-child(1){ background:#ff5f57; }
+  .pane-header .dots i:nth-child(2){ background:#febc2e; }
+  .pane-header .dots i:nth-child(3){ background:#28c840; }
+  .pane-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-left: 8px;
+    margin-right: auto;
+  }
+  .editor-body {
+    display: flex;
+    flex: 1;
+    position: relative;
+    min-height: 380px;
+  }
+  .line-numbers {
+    width: 44px;
+    padding: 16px 8px 16px 0;
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-faint);
+    background: rgba(0,0,0,0.05);
+    user-select: none;
+    border-right: 1px solid var(--border-soft);
+    overflow: hidden;
+    white-space: pre-line;
+  }
+  #codeEditor {
+    flex: 1;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+    tab-size: 4;
+  }
+  #codeEditor::placeholder {
+    color: var(--text-faint);
+    font-style: italic;
+  }
+  .stdin-container {
+    border-top: 1px solid var(--border-soft);
+    background: var(--bg-soft);
+    padding: 8px 16px;
+  }
+  .stdin-container details summary {
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-weight: 600;
+    user-select: none;
+  }
+  .stdin-container details textarea {
+    width: 100%;
+    margin-top: 8px;
+    padding: 8px 10px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text);
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+    resize: vertical;
+  }
+  .terminal-pane {
+    display: flex;
+    flex-direction: column;
+    background: #090d14;
+    color: #e2e8f0;
+  }
+  [data-theme="light"] .terminal-pane {
+    background: #0f172a;
+    color: #f1f5f9;
+  }
+  .terminal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .exec-pill {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    background: rgba(255,255,255,0.08);
+    color: #94a3b8;
+  }
+  .exec-pill.running {
+    background: rgba(251, 191, 36, 0.2);
+    color: var(--amber);
+  }
+  .exec-pill.success {
+    background: rgba(52, 211, 153, 0.2);
+    color: var(--green);
+  }
+  .exec-pill.error {
+    background: rgba(248, 113, 113, 0.2);
+    color: var(--red);
+  }
+  .terminal-body {
+    flex: 1;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    user-select: text;
+    min-height: 250px;
+    max-height: 600px;
+  }
+  .term-stdout {
+    color: #e2e8f0;
+  }
+  .term-stderr {
+    color: #f87171;
+    font-weight: 500;
+  }
+  .term-meta {
+    margin-top: 14px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(255,255,255,0.18);
+    font-size: 11.5px;
+    color: #64748b;
+  }
+  .term-placeholder {
+    color: #475569;
+    font-style: italic;
+  }
+  .kbd {
+    display: inline-block;
+    padding: 1px 5px;
+    font-size: 10.5px;
+    font-family: var(--mono);
+    background: rgba(0,0,0,0.25);
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.2);
+    margin-left: 4px;
+  }
+
+  @media (max-width: 940px) {
+    nav.sidebar { display: none; }
+    main { padding: 26px 18px 100px; }
+    .hero { padding: 30px 24px; }
+    .hero h2 { font-size: 28px; }
+    .search { width: 130px; }
+    .search:focus { width: 160px; }
+    header h1 span { display: none; }
+    .badge { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header>
+  <div class="logo">M</div>
+  <h1>MeteScript <span>Dokümantasyon</span></h1>
+  <div class="spacer"></div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input class="search" id="search" type="text" placeholder="Dokümantasyonda ara…" autocomplete="off">
+  </div>
+  <span class="badge"><span class="dot"></span>v1.0.0</span>
+  <button class="theme-btn" id="themeBtn" title="Tema değiştir (Otomatik → Koyu → Açık)" aria-label="Tema">
+    <svg class="ic ic-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+    <svg class="ic ic-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+    <svg class="ic ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
+  </button>
+</header>
+
+<div class="layout">
+<nav class="sidebar" id="sidebar">
+  <h3>Etkileşimli</h3>
+  <a href="#compiler" class="highlight-link"><span class="ico">⚡</span>Online Compiler</a>
+  <h3>Genel</h3>
+  <a href="#giris"><span class="ico">📖</span>Giriş</a>
+  <a href="#kurulum"><span class="ico">⚙️</span>Kurulum</a>
+  <a href="#kullanim"><span class="ico">🚀</span>Kullanım</a>
+  <h3>Temeller</h3>
+  <a href="#degiskenler"><span class="ico">📦</span>Değişkenler &amp; Tipler</a>
+  <a href="#io"><span class="ico">🖥️</span>Girdi / Çıktı</a>
+  <a href="#fonksiyonlar"><span class="ico">ƒ(x)</span>Fonksiyonlar</a>
+  <a href="#kosullar"><span class="ico">🔀</span>Koşullar</a>
+  <a href="#donguler"><span class="ico">🔁</span>Döngüler</a>
+  <a href="#listeler"><span class="ico">📋</span>Listeler</a>
+  <a href="#sozlukler"><span class="ico">🗂️</span>Sözlükler</a>
+  <a href="#yorumlar"><span class="ico">💬</span>Yorumlar</a>
+  <h3>Referans</h3>
+  <a href="#api"><span class="ico">📚</span>mete API'si</a>
+  <a href="#ornekler"><span class="ico">✨</span>Örnekler</a>
+</nav>
+
+<main>
+  <div class="no-results" id="noResults">
+    <div class="big">🔍</div>
+    <b>“<span id="nrQuery"></span>” için sonuç bulunamadı</b>
+    <p style="margin-top:8px;font-size:13px;">Farklı bir anahtar kelime deneyin.</p>
+  </div>
+
+  <div class="hero">
+    <span class="kicker">⚡ Modern · Dinamik · C Tabanlı</span>
+    <h2>MeteScript <em>Dokümantasyonu</em></h2>
+    <p>Python'ın pratikliği ve yüksek seviyeli sözdizimi ile C dilinin gücünü, blok yapısını (<code class="inline">{}</code>) ve hızını birleştiren; her cümlenin sonuna <code class="inline">;</code> (noktalı virgül) koymanın zorunlu olduğu modern, dinamik ve C tabanlı bir programlama dili.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#compiler">⚡ Online Compiler (Dene)</a>
+      <a class="btn btn-ghost" href="#kurulum">🚀 Kurulum</a>
+      <a class="btn btn-ghost" href="#api">📚 API Referansı</a>
+      <a class="btn btn-ghost" href="#ornekler">✨ Örnekler</a>
+    </div>
+    <div class="tags">
+      <span class="tag"><b>Saf C11</b> çekirdek</span>
+      <span class="tag"><b>Dinamik</b> tipler</span>
+      <span class="tag">Zorunlu <b>;</b></span>
+      <span class="tag"><b>REPL</b> kabuğu</span>
+      <span class="tag">Liste &amp; <b>Sözlük</b></span>
+    </div>
+  </div>
+
+  <!-- ONLINE COMPILER SECTION -->
+  <section id="compiler">
+    <h2><span class="num">00</span> Online Compiler (Web IDE)</h2>
+    <p>MeteScript kodlarınızı bilgisayarınıza bir şey kurmadan doğrudan tarayıcınızda yazıp anında çalıştırabilirsiniz. Kodlarınız arka plandaki saf C11 MeteScript derleyicisi ve yorumlayıcısı tarafından derlenip çalıştırılır.</p>
+
+    <div class="compiler-wrapper">
+      <div class="compiler-toolbar">
+        <div class="compiler-left">
+          <label for="exampleSelector" class="compiler-label">Örnek Şablon:</label>
+          <select id="exampleSelector" class="compiler-select">
+            <option value="merhaba">01 — Merhaba Dünya</option>
+            <option value="fonksiyonlar">02 — Fonksiyonlar & Matematik</option>
+            <option value="fibonacci">03 — Fibonacci & Rekürsiyon</option>
+            <option value="donguler">04 — Döngüler & Aralıklar (range)</option>
+            <option value="listeler">05 — Listeler & Sözlükler</option>
+            <option value="hesap">06 — Hesap Makinesi</option>
+            <option value="girdi">07 — Kullanıcıdan Girdi (input)</option>
+          </select>
+        </div>
+        <div class="compiler-right">
+          <button id="runBtn" class="btn btn-primary" title="Çalıştır (Ctrl+Enter)">
+            <span class="run-ico">▶</span> Çalıştır <kbd class="kbd">Ctrl+↵</kbd>
+          </button>
+          <button id="clearCodeBtn" class="btn btn-ghost" title="Editörü Temizle">🗑️ Temizle</button>
+          <button id="resetCodeBtn" class="btn btn-ghost" title="Seçili Şablonu Yeniden Yükle">↺ Sıfırla</button>
+        </div>
+      </div>
+
+      <div class="compiler-grid">
+        <!-- Editör -->
+        <div class="editor-pane">
+          <div class="pane-header">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <span class="pane-title">main.ms — Kod Editörü</span>
+            <span style="font-size:11.5px;color:var(--text-faint);font-family:var(--mono);">MeteScript v1.0.0</span>
+          </div>
+          <div class="editor-body">
+            <div class="line-numbers" id="lineNumbers">1</div>
+            <textarea id="codeEditor" spellcheck="false" placeholder="MeteScript kodunuzu buraya yazın... (noktalı virgül ';' zorunludur!)"></textarea>
+          </div>
+          <div class="stdin-container">
+            <details id="stdinDetails">
+              <summary><span style="margin-right:4px;">⌨️</span> Standart Girdi (stdin) — <span style="font-weight:normal;color:var(--text-faint);">mete.input() için opsiyonel</span></summary>
+              <textarea id="stdinInput" rows="2" placeholder="Programınız 'mete.input()' çağırıyorsa, okunacak değerleri buraya satır satır girebilirsiniz..."></textarea>
+            </details>
+          </div>
+        </div>
+
+        <!-- Terminal Konsolu -->
+        <div class="terminal-pane">
+          <div class="pane-header">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <span class="pane-title">Çıktı Terminali</span>
+            <div class="terminal-actions">
+              <span class="exec-pill" id="execPill">Hazır</span>
+              <button id="copyOutputBtn" class="copy-btn">Kopyala</button>
+              <button id="clearOutputBtn" class="copy-btn">Temizle</button>
+            </div>
+          </div>
+          <div class="terminal-body" id="terminalOutput"><span class="term-placeholder">MeteScript kodunuzu çalıştırmak için "▶ Çalıştır" butonuna veya Ctrl+Enter tuşlarına basın...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="giris">
+    <h2><span class="num">01</span> Giriş</h2>
+    <p>MeteScript, yorumlayıcısı sıfırdan saf C (C11) ile yazılmış son derece hafif ve hızlı bir dildir. Dinamik tipler, listeler, sözlükler, dilimleme ve negatif indeksleme gibi Python benzeri özellikler sunarken; blok yapısı ve noktalı virgül zorunluluğu ile C disiplini taşır.</p>
+    <div class="callout">
+      <span class="ci">💡</span>
+      <div><p>MeteScript'te her ifadenin sonuna <code class="inline">;</code> konulması <b>zorunludur</b>. Unutulursa derleyici hata verir.</p></div>
+    </div>
+    <h3>Örnek: İlk Program</h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>mete.println("Merhaba Dünya!");
+a = 10;
+b = 20;
+mete.println("Toplam:", a + b);</code></pre>
+    </div>
+  </section>
+
+  <section id="kurulum">
+    <h2><span class="num">02</span> Kurulum</h2>
+    <p>MeteScript, GCC ve Make ile tek komutla derlenir:</p>
+    <div class="codeblock" data-lang="bash">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>cd /home/admin/metescript
+make</code></pre>
+    </div>
+    <p>Derlenen ikili <code class="inline">bin/metescript</code> altında ve <code class="inline">~/.local/bin/metescript</code> yolunda bulunur. Sistem geneli kurulum için:</p>
+    <div class="codeblock" data-lang="bash">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>make install   # /usr/local/bin/metescript</code></pre>
+    </div>
+  </section>
+
+  <section id="kullanim">
+    <h2><span class="num">03</span> Kullanım</h2>
+    <h3>1. Etkileşimli REPL Kabuğu</h3>
+    <div class="codeblock" data-lang="bash">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>metescript</code></pre>
+    </div>
+    <div class="codeblock" data-lang="repl">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">repl</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>╔═══════════════════════════════════════════════════╗
+║            MeteScript v1.0.0 REPL                 ║
+║  Python kolaylığı + C gücü + Zorunlu ';'         ║
+║  Çıkmak için: exit() veya mete.exit();            ║
+╚═══════════════════════════════════════════════════╝
+
+mete&gt;&gt;&gt; mete.println("Merhaba Dünya!");
+Merhaba Dünya!
+mete&gt;&gt;&gt; a = 10; b = 20;
+mete&gt;&gt;&gt; mete.println("Toplam:", a + b);
+Toplam: 30
+mete&gt;&gt;&gt; exit();</code></pre>
+    </div>
+    <h3>2. Dosyadan Betik Çalıştırma</h3>
+    <div class="codeblock" data-lang="bash">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>metescript script.ms</code></pre>
+    </div>
+    <h3>3. Tek Satır Komut (<code class="inline">-c</code>)</h3>
+    <div class="codeblock" data-lang="bash">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>metescript -c 'mete.println("Hello World");'</code></pre>
+    </div>
+  </section>
+
+  <section id="degiskenler">
+    <h2><span class="num">04</span> Değişkenler &amp; Veri Tipleri</h2>
+    <p>MeteScript dinamik tiplidir; değişken tanımlarken tip belirtmenize gerek yoktur.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tip</th><th>Örnek</th><th>Açıklama</th></tr></thead>
+      <tbody>
+      <tr><td>Sayı</td><td><code>10</code>, <code>3.14</code>, <code>-42</code></td><td>Tamsayı ve ondalık</td></tr>
+      <tr><td>Metin</td><td><code>"Merhaba"</code>, <code>'Mete'</code></td><td><code>\n</code>, <code>\t</code> kaçış dizileri, <code>+</code> ile birleştirme</td></tr>
+      <tr><td>Mantıksal</td><td><code>true</code>, <code>false</code>, <code>True</code>, <code>False</code></td><td>İkisi de geçerlidir</td></tr>
+      <tr><td>Boş değer</td><td><code>null</code>, <code>None</code>, <code>nil</code></td><td>Üçü de aynı anlama gelir</td></tr>
+      <tr><td>Liste</td><td><code>[1, 2, "üç", [4, 5]]</code></td><td>Dinamik, iç içe geçebilir</td></tr>
+      <tr><td>Sözlük</td><td><code>{"ad": "Mete", "yas": 25}</code></td><td>Anahtar-değer haritası</td></tr>
+      </tbody>
+    </table></div>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>sayi = 42;
+ondalik = 3.14;
+metin = "Merhaba" + " " + "Dünya";
+mantik = true;
+bos = null;
+liste = [1, 2, 3];
+sozluk = {"ad": "Mete", "yas": 25};</code></pre>
+    </div>
+  </section>
+
+  <section id="io">
+    <h2><span class="num">05</span> Girdi / Çıktı</h2>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>// Ekrana satır sonlu yazdırma
+mete.println("Hello World");
+
+// Ekrana satır sonu OLMADAN yazdırma
+mete.print("Satır sonu yok: ");
+mete.println("devamı bu.");
+
+// Kullanıcıdan girdi alma
+a = mete.input("Cümle giriniz: ");
+mete.println("Girdiğiniz cümle:", a);</code></pre>
+    </div>
+    <div class="callout warn">
+      <span class="ci">⚠️</span>
+      <div><b>Dikkat</b><p><code class="inline">mete.print</code> satır sonu eklemez; <code class="inline">mete.println</code> ekler.</p></div>
+    </div>
+  </section>
+
+  <section id="fonksiyonlar">
+    <h2><span class="num">06</span> Fonksiyonlar</h2>
+    <p>Fonksiyonlar <code class="inline">mete.deffunction</code> ile tanımlanır. İsimli, anonim (değişkene atanan) veya doğrudan çalıştırılan üç kullanım biçimi vardır.</p>
+    <h3>İsimli Fonksiyon</h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>mete.deffunction topla(a, b) {
+    return a + b;
+};
+
+sonuc = topla(15, 25);
+mete.println("Sonuç:", sonuc);</code></pre>
+    </div>
+    <h3>Anonim Fonksiyon (Değişkene Atama)</h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>kare = mete.deffunction(x) {
+    return x * x;
+};
+
+mete.println("5'in karesi:", kare(5));</code></pre>
+    </div>
+    <h3>Anonim Olarak Doğrudan Çalıştırma</h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>mete.deffunction() {
+    mete.println("Bu blok hemen çalışır!");
+}();</code></pre>
+    </div>
+  </section>
+
+  <section id="kosullar">
+    <h2><span class="num">07</span> Koşul İfadeleri</h2>
+    <p><code class="inline">if</code>, <code class="inline">elif</code> ve <code class="inline">else</code> blokları kullanılır. Tüm blok yapısının sonuna <code class="inline">;</code> konur.</p>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>puan = 85;
+
+if (puan >= 90) {
+    mete.println("Harf notu: AA");
+} elif (puan >= 70) {
+    mete.println("Harf notu: BB");
+} else {
+    mete.println("Harf notu: CC");
+};</code></pre>
+    </div>
+  </section>
+
+  <section id="donguler">
+    <h2><span class="num">08</span> Döngüler</h2>
+    <h3>Python Tarzı <code class="inline">for..in</code></h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>meyveler = ["Elma", "Armut", "Muz"];
+for (m in meyveler) {
+    mete.println("Meyve:", m);
+};
+
+// range() ile kullanım:
+for (i in mete.range(5)) {
+    mete.println("İndeks:", i);
+};</code></pre>
+    </div>
+    <h3>C Tarzı <code class="inline">for(init; cond; step)</code></h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>for (i = 0; i < 5; i = i + 1) {
+    mete.println("Adım:", i);
+};</code></pre>
+    </div>
+    <h3><code class="inline">while</code> Döngüsü</h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>sayac = 0;
+while (sayac < 5) {
+    sayac += 1;
+    if (sayac == 2) {
+        continue;
+    };
+    mete.println("Sayaç:", sayac);
+};</code></pre>
+    </div>
+    <p>Döngülerde <code class="inline">break;</code> (döngüyü sonlandır) ve <code class="inline">continue;</code> (sonraki adıma geç) kullanılır.</p>
+  </section>
+
+  <section id="listeler">
+    <h2><span class="num">09</span> Listeler</h2>
+    <p>Listeler dinamik boyutlu, iç içe geçebilir dizilerdir.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>İşlem</th><th>Sözdizimi</th></tr></thead>
+      <tbody>
+      <tr><td>Eleman ekleme</td><td><code>mete.append(liste, eleman);</code></td></tr>
+      <tr><td>Son elemanı çıkarma</td><td><code>mete.pop(liste);</code></td></tr>
+      <tr><td>Uzunluk</td><td><code>mete.len(liste);</code></td></tr>
+      <tr><td>Eleman erişimi</td><td><code>liste[0]</code>, <code>liste[-1]</code> (negatif indeks)</td></tr>
+      </tbody>
+    </table></div>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>sayilar = [10, 20, 30];
+mete.append(sayilar, 40);
+mete.println("Uzunluk:", mete.len(sayilar));
+mete.println("Son eleman:", sayilar[-1]);
+son = mete.pop(sayilar);
+mete.println("Çıkarılan:", son);</code></pre>
+    </div>
+  </section>
+
+  <section id="sozlukler">
+    <h2><span class="num">10</span> Sözlükler (Maps)</h2>
+    <p>Sözlükler anahtar-değer çiftlerinden oluşur. Hem nokta hem de indeks ile erişilebilir.</p>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>kullanici = {"ad": "Mete", "yas": 25};
+
+// Nokta erişimi
+mete.println(kullanici.ad);
+
+// İndeks erişimi
+mete.println(kullanici["yas"]);
+
+// Yeni anahtar ekleme
+kullanici.sehir = "İzmir";
+mete.println(kullanici.sehir);</code></pre>
+    </div>
+  </section>
+
+  <section id="yorumlar">
+    <h2><span class="num">11</span> Yorumlar</h2>
+    <p>MeteScript üç yorum biçimini de destekler:</p>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code># Python tarzı yorum
+// C tarzı tek satır yorum
+/* C tarzı
+   çok satırlı yorum */
+
+mete.println("Yorumlar çalışmaz, bu çalışır!");</code></pre>
+    </div>
+  </section>
+
+  <section id="api">
+    <h2><span class="num">12</span> mete API'si</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Fonksiyon</th><th>Açıklama</th></tr></thead>
+      <tbody>
+      <tr><td><code>mete.println(...)</code></td><td>Argümanları ekrana satır sonlu yazdırır</td></tr>
+      <tr><td><code>mete.print(...)</code></td><td>Argümanları ekrana satır sonu olmadan yazdırır</td></tr>
+      <tr><td><code>mete.input(prompt)</code></td><td>Kullanıcıdan metin girdisi alır</td></tr>
+      <tr><td><code>mete.deffunction</code></td><td>Fonksiyon tanımlar (isimli / anonim)</td></tr>
+      <tr><td><code>mete.range(n)</code></td><td><code>0..n-1</code> aralığı üretir (for..in ile)</td></tr>
+      <tr><td><code>mete.append(liste, x)</code></td><td>Listeye eleman ekler</td></tr>
+      <tr><td><code>mete.pop(liste)</code></td><td>Listeden son elemanı çıkarır</td></tr>
+      <tr><td><code>mete.len(liste)</code></td><td>Liste uzunluğunu döndürür</td></tr>
+      <tr><td><code>mete.exit()</code></td><td>REPL'den / betikten çıkar</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="ornekler">
+    <h2><span class="num">13</span> Örnek Dosyalar</h2>
+    <p>Tüm örnekler <code class="inline">examples/</code> klasöründe yer alır:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Dosya</th><th>İçerik</th></tr></thead>
+      <tbody>
+      <tr><td><code>01_merhaba.ms</code></td><td>Girdi/çıktı ve değişkenler</td></tr>
+      <tr><td><code>02_fonksiyonlar.ms</code></td><td><code>mete.deffunction</code> varyasyonları</td></tr>
+      <tr><td><code>03_donguler.ms</code></td><td><code>for in</code>, <code>for(;;)</code> ve <code>while</code> döngüleri</td></tr>
+      <tr><td><code>04_fibonacci.ms</code></td><td>Özyinelemeli algoritma ve zaman ölçümü</td></tr>
+      <tr><td><code>05_listeler_ve_sozlukler.ms</code></td><td>Dinamik listeler ve haritalar</td></tr>
+      <tr><td><code>06_hesap_makinesi.ms</code></td><td>Fonksiyonel hesap makinesi</td></tr>
+      </tbody>
+    </table></div>
+    <div class="codeblock" data-lang="bash">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>metescript examples/04_fibonacci.ms</code></pre>
+    </div>
+    <div class="callout success">
+      <span class="ci">✅</span>
+      <div><b>İpucu</b><p>REPL içinde <code class="inline">exit();</code> yazarak çıkabilirsiniz. Tüm örnekler <code class="inline">examples/</code> altında çalıştırılabilir.</p></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<footer>
+  <span>MeteScript v1.0.0</span> · <span>Saf C11 yorumlayıcı</span> ·
+  <span>Bu dokümantasyon <code class="inline">docs/index.html</code> üzerinden servis edilmektedir</span>
+  <span class="heart">♥</span>
+</footer>
+
+<button id="toTop" title="Başa dön">↑</button>
+
+<script>
+/* ============ TEMA YÖNETİMİ ============ */
+const root = document.documentElement;
+const themeBtn = document.getElementById('themeBtn');
+const mq = window.matchMedia('(prefers-color-scheme: light)');
+const ORDER = ['auto', 'dark', 'light'];
+let current = localStorage.getItem('mete-theme') || 'auto';
+
+function applyTheme(t) {
+  current = t;
+  root.setAttribute('data-theme', t);
+  localStorage.setItem('mete-theme', t);
+}
+applyTheme(current);
+
+// Cihaz teması değişince (auto moddaysa) anında uyum sağla
+mq.addEventListener('change', () => {
+  if (current === 'auto') applyTheme('auto');
+});
+
+themeBtn.addEventListener('click', () => {
+  const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
+  applyTheme(next);
+});
+
+/* ============ SÖZDİZİMİ VURGULAMA ============ */
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function highlight(code, lang) {
+  let out = '';
+  const isMs = (lang === 'metescript');
+  for (const line of code.split('\n')) {
+    let l = escapeHtml(line);
+    if (isMs) {
+      if (/^\s*#/.test(line) || /^\s*\/\//.test(line) || /^\s*\/\*/.test(line)) {
+        out += '<span class="tok-cm">' + l + '</span>\n';
+        continue;
+      }
+      l = l.replace(/(#[^\n]*|\/\/[^\n]*)/g, '<span class="tok-cm">$1</span>');
+      l = l.replace(/(&quot;[^&]*?&quot;|'[^']*?')/g, '<span class="tok-str">$1</span>');
+      l = l.replace(/\b(if|elif|else|for|while|in|return|break|continue|true|false|True|False|null|None|nil)\b/g, '<span class="tok-kw">$1</span>');
+      l = l.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
+      l = l.replace(/\b(mete\.)(println|print|input|deffunction|range|append|pop|len|exit)\b/g,
+                    '<span class="tok-fn">mete.</span><span class="tok-fn">$2</span>');
+      l = l.replace(/\b(deffunction)\b/g, '<span class="tok-kw">$1</span>');
+    } else if (lang === 'bash') {
+      l = l.replace(/(#[^\n]*)/g, '<span class="tok-cm">$1</span>');
+      l = l.replace(/^(\s*)(\w+)(\s)/, '$1<span class="tok-fn">$2</span>$3');
+    }
+    out += l + '\n';
+  }
+  return out.replace(/\n$/,'');
+}
+document.querySelectorAll('.codeblock').forEach(block => {
+  const code = block.querySelector('code');
+  const raw = code.textContent;
+  code.innerHTML = highlight(raw, block.dataset.lang || 'text');
+  const btn = block.querySelector('.copy-btn');
+  if (btn) btn.addEventListener('click', () => {
+    navigator.clipboard.writeText(raw).then(() => {
+      btn.textContent = 'Kopyalandı ✓';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Kopyala'; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+});
+
+/* ============ AKTİF MENÜ ============ */
+const links = [...document.querySelectorAll('nav.sidebar a')];
+const sections = links.map(a => document.querySelector(a.getAttribute('href')));
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+    }
+  });
+}, { rootMargin: '-15% 0px -75% 0px' });
+sections.forEach(s => s && obs.observe(s));
+
+/* ============ ARAMA ============ */
+const search = document.getElementById('search');
+const noResults = document.getElementById('noResults');
+const nrQuery = document.getElementById('nrQuery');
+search.addEventListener('input', () => {
+  const q = search.value.trim().toLowerCase();
+  let any = false;
+  document.querySelectorAll('main section').forEach(sec => {
+    if (!q) { sec.style.display = ''; return; }
+    const hit = sec.textContent.toLowerCase().includes(q);
+    sec.style.display = hit ? '' : 'none';
+    if (hit) any = true;
+  });
+  noResults.style.display = (q && !any) ? 'block' : 'none';
+  nrQuery.textContent = search.value.trim();
+});
+
+/* ============ SCROLL İLERLEMESİ + BAŞA DÖN ============ */
+const progress = document.getElementById('progress');
+const toTop = document.getElementById('toTop');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = h.scrollTop / (h.scrollHeight - h.clientHeight) * 100;
+  progress.style.width = pct + '%';
+  toTop.classList.toggle('show', h.scrollTop > 500);
+}, { passive: true });
+toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+/* ============ ONLINE COMPILER (WEB IDE) SCRIPT ============ */
+const SAMPLES = {
+  merhaba: `# MeteScript 1.0 - Merhaba Dünya
+mete.println("══════════════════════════════════");
+mete.println("⚡ MeteScript Dünyasına Hoş Geldiniz!");
+mete.println("══════════════════════════════════");
+
+ad = "Gezgin";
+surum = 1.0;
+mete.println("Kullanıcı:", ad, "| Dil Sürümü:", surum);
+
+// Unutmayın: MeteScript'te her ifadenin sonuna ';' zorunludur!
+mete.println("MeteScript: C Hızı + Python Sözdizimi!");
+`,
+  fonksiyonlar: `// 1. İsimli Fonksiyon Tanımlama
+def topla(a, b) {
+    return a + b;
+};
+
+// 2. Anonim Fonksiyon (Değişkene Atanabilir)
+carp = mete.deffunction(x, y) {
+    return x * y;
+};
+
+mete.println("Toplama (3 + 5) =", topla(3, 5));
+mete.println("Çarpma  (4 * 6) =", carp(4, 6));
+
+// 3. Mantıksal Fonksiyon
+def mutlak_deger(n) {
+    if (n < 0) {
+        return -n;
+    }
+    return n;
+};
+
+mete.println("Mutlak Değer |-42| =", mutlak_deger(-42));
+`,
+  fibonacci: `// Fibonacci Dizisi (Özyinelemeli / Recursive)
+def fib(n) {
+    if (n <= 1) {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
+};
+
+mete.println("--- İlk 10 Fibonacci Sayısı ---");
+for (i in range(10)) {
+    mete.println("fib(" + str(i) + ") =", fib(i));
+}
+`,
+  donguler: `mete.println("--- 1. Python Tarzı for..in Döngüsü ---");
+for (sayi in [10, 20, 30, 40]) {
+    mete.println("Liste elemanı:", sayi);
+}
+
+mete.println("\\n--- 2. C Tarzı for(init; cond; step) Döngüsü ---");
+toplam = 0;
+for (i = 1; i <= 5; i = i + 1) {
+    toplam = toplam + i;
+}
+mete.println("1'den 5'e sayıların toplamı:", toplam);
+
+mete.println("\\n--- 3. While Döngüsü ---");
+sayac = 3;
+while (sayac > 0) {
+    mete.println("Geri sayım:", sayac);
+    sayac = sayac - 1;
+}
+mete.println("Roket fırlatıldı! 🚀");
+`,
+  listeler: `// Listeler (Dinamik Dizi)
+meyveler = ["Elma", "Muz", "Çilek"];
+mete.append(meyveler, "Portakal");
+mete.println("Meyve Listesi:", meyveler);
+mete.println("Liste Boyutu:", mete.len(meyveler));
+mete.println("Son Eleman (negatif indeks):", meyveler[-1]);
+
+// Sözlükler (Key-Value)
+gelistirici = {
+    "ad": "Mete",
+    "dil": "MeteScript",
+    "hiz": "C11",
+    "puan": 100
+};
+
+mete.println("\\nGeliştirici Bilgileri:");
+mete.println("Geliştirici:", gelistirici["ad"]);
+mete.println("Dil:", gelistirici["dil"], "| Çekirdek:", gelistirici["hiz"]);
+mete.println("Puan:", gelistirici["puan"]);
+`,
+  hesap: `def hesapla(a, b, islem) {
+    if (islem == "+") {
+        return a + b;
+    } elif (islem == "-") {
+        return a - b;
+    } elif (islem == "*") {
+        return a * b;
+    } elif (islem == "/") {
+        if (b == 0) {
+            return "Hata: Sıfıra bölme yapılamaz!";
+        }
+        return a / b;
+    } else {
+        return "Geçersiz işlem türü!";
+    }
+};
+
+mete.println("15 + 25 =", hesapla(15, 25, "+"));
+mete.println("100 - 37 =", hesapla(100, 37, "-"));
+mete.println("8 * 9    =", hesapla(8, 9, "*"));
+mete.println("48 / 6   =", hesapla(48, 6, "/"));
+mete.println("50 / 0   =", hesapla(50, 0, "/"));
+`,
+  girdi: `// Standart Girdi (stdin) Örneği
+// Aşağıdaki 'Standart Girdi' kutusuna adınızı yazabilirsiniz.
+mete.println("Lütfen adınızı giriniz:");
+isim = mete.input();
+
+if (mete.len(isim) == 0) {
+    isim = "Misafir";
+}
+
+mete.println("MeteScript'e hoş geldin,", isim + "!");
+mete.println("Harika kodlar yazmaya hazır mısın?");
+`
+};
+
+const editor = document.getElementById('codeEditor');
+const lineNumbers = document.getElementById('lineNumbers');
+const runBtn = document.getElementById('runBtn');
+const clearCodeBtn = document.getElementById('clearCodeBtn');
+const resetCodeBtn = document.getElementById('resetCodeBtn');
+const exampleSelector = document.getElementById('exampleSelector');
+const terminalOutput = document.getElementById('terminalOutput');
+const execPill = document.getElementById('execPill');
+const copyOutputBtn = document.getElementById('copyOutputBtn');
+const clearOutputBtn = document.getElementById('clearOutputBtn');
+const stdinInput = document.getElementById('stdinInput');
+const stdinDetails = document.getElementById('stdinDetails');
+
+function updateLineNumbers() {
+  if (!editor || !lineNumbers) return;
+  const lines = editor.value.split('\n').length;
+  let nums = '';
+  for (let i = 1; i <= lines; i++) {
+    nums += i + '\n';
+  }
+  lineNumbers.textContent = nums;
+}
+
+if (editor && lineNumbers) {
+  editor.addEventListener('input', updateLineNumbers);
+  editor.addEventListener('scroll', () => {
+    lineNumbers.scrollTop = editor.scrollTop;
+  });
+
+  editor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+      editor.selectionStart = editor.selectionEnd = start + 4;
+      updateLineNumbers();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      runCode();
+    }
+  });
+}
+
+function loadSample(key) {
+  if (editor && SAMPLES[key]) {
+    editor.value = SAMPLES[key];
+    updateLineNumbers();
+    if (key === 'girdi') {
+      if (stdinDetails) stdinDetails.open = true;
+      if (stdinInput && !stdinInput.value.trim()) stdinInput.value = "Doruk\\n";
+    }
+  }
+}
+
+if (exampleSelector) {
+  exampleSelector.addEventListener('change', () => {
+    loadSample(exampleSelector.value);
+  });
+}
+
+if (clearCodeBtn && editor) {
+  clearCodeBtn.addEventListener('click', () => {
+    editor.value = '';
+    updateLineNumbers();
+    editor.focus();
+  });
+}
+
+if (resetCodeBtn && exampleSelector) {
+  resetCodeBtn.addEventListener('click', () => {
+    loadSample(exampleSelector.value);
+  });
+}
+
+let lastRawOutput = '';
+
+async function runCode() {
+  if (!editor) return;
+  const code = editor.value;
+  const stdin = stdinInput ? stdinInput.value : '';
+
+  if (!code.trim()) {
+    terminalOutput.innerHTML = '<span class="term-stderr">Uyarı: Editörde çalıştırılacak kod bulunamadı!</span>';
+    if (execPill) {
+      execPill.className = 'exec-pill error';
+      execPill.textContent = 'Boş Kod';
+    }
+    return;
+  }
+
+  if (runBtn) {
+    runBtn.disabled = true;
+    runBtn.innerHTML = '⏳ Çalışıyor...';
+  }
+  if (execPill) {
+    execPill.className = 'exec-pill running';
+    execPill.textContent = 'Çalışıyor...';
+  }
+  terminalOutput.innerHTML = '<span class="term-placeholder">MeteScript yorumlayıcısı çalıştırılıyor...</span>';
+
+  try {
+    const res = await fetch('/api/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, stdin })
+    });
+
+    if (!res.ok) {
+      throw new Error('Sunucu hatası: ' + res.status + ' ' + res.statusText);
+    }
+
+    const data = await res.json();
+    let html = '';
+    let raw = '';
+
+    if (data.stdout) {
+      html += '<span class="term-stdout">' + escapeHtml(data.stdout) + '</span>';
+      raw += data.stdout;
+    }
+    if (data.stderr) {
+      html += '<span class="term-stderr">' + escapeHtml(data.stderr) + '</span>';
+      raw += (raw ? '\n' : '') + data.stderr;
+    }
+
+    const ms = data.execution_time_ms !== undefined ? data.execution_time_ms + ' ms' : '';
+    const codeStatus = data.exit_code === 0 ? '✓ Kod 0 (Başarılı)' : '✕ Kod ' + data.exit_code + ' (Hata)';
+
+    html += '<div class="term-meta">⏱️ ' + ms + ' · ' + codeStatus + '</div>';
+    terminalOutput.innerHTML = html;
+    lastRawOutput = raw;
+
+    if (execPill) {
+      if (data.exit_code === 0) {
+        execPill.className = 'exec-pill success';
+        execPill.textContent = '✓ ' + ms;
+      } else {
+        execPill.className = 'exec-pill error';
+        execPill.textContent = '✕ Hata';
+      }
+    }
+  } catch (err) {
+    terminalOutput.innerHTML = '<span class="term-stderr">Bağlantı Hatası: ' + escapeHtml(err.message) + '</span>';
+    lastRawOutput = err.message;
+    if (execPill) {
+      execPill.className = 'exec-pill error';
+      execPill.textContent = 'Bağlantı Hatası';
+    }
+  } finally {
+    if (runBtn) {
+      runBtn.disabled = false;
+      runBtn.innerHTML = '<span class="run-ico">▶</span> Çalıştır <kbd class="kbd">Ctrl+↵</kbd>';
+    }
+  }
+}
+
+if (runBtn) runBtn.addEventListener('click', runCode);
+
+if (clearOutputBtn) {
+  clearOutputBtn.addEventListener('click', () => {
+    terminalOutput.innerHTML = '<span class="term-placeholder">Konsol temizlendi.</span>';
+    lastRawOutput = '';
+    if (execPill) {
+      execPill.className = 'exec-pill';
+      execPill.textContent = 'Hazır';
+    }
+  });
+}
+
+if (copyOutputBtn) {
+  copyOutputBtn.addEventListener('click', () => {
+    if (!lastRawOutput) return;
+    navigator.clipboard.writeText(lastRawOutput).then(() => {
+      copyOutputBtn.textContent = 'Kopyalandı ✓';
+      setTimeout(() => { copyOutputBtn.textContent = 'Kopyala'; }, 1500);
+    });
+  });
+}
+
+loadSample('merhaba');
+</script>
+</body>
+</html>

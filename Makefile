@@ -1,6 +1,9 @@
 CC ?= gcc
-CFLAGS ?= -Wall -Wextra -O2 -std=c11 -D_POSIX_C_SOURCE=200809L
-LDFLAGS ?= -lm
+PKG_CFLAGS = $(shell pkg-config --cflags cairo x11)
+PKG_LIBS = $(shell pkg-config --libs cairo x11)
+
+CFLAGS ?= -Wall -Wextra -O2 -std=c11 -D_POSIX_C_SOURCE=200809L $(PKG_CFLAGS)
+LDFLAGS ?= -lm $(PKG_LIBS)
 
 SRC_DIR = src
 BIN_DIR = bin
@@ -13,7 +16,8 @@ SRCS = $(SRC_DIR)/main.c \
        $(SRC_DIR)/value.c \
        $(SRC_DIR)/env.c \
        $(SRC_DIR)/gc.c \
-       $(SRC_DIR)/eval.c
+       $(SRC_DIR)/eval.c \
+       $(SRC_DIR)/gui.c
 
 OBJS = $(SRCS:.c=.o)
 
@@ -34,6 +38,6 @@ clean:
 	@echo "Temizlendi."
 
 install: $(TARGET)
-	install -d /usr/local/bin
-	install -m 755 $(TARGET) /usr/local/bin/metescript
-	@echo "MeteScript /usr/local/bin/metescript konumuna yüklendi."
+	install -d $(HOME)/.local/bin
+	install -m 755 $(TARGET) $(HOME)/.local/bin/metescript
+	@echo "MeteScript ~/.local/bin/metescript konumuna yüklendi."

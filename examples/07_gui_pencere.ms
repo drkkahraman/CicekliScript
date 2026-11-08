@@ -1,0 +1,15 @@
+# MeteScript - Basit GUI Pencere Örneği
+// Kullanıcının istediği tam sözdizimi:
+
+window = mete.window(100, 100);
+
+// Arka plan rengini ayarla
+window.color();
+
+// Pencereye yazı ekle: window.text(metin, renk, boyut, x, y);
+window.text("Mete", "red", 16, 20, 35);
+
+mete.println("Pencere oluşturuldu! Kapatmak için pencereyi kapatın veya ESC tuşuna basın.");
+
+// Pencere olay döngüsü (kullanıcı kapatana kadar açık tutar)
+window.mainloop();

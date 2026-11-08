@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gc.h"
+#include "gui.h"
 #include "parser.h"
 #include "eval.h"
 
@@ -165,12 +166,14 @@ int main(int argc, char** argv) {
             free(source);
             ast_free_all();
             gc_free_all();
+            gui_cleanup();
             return ret;
         }
     } else if (argc == 3 && strcmp(argv[1], "-c") == 0) {
         int ret = run_source(argv[2], global_env);
         ast_free_all();
         gc_free_all();
+        gui_cleanup();
         return ret;
     } else {
         print_help(argv[0]);
@@ -179,5 +182,6 @@ int main(int argc, char** argv) {
 
     ast_free_all();
     gc_free_all();
+    gui_cleanup();
     return 0;
 }
