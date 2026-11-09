@@ -4,39 +4,79 @@
 
 ---
 
+## 📚 Dokümantasyon Sayfaları
+
+- 🪟 **[Windows Kurulum Rehberi](docs/WINDOWS_KURULUM.md)**: Windows (WSL 2 / MSYS2) adım adım kurulum kılavuzu.
+- 📖 **[Dil ve Sözdizimi Kılavuzu](docs/DIL_REHBERI.md)**: Dil kuralları, veri yapıları ve kullanım detayları.
+- 📚 **[API & Standart Kütüphane Referansı](docs/API_REFERANSI.md)**: Tüm yerleşik fonksiyonlar, modüller (`math`, `file`, `cicekli`) ve nesne metotları.
+- 🌐 **[İnteraktif Web Dokümantasyonu](docs/index.html)**: Tarayıcı üzerinden zengin arayüzlü kılavuz.
+
+---
+
 ## 🌟 Temel Özellikler
 
-1. **C Tabanlı**: Yorumlayıcı tamamen sıfırdan saf C (C11) ile yazılmıştır, son derece hafif ve hızlıdır.
-2. **Python Kolaylığı**: Dinamik tipler, listeler `[1, 2, 3]`, sözlükler/haritalar `{"anahtar": "deger"}`, dilimleme ve negatif indeksleme (`[-1]`).
-3. **Zorunlu Noktalı Virgül (`;`)**: Tıpkı C'de olduğu gibi tüm ifadelerin sonuna `;` konulması zorunludur!
-4. **`cicekli` Çekirdek Modülü** (Geriye uyumluluk için `mete` de desteklenir):
-   - `a = cicekli.input("Cümle");` ile kullanıcıdan girdi alma
-   - `cicekli.println("Hello World");` ile ekrana satır sonlu yazdırma
-   - `cicekli.print(...)` ile ekrana satır sonu olmadan yazdırma
-   - `cicekli.deffunction` veya `def` ile isimli veya anonim fonksiyon tanımlama
-5. **Esnek Döngü Desteği**:
+1. **C Tabanlı**: Yorumlayıcı tamamen sıfırdan saf C (C11) ile yazılmıştır, son derece hafif ve yüksek performanslıdır.
+2. **Python Kolaylığı**: Dinamik tipler, listeler `[1, 2, 3]`, sözlükler `{"anahtar": "deger"}`, dilimleme ve negatif indeksleme (`[-1]`).
+3. **Zorunlu Noktalı Virgül (`;`)**: Tıpkı C'de olduğu gibi tüm ifadelerin ve blokların sonuna `;` konulması zorunludur!
+4. **Zengin Çekirdek Kütüphane (`cicekli.*`)**:
+   - `cicekli.input("Mesaj");` ile kullanıcıdan girdi alma
+   - `cicekli.println(...)` ve `cicekli.print(...)` ile ekrana formatlı yazdırma
+   - `cicekli.deffunction` veya `def` ile fonksiyon ve anonim closure tanımlama
+5. **Dahili Matematik ve Dosya Modülleri**:
+   - `math.*` (`sqrt`, `pow`, `sin`, `cos`, `random`, `round`, vb.)
+   - `file.*` (`read`, `write`, `append`, `exists`, `delete`)
+6. **Donanım Hızlandırmalı GUI Motoru**:
+   - `cicekli.window(width, height, title)` ile Cairo ve X11 tabanlı çift arabellekli (double buffering) 2D grafik pencereleri ve fare/klavye olayları.
+7. **Esnek Döngü Desteği**:
    - Python tarzı: `for (eleman in liste) { ... };`
    - C tarzı: `for (i = 0; i < 10; i = i + 1) { ... };`
    - While döngüsü: `while (kosul) { ... };`
    - `break;` ve `continue;` kontrolleri
-6. **Çift Yorum Desteği**:
-   - `# Python tarzı yorum`
-   - `// C tarzı tek satır yorum`
-   - `/* C tarzı çok satırlı yorum */`
-7. **Etkileşimli Kabuk (REPL)**: Terminalde `cicekliscript` yazarak canlı deneme yapabilme.
+8. **Çift Yorum Desteği**: `# Yorum`, `// Tek satır yorum` ve `/* Çok satırlı blok */`.
+9. **Etkileşimli Kabuk (REPL)**: Canlı denemeler için zengin terminal ortamı.
+10. **Resmi VS Code Eklentisi**: `.ccl` dosyaları için sözdizimi renklendirmesi, ikonlar ve tek tıkla çalıştırma.
 
 ---
 
 ## 🛠️ Kurulum ve Derleme
 
-CicekliScript doğrudan GCC ve Make ile tek komutla derlenebilir:
+### 🐧 Linux (Ubuntu / Debian / Arch / Fedora)
+
+Gerekli derleyici ve grafik kütüphanelerini kurun:
 
 ```bash
+# Ubuntu / Debian:
+sudo apt update && sudo apt install -y build-essential libcairo2-dev libx11-dev git
+
+# Arch Linux:
+sudo pacman -S base-devel cairo libx11 git
+
+# Fedora:
+sudo dnf install gcc make cairo-devel libX11-devel git
+```
+
+Projeyi klonlayıp derleyin:
+
+```bash
+git clone https://github.com/drkkahraman/CicekliScript.git
+cd CicekliScript
 make
 make install
 ```
 
-Derlenen ikili dosya `bin/cicekliscript` altında ve `~/.local/bin/cicekliscript` yolunda hazır haldedir.
+---
+
+### 🪟 Windows (WSL 2 — Önerilen)
+
+Windows 10/11 kullanıcıları, Windows Terminal veya PowerShell'i **Yönetici olarak** açıp:
+
+```powershell
+wsl --install
+```
+
+Ardından Ubuntu konsolunu açıp Linux adımlarını uygulayabilir. Windows 10/11'deki **WSLg** desteği sayesinde `cicekli.window()` ile açılan grafik pencereleri doğrudan Windows masaüstünüzde çalışır!
+
+> Detaylı Windows rehberi için: **[docs/WINDOWS_KURULUM.md](docs/WINDOWS_KURULUM.md)**
 
 ---
 
@@ -68,14 +108,14 @@ cicekliscript script.ccl
 
 ### 3. Tek Satır Komut Çalıştırma (`-c`)
 ```bash
-cicekliscript -c 'cicekli.println("Hello World");'
+cicekliscript -c 'cicekli.println("Karekök 144 =", math.sqrt(144));'
 ```
 
 ---
 
 ## 📖 Sözdizimi Rehberi
 
-### 1. Girdi ve Çıktı (I/O)
+### 1. Giriş ve Çıkış (I/O)
 ```javascript
 // Ekrana yazdırma
 cicekli.println("Hello World");
@@ -85,11 +125,11 @@ a = cicekli.input("Cümle giriniz: ");
 cicekli.println("Girdiğiniz cümle:", a);
 ```
 
-### 2. Fonksiyon Tanımlama (`cicekli.deffunction` / `def`)
+### 2. Fonksiyon Tanımlama (`def` / `cicekli.deffunction`)
 
 #### İsimli Fonksiyon:
 ```javascript
-cicekli.deffunction topla(a, b) {
+def topla(a, b) {
     return a + b;
 };
 
@@ -97,7 +137,7 @@ sonuc = topla(15, 25);
 cicekli.println("Sonuç:", sonuc);
 ```
 
-#### Değişkene Atanan Anonim Fonksiyon:
+#### Değişkene Atanan Anonim Fonksiyon & Closure:
 ```javascript
 kare = cicekli.deffunction(x) {
     return x * x;
@@ -106,36 +146,7 @@ kare = cicekli.deffunction(x) {
 cicekli.println("5'in karesi:", kare(5));
 ```
 
-#### Anonim Olarak Doğrudan Çalıştırma:
-```javascript
-cicekli.deffunction() {
-    cicekli.println("Bu blok hemen çalışır!");
-}();
-```
-
-### 3. GUI (Pencere ve Grafik) Desteği
-
-CicekliScript ile doğrudan donanım hızlandırmalı ve çift arabelleğe (double buffering) sahip GUI pencereleri oluşturabilirsiniz:
-
-```javascript
-// 400x300 boyutunda pencere aç:
-window = cicekli.window(400, 300, "Uygulama Penceresi");
-
-// Arka plan rengini ayarla:
-window.color(); // veya window.color("red"); veya window.color("#1e1e2e");
-
-// Metin ekle: window.text(metin, renk, boyut, x, y);
-window.text("CicekliScript", "red", 16, 20, 35);
-
-// Geometrik şekiller:
-window.rect(10, 50, 40, 20, "blue");
-window.circle(70, 60, 15, "green");
-
-// Pencereyi açık tutan olay döngüsü:
-window.mainloop();
-```
-
-### 4. Koşul İfadeleri (`if`, `elif`, `else`)
+### 3. Koşul İfadeleri (`if`, `elif`, `else`)
 ```javascript
 puan = 85;
 
@@ -148,7 +159,7 @@ if (puan >= 90) {
 };
 ```
 
-### 5. Döngüler
+### 4. Döngüler
 
 #### Python Tarzı `for..in`:
 ```javascript
@@ -163,7 +174,7 @@ for (i in cicekli.range(5)) {
 };
 ```
 
-#### C Tarzı `for(init; cond; step)`:
+#### C Tarzı `for (init; cond; step)`:
 ```javascript
 for (i = 0; i < 5; i = i + 1) {
     cicekli.println("Adım:", i);
@@ -182,20 +193,76 @@ while (sayac < 5) {
 };
 ```
 
-### 6. Veri Tipleri
+### 5. Veri Tipleri ve Metotlar
 
-- **Sayılar**: `10`, `3.14`, `-42`
-- **Metinler**: `"Merhaba"`, `'CicekliScript'`, `\n`, `\t` kaçış dizileri, metin birleştirme `+`
-- **Mantıksal**: `true`, `false`, `True`, `False`
-- **Boş Değer**: `null`, `None`, `nil`
-- **Dinamik Listeler**: `[1, 2, "üç", [4, 5]]`
-  - Eleman ekleme: `cicekli.append(liste, eleman);` veya `liste.append(eleman);`
-  - Eleman çıkarma: `cicekli.pop(liste);` veya `liste.pop();`
-  - Uzunluk: `cicekli.len(liste);` veya `liste.len();`
-  - Negatif indeksleme: `liste[-1]`
+- **Listeler**: `[1, 2, "üç"]`
+  - Metotlar: `.append()`, `.pop()`, `.len()`, `.sort()`, `.reverse()`, `.join()`, `.contains()`, `.slice()`
+  - Negatif indeks: `liste[-1]`
 - **Sözlükler (Maps)**: `{"ad": "Çiçek", "yas": 25}`
-  - Nokta erişimi: `kullanici.ad`
-  - İndeks erişimi: `kullanici["yas"]`
+  - Metotlar: `.keys()`, `.values()`, `.has_key()`, `.len()`
+  - Erişim: `kullanici.ad` veya `kullanici["ad"]`
+- **Metinler (Strings)**:
+  - Metotlar: `.len()`, `.split()`, `.trim()`, `.replace()`, `.contains()`, `.to_upper()`, `.to_lower()`, `.starts_with()`, `.ends_with()`, `.slice()`
+
+### 6. Matematik ve Dosya Modülleri
+```javascript
+// Matematik:
+kok = math.sqrt(64);             // 8
+rastgele = math.random(1, 100);   // 1 ile 100 arası rastgele tamsayı
+
+// Dosya İşlemleri:
+file.write("test.txt", "CicekliScript Dosya Testi\n");
+file.append("test.txt", "Yeni satır\n");
+metin = file.read("test.txt");
+cicekli.println("Okunan:", metin);
+```
+
+### 7. Grafiksel Arayüz (GUI) Motoru
+```javascript
+// 400x300 boyutunda pencere aç:
+window = cicekli.window(400, 300, "Uygulama Penceresi");
+
+// Arka planı boya:
+window.color("#1e1e2e");
+
+// Metin ekle: window.text(metin, renk, boyut, x, y);
+window.text("CicekliScript GUI", "white", 16, 20, 35);
+
+// Geometrik şekiller:
+window.rect(10, 50, 40, 20, "blue");
+window.circle(70, 60, 15, "green");
+window.line(10, 100, 200, 100, "yellow", 2);
+
+// Pencereyi açık tutan olay döngüsü:
+window.mainloop();
+```
+
+---
+
+## 🎨 VS Code Eklentisi
+
+CicekliScript için özel olarak geliştirilmiş resmi bir VS Code eklentisi mevcuttur:
+
+- **Konum**: `vscode-extension/cicekliscript-1.0.0.vsix`
+- **Özellikler**:
+  - `.ccl` ve `.cicekli` dosyaları için zengin sözdizimi renklendirmesi
+  - Özel CicekliScript dosya ikonları
+  - Fonksiyon, döngü, GUI ve temel yapılar için hızlı snippet'lar
+  - Sağ üst köşede tek tıkla **Çalıştır (Run)** butonu
+
+### Kurulum:
+VS Code içerisinden `Ctrl+Shift+X` (Eklentiler) -> Sağ üstteki `...` (Üç nokta) -> **Install from VSIX...** seçeneğini tıklayıp `vscode-extension/cicekliscript-1.0.0.vsix` dosyasını seçmeniz yeterlidir.
+
+---
+
+## 🌐 Web Tabanlı Canlı Playground & Sunucu
+
+İnteraktif web geliştirme ortamını ve canlı grafik önizleme tuvalini yerelinizde çalıştırmak için:
+
+```bash
+python3 server.py
+```
+Ardından tarayıcınızdan **[http://localhost:8080](http://localhost:8080)** adresine gidebilirsiniz.
 
 ---
 
@@ -203,10 +270,10 @@ while (sayac < 5) {
 
 Tüm örnekler `examples/` klasöründe yer almaktadır:
 - `examples/01_merhaba.ccl` - Girdi/çıktı ve değişkenler
-- `examples/02_fonksiyonlar.ccl` - Fonksiyon varyasyonları
+- `examples/02_fonksiyonlar.ccl` - Fonksiyon varyasyonları ve anonim fonksiyonlar
 - `examples/03_donguler.ccl` - `for in`, `for(;;)` ve `while` döngüleri
 - `examples/04_fibonacci.ccl` - Özyinelemeli (recursive) algoritma ve zaman ölçümü
-- `examples/05_listeler_ve_sozlukler.ccl` - Dinamik listeler ve haritalar
+- `examples/05_listeler_ve_sozlukler.ccl` - Dinamik listeler ve sözlükler
 - `examples/06_hesap_makinesi.ccl` - Fonksiyonel hesap makinesi
-- `examples/07_gui_pencere.ccl` - GUI temel pencere örneği
+- `examples/07_gui_pencere.ccl` - GUI temel pencere ve şekil çizimi
 - `examples/08_gui_gelismis.ccl` - İnteraktif GUI animasyon ve çizim örneği
