@@ -1,0 +1,135 @@
+// ============================================================================
+// CicekliScript ile Sıfırdan Yapay Sinir Ağı (Neural Network & Backpropagation)
+// ============================================================================
+
+cicekli.println("═════════════════════════════════════════════════════");
+cicekli.println("🧠 CicekliScript Yapay Zeka & Sinir Ağı Modeli");
+cicekli.println("═════════════════════════════════════════════════════");
+
+// 1. Aktivasyon Fonksiyonları (Sigmoid ve Türevi)
+def sigmoid(x) {
+    return 1.0 / (1.0 + math.pow(2.718281828, -x));
+};
+
+def sigmoid_turev(y) {
+    // y = sigmoid(x) olduğu durumda türev: y * (1 - y)
+    return y * (1.0 - y);
+};
+
+// 2. Rastgele Başlangıç Ağırlıkları Üretici (-1.0 ile 1.0 arası)
+def rastgele_agirlik() {
+    return (math.random() * 2.0) - 1.0;
+};
+
+// 3. Basit Yapay Sinir Ağı Sınıfı / Yapısı (2 Giriş -> 2 Gizli Nöron -> 1 Çıkış)
+// XOR Problemi: [0,0]->0, [0,1]->1, [1,0]->1, [1,1]->0
+cicekli.println("[1] Model mimarisi oluşturuluyor: 2 Giriş -> 2 Gizli Nöron -> 1 Çıkış...");
+
+// Gizli katman ağırlıkları (2x2) ve bias'lar
+w_h11 = rastgele_agirlik();
+w_h12 = rastgele_agirlik();
+w_h21 = rastgele_agirlik();
+w_h22 = rastgele_agirlik();
+b_h1  = rastgele_agirlik();
+b_h2  = rastgele_agirlik();
+
+// Çıkış katmanı ağırlıkları ve bias
+w_o1  = rastgele_agirlik();
+w_o2  = rastgele_agirlik();
+b_o   = rastgele_agirlik();
+
+// Eğitim Veri Seti (XOR Mantıksal Kapısı - Doğrusal Olmayan Problem)
+egitim_verisi = [
+    {"x1": 0.0, "x2": 0.0, "hedef": 0.0},
+    {"x1": 0.0, "x2": 1.0, "hedef": 1.0},
+    {"x1": 1.0, "x2": 0.0, "hedef": 1.0},
+    {"x1": 1.0, "x2": 1.0, "hedef": 0.0}
+];
+
+ogrenme_orani = 0.5;
+adim_sayisi = 4000;
+
+cicekli.println("[2] Model eğitiliyor (Epochs:", adim_sayisi, ", LR:", ogrenme_orani, ")...");
+
+baslangic_zamani = time();
+
+for (adim = 0; adim <= adim_sayisi; adim = adim + 1) {
+    toplam_kayip = 0.0;
+
+    for (veri in egitim_verisi) {
+        x1 = veri.x1;
+        x2 = veri.x2;
+        hedef = veri.hedef;
+
+        // --- İLERİ YAYILIM (FORWARD PASS) ---
+        // Gizli nöron 1
+        h1_net = (x1 * w_h11) + (x2 * w_h21) + b_h1;
+        h1_out = sigmoid(h1_net);
+
+        // Gizli nöron 2
+        h2_net = (x1 * w_h12) + (x2 * w_h22) + b_h2;
+        h2_out = sigmoid(h2_net);
+
+        // Çıkış nöronu
+        o_net = (h1_out * w_o1) + (h2_out * w_o2) + b_o;
+        cikti = sigmoid(o_net);
+
+        // Ortalama Kare Hata (MSE Loss)
+        hata = hedef - cikti;
+        toplam_kayip = toplam_kayip + (hata * hata);
+
+        // --- GERİYE YAYILIM (BACKPROPAGATION & GRADIENT DESCENT) ---
+        // Çıkış katmanı gradyanı
+        delta_o = hata * sigmoid_turev(cikti);
+
+        // Gizli katman gradyanları
+        delta_h1 = sigmoid_turev(h1_out) * (delta_o * w_o1);
+        delta_h2 = sigmoid_turev(h2_out) * (delta_o * w_o2);
+
+        // Ağırlıkların güncellenmesi (Optimization step)
+        w_o1 = w_o1 + (ogrenme_orani * delta_o * h1_out);
+        w_o2 = w_o2 + (ogrenme_orani * delta_o * h2_out);
+        b_o  = b_o  + (ogrenme_orani * delta_o);
+
+        w_h11 = w_h11 + (ogrenme_orani * delta_h1 * x1);
+        w_h21 = w_h21 + (ogrenme_orani * delta_h1 * x2);
+        b_h1  = b_h1  + (ogrenme_orani * delta_h1);
+
+        w_h12 = w_h12 + (ogrenme_orani * delta_h2 * x1);
+        w_h22 = w_h22 + (ogrenme_orani * delta_h2 * x2);
+        b_h2  = b_h2  + (ogrenme_orani * delta_h2);
+    };
+
+    if (adim % 1000 == 0) {
+        cicekli.println("  • Adım:", adim, " | Ortalama Kayıp (Loss):", toplam_kayip / 4.0);
+    };
+};
+
+gecen_sure = time() - baslangic_zamani;
+cicekli.println("✓ Eğitim tamamlandı! (Süre:", gecen_sure, "saniye)\n");
+
+// 4. Model Testi ve Tahminler (Inference)
+cicekli.println("═════════════════════════════════════════════════════");
+cicekli.println("🎯 Model Testi & Tahmin Sonuçları (XOR Gate)");
+cicekli.println("═════════════════════════════════════════════════════");
+
+def tahmin_et(x1, x2) {
+    h1 = sigmoid((x1 * w_h11) + (x2 * w_h21) + b_h1);
+    h2 = sigmoid((x1 * w_h12) + (x2 * w_h22) + b_h2);
+    return sigmoid((h1 * w_o1) + (h2 * w_o2) + b_o);
+};
+
+for (veri in egitim_verisi) {
+    t = tahmin_et(veri.x1, veri.x2);
+    
+    // 0.5 eşik değeri ile ikili sınıflandırma (0 veya 1)
+    karar = 0;
+    if (t >= 0.5) {
+        karar = 1;
+    };
+
+    cicekli.println("Girdi: [", veri.x1, ",", veri.x2, "] -> Beklenen:", veri.hedef, 
+                    " | Model Tahmini:", t, " -> Sonuç:", karar);
+};
+
+cicekli.println("═════════════════════════════════════════════════════");
