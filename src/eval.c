@@ -503,48 +503,48 @@ static Value native_read_file(Value self, size_t argc, Value* args, int line) {
     return make_obj((Obj*)str);
 }
 
+static Value file_write_multiple(const char* path, const char* mode, size_t argc, Value* args) {
+    FILE* f = fopen(path, mode);
+    if (!f) return make_bool(false);
+
+    for (size_t i = 1; i < argc; i++) {
+        if (is_string(args[i])) {
+            ObjString* s = as_string(args[i]);
+            fwrite(s->chars, sizeof(char), s->length, f);
+        } else {
+            char* str = value_to_string(args[i]);
+            fputs(str, f);
+            free(str);
+        }
+    }
+    fclose(f);
+    return make_bool(true);
+}
+
 static Value native_write_file(Value self, size_t argc, Value* args, int line) {
     (void)self;
-    if (argc < 2 || !is_string(args[0])) {
-        runtime_error(line, "write_file(path, content) expects path and content!");
+    if (argc < 1 || !is_string(args[0])) {
+        runtime_error(line, "doc.write / write_file dosya adı bekler! (Örn: doc.write('dosya.txt', ...))");
         return make_bool(false);
     }
     const char* path = as_string(args[0])->chars;
-    char* content = value_to_string(args[1]);
-    FILE* f = fopen(path, "wb");
-    if (!f) {
-        free(content);
-        return make_bool(false);
-    }
-    fputs(content, f);
-    fclose(f);
-    free(content);
-    return make_bool(true);
+    return file_write_multiple(path, "wb", argc, args);
 }
 
 static Value native_append_file(Value self, size_t argc, Value* args, int line) {
     (void)self;
-    if (argc < 2 || !is_string(args[0])) {
-        runtime_error(line, "append_file(path, content) expects path and content!");
+    if (argc < 1 || !is_string(args[0])) {
+        runtime_error(line, "doc.add / append_file dosya adı bekler! (Örn: doc.add('dosya.txt', ...))");
         return make_bool(false);
     }
     const char* path = as_string(args[0])->chars;
-    char* content = value_to_string(args[1]);
-    FILE* f = fopen(path, "ab");
-    if (!f) {
-        free(content);
-        return make_bool(false);
-    }
-    fputs(content, f);
-    fclose(f);
-    free(content);
-    return make_bool(true);
+    return file_write_multiple(path, "ab", argc, args);
 }
 
 static Value native_file_exists(Value self, size_t argc, Value* args, int line) {
     (void)self;
     if (argc < 1 || !is_string(args[0])) {
-        runtime_error(line, "file_exists() expects a string file path!");
+        runtime_error(line, "doc.exists / file_exists bir dosya yolu bekler!");
         return make_bool(false);
     }
     const char* path = as_string(args[0])->chars;
@@ -554,7 +554,7 @@ static Value native_file_exists(Value self, size_t argc, Value* args, int line) 
 static Value native_delete_file(Value self, size_t argc, Value* args, int line) {
     (void)self;
     if (argc < 1 || !is_string(args[0])) {
-        runtime_error(line, "delete_file() expects a string file path!");
+        runtime_error(line, "doc.delete / delete_file bir dosya yolu bekler!");
         return make_bool(false);
     }
     const char* path = as_string(args[0])->chars;
@@ -1192,17 +1192,26 @@ Environment* init_global_environment(void) {
         } while (0)
 
     DEF_FILE("read_file", native_read_file, 1);
-    DEF_FILE("write_file", native_write_file, 2);
-    DEF_FILE("append_file", native_append_file, 2);
+    DEF_FILE("write_file", native_write_file, -1);
+    DEF_FILE("append_file", native_append_file, -1);
     DEF_FILE("file_exists", native_file_exists, 1);
     DEF_FILE("delete_file", native_delete_file, 1);
-    // Short method names in file map: file.read, file.write, file.append, file.exists, file.delete
+    // Short method names in file map: file.read, file.write, file.append, file.add, file.exists, file.delete
     map_set(file_map, "read", make_obj((Obj*)new_native("read", native_read_file, 1)));
-    map_set(file_map, "write", make_obj((Obj*)new_native("write", native_write_file, 2)));
-    map_set(file_map, "append", make_obj((Obj*)new_native("append", native_append_file, 2)));
+    map_set(file_map, "write", make_obj((Obj*)new_native("write", native_write_file, -1)));
+    map_set(file_map, "append", make_obj((Obj*)new_native("append", native_append_file, -1)));
+    map_set(file_map, "add", make_obj((Obj*)new_native("add", native_append_file, -1)));
     map_set(file_map, "exists", make_obj((Obj*)new_native("exists", native_file_exists, 1)));
     map_set(file_map, "delete", make_obj((Obj*)new_native("delete", native_delete_file, 1)));
     #undef DEF_FILE
+
+    // doc module (doc.write, doc.add, doc.delete, doc.read, doc.exists)
+    ObjMap* doc_map = new_map();
+    map_set(doc_map, "write", make_obj((Obj*)new_native("write", native_write_file, -1)));
+    map_set(doc_map, "add", make_obj((Obj*)new_native("add", native_append_file, -1)));
+    map_set(doc_map, "delete", make_obj((Obj*)new_native("delete", native_delete_file, 1)));
+    map_set(doc_map, "read", make_obj((Obj*)new_native("read", native_read_file, 1)));
+    map_set(doc_map, "exists", make_obj((Obj*)new_native("exists", native_file_exists, 1)));
 
     // String / List / Map Helpers
     define_native(env, cicekli, "split", native_split, -1);
@@ -1233,6 +1242,9 @@ Environment* init_global_environment(void) {
     env_define(env, "mete", cicekli_obj); // Geriye dönük uyumluluk
     env_define(env, "math", make_obj((Obj*)math_map));
     env_define(env, "file", make_obj((Obj*)file_map));
+    Value doc_obj = make_obj((Obj*)doc_map);
+    env_define(env, "doc", doc_obj);
+    map_set(cicekli, "doc", doc_obj);
     return env;
 }
 

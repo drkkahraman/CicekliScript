@@ -138,28 +138,46 @@ exit(0);
 
 ---
 
-## 5. Dosya İşlemleri Modülü (`file.*`)
+## 5. Belge ve Dosya İşlemleri Modülü (`doc.*` & `file.*`)
 
-Dosya I/O fonksiyonları hem `file.<fn>` hem de `cicekli.<fn>` ile kullanılabilir:
+CicekliScript'te dosyalar üzerinde işlem yapmak için pratik `doc.*` (ve `file.*`) modülü kullanılır. Çoklu argümanları, değişkenleri ve `\n` (alt satır) kaçış dizilerini doğrudan destekler:
 
+### `doc.write(dosya_adi, ...icerik)`
+Belirtilen dosyayı açar (varsa üzerine yazar) ve ardından gelen tüm değişkenleri, metinleri ve sayıları sırayla dosyaya yazar.
 ```javascript
-// 1. Dosya Yazma (Yeni dosya oluşturur veya üzerine yazar)
-file.write("test.txt", "Merhaba CicekliScript!\n");
+ad = "Doruk";
+puan = 98.5;
 
-// 2. Dosyaya Ekleme Yapma (Append)
-file.append("test.txt", "İkinci satır eklendi.\n");
+// Tek seferde değişkenleri ve alt satırları (\n) yazma:
+doc.write("rapor.txt", "=== Öğrenci Raporu ===\n", "Ad: ", ad, "\nPuan: ", puan, "\n");
+```
 
-// 3. Dosyanın Varlığını Kontrol Etme
-if (file.exists("test.txt")) {
-    cicekli.println("Dosya mevcut!");
+### `doc.add(dosya_adi, ...icerik)`
+Belirtilen dosyanın sonuna yeni veriler ekler (append). Dosya yoksa otomatik oluşturur.
+```javascript
+// Dosyanın sonuna yeni satır ekleme:
+doc.add("rapor.txt", "Durum: Başarılı!\n", "Tarih: 2026\n");
+```
+
+### `doc.delete(dosya_adi)`
+Belirtilen dosyayı diskten siler. İşlem başarılıysa `true`, aksi halde `false` döner.
+```javascript
+doc.delete("gecici.txt");
+```
+
+### `doc.read(dosya_adi)`
+Dosyanın tüm içeriğini tek parça metin (`string`) olarak okur.
+```javascript
+icerik = doc.read("rapor.txt");
+ccl.println(icerik);
+```
+
+### `doc.exists(dosya_adi)`
+Dosyanın mevcut olup olmadığını kontrol eder (`true`/`false`).
+```javascript
+if (doc.exists("rapor.txt")) {
+    ccl.println("Dosya bulundu!");
 };
-
-// 4. Dosya Okuma (İçeriği string olarak döner)
-icerik = file.read("test.txt");
-cicekli.println("Okunan içerik:\n" + icerik);
-
-// 5. Dosya Silme
-file.delete("test.txt");
 ```
 
 ---

@@ -219,17 +219,22 @@ while (sayac < 5) {
 - **Metinler (Strings)**:
   - Metotlar: `.len()`, `.split()`, `.trim()`, `.replace()`, `.contains()`, `.to_upper()`, `.to_lower()`, `.starts_with()`, `.ends_with()`, `.slice()`
 
-### 6. Matematik ve Dosya Modülleri
+### 6. Belge ve Dosya Modülü (`doc.*`)
 ```javascript
-// Matematik:
-kok = math.sqrt(64);             // 8
-rastgele = math.random(1, 100);   // 1 ile 100 arası rastgele tamsayı
+ad = "Doruk";
+yas = 25;
 
-// Dosya İşlemleri:
-file.write("test.txt", "CicekliScript Dosya Testi\n");
-file.append("test.txt", "Yeni satır\n");
-metin = file.read("test.txt");
-cicekli.println("Okunan:", metin);
+// Dosyaya yazma (değişkenler ve \n ile alt satıra geçme):
+doc.write("bilgi.txt", "Kullanıcı: ", ad, "\nYaş: ", yas, "\n");
+
+// Dosyaya ekleme yapma (append):
+doc.add("bilgi.txt", "Durum: Aktif\n");
+
+// Dosya okuma ve silme:
+icerik = doc.read("bilgi.txt");
+ccl.println("İçerik:\n" + icerik);
+
+doc.delete("bilgi.txt");
 ```
 
 ### 7. Grafiksel Arayüz (GUI) Motoru
