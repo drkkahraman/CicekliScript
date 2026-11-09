@@ -5,47 +5,46 @@
       <stop offset="50%" stop-color="#0f172a"/>
       <stop offset="100%" stop-color="#1e1035"/>
     </linearGradient>
-    <linearGradient id="cGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f472b6"/>
-      <stop offset="50%" stop-color="#c084fc"/>
-      <stop offset="100%" stop-color="#818cf8"/>
-    </linearGradient>
-    <linearGradient id="sGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="100%" stop-color="#34d399"/>
-    </linearGradient>
     <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f472b6" stop-opacity="0.9"/>
-      <stop offset="50%" stop-color="#a855f7" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.9"/>
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="cclGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6"/>
+      <stop offset="45%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="semiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
     </linearGradient>
     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
       <feComposite in="SourceGraphic" in2="blur" operator="over"/>
     </filter>
   </defs>
 
   <!-- Arka Plan Kartı -->
-  <rect x="6" y="6" width="116" height="116" rx="28" ry="28" fill="url(#bg)" stroke="url(#borderGrad)" stroke-width="4"/>
-  <rect x="11" y="11" width="106" height="106" rx="23" ry="23" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+  <rect x="6" y="6" width="116" height="116" rx="28" ry="28" fill="url(#bg)" stroke="url(#borderGrad)" stroke-width="3.5"/>
+  <rect x="10" y="10" width="108" height="108" rx="24" ry="24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
 
-  <!-- Küçük Çiçek Motifi Üstte (Minimalist) -->
-  <circle cx="64" cy="24" r="3.5" fill="#f472b6" opacity="0.8"/>
-  <circle cx="58" cy="24" r="3" fill="#ec4899" opacity="0.6"/>
-  <circle cx="70" cy="24" r="3" fill="#ec4899" opacity="0.6"/>
-  <circle cx="64" cy="18" r="3" fill="#ec4899" opacity="0.6"/>
-  <circle cx="64" cy="30" r="3" fill="#ec4899" opacity="0.6"/>
-  <circle cx="64" cy="24" r="2" fill="#fef08a"/>
+  <!-- Üst Çiçek Motifi -->
+  <g transform="translate(64, 28)">
+    <circle cx="0" cy="-5.5" r="3.5" fill="#f472b6" opacity="0.9"/>
+    <circle cx="5.2" cy="-1.8" r="3.5" fill="#ec4899" opacity="0.9"/>
+    <circle cx="3.2" cy="4.5" r="3.5" fill="#d946ef" opacity="0.9"/>
+    <circle cx="-3.2" cy="4.5" r="3.5" fill="#d946ef" opacity="0.9"/>
+    <circle cx="-5.2" cy="-1.8" r="3.5" fill="#ec4899" opacity="0.9"/>
+    <circle cx="0" cy="0" r="2.5" fill="#fef08a"/>
+  </g>
 
-  <!-- C Harfi (Vektörel Çiçekli Script) -->
-  <path d="M 52 46 C 47 41 40 38 31 38 C 18 38 9 48 9 64 C 9 80 18 90 31 90 C 40 90 47 87 52 82 L 45 74 C 42 78 37 80 31 80 C 23 80 18 73 18 64 C 18 55 23 48 31 48 C 37 48 42 50 45 54 Z"
-        fill="url(#cGrad)"/>
+  <!-- ccl Metni -->
+  <text x="24" y="84" font-family="'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', 'FreeSans', sans-serif" font-weight="900" font-size="42" letter-spacing="-1.5" fill="url(#cclGrad)">ccl</text>
 
-  <!-- S Harfi (Vektörel) -->
-  <path d="M 88 51 C 88 43 82 39 74 39 C 65 39 60 44 60 51 C 60 59 65 62 73 64 L 77 65 C 81 66 83 68 83 71 C 83 75 79 78 74 78 C 68 78 64 75 63 69 L 54 72 C 56 80 63 87 74 87 C 84 87 92 81 92 72 C 92 65 88 60 79 58 L 75 57 C 71 56 69 54 69 51 C 69 47 73 45 77 45 C 81 45 84 47 85 50 Z"
-        fill="url(#sGrad)"/>
-
-  <!-- Zorunlu Semicolon ";" -->
-  <circle cx="104" cy="62" r="3.2" fill="#fbbf24" filter="url(#glow)"/>
-  <path d="M 104 68 C 105.8 68 106.8 69.2 106.2 71.5 C 105.2 76 101.5 79.5 98.5 80.5 L 97.5 78.5 C 100 77.5 101.8 74.8 102.2 71.5 C 101 71.5 100.2 70 101.2 68.5 Z" fill="#fbbf24" filter="url(#glow)"/>
+  <!-- Zorunlu Semicolon ';' -->
+  <g transform="translate(89, 57)" filter="url(#glow)">
+    <circle cx="3" cy="10" r="3.5" fill="url(#semiGrad)"/>
+    <path d="M 3 17 C 5 17 6 18.2 5.5 20.5 C 4.5 24.5 1 28 -1.5 29 L -2.5 27 C 0 26 2 23.5 2.5 20.5 C 1.5 20.5 0.5 19.5 1.5 18 C 2 17.2 2.5 17 3 17 Z" fill="url(#semiGrad)"/>
+  </g>
 </svg>

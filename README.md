@@ -1,4 +1,12 @@
-# CicekliScript 🚀
+<p align="center">
+  <img src="vscode-extension/icons/logo.png" width="128" height="128" alt="CicekliScript ccl logo">
+</p>
+
+<h1 align="center">CicekliScript 🚀</h1>
+
+<p align="center">
+  <strong>Python Kolaylığı + C Performansı + Zorunlu Noktalı Virgül (<code>;</code>)</strong>
+</p>
 
 **CicekliScript**, Python'ın pratikliği ve yüksek seviyeli sözdizimi ile C dilinin gücünü, blok yapısını (`{}`) ve hızını birleştiren; her cümlenin sonuna **`;` (noktalı virgül)** koymanın zorunlu olduğu modern, dinamik ve C tabanlı bir programlama dilidir!
 
