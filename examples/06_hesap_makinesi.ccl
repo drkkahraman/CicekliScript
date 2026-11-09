@@ -1,6 +1,6 @@
-# MeteScript - Hesap Makinesi Fonksiyonları
+# CicekliScript - Hesap Makinesi Fonksiyonları
 
-mete.deffunction hesapla(a, b, islem) {
+cicekli.deffunction hesapla(a, b, islem) {
     if (islem == "+") {
         return a + b;
     } elif (islem == "-") {
@@ -19,9 +19,9 @@ mete.deffunction hesapla(a, b, islem) {
     };
 };
 
-mete.println("10 + 5 =", hesapla(10, 5, "+"));
-mete.println("10 - 5 =", hesapla(10, 5, "-"));
-mete.println("10 * 5 =", hesapla(10, 5, "*"));
-mete.println("10 / 5 =", hesapla(10, 5, "/"));
-mete.println("10 % 3 =", hesapla(10, 3, "%"));
-mete.println("10 / 0 =", hesapla(10, 0, "/"));
+cicekli.println("10 + 5 =", hesapla(10, 5, "+"));
+cicekli.println("10 - 5 =", hesapla(10, 5, "-"));
+cicekli.println("10 * 5 =", hesapla(10, 5, "*"));
+cicekli.println("10 / 5 =", hesapla(10, 5, "/"));
+cicekli.println("10 % 3 =", hesapla(10, 3, "%"));
+cicekli.println("10 / 0 =", hesapla(10, 0, "/"));

@@ -1,13 +1,13 @@
-# MeteScript - Gelişmiş GUI Uygulaması
+# CicekliScript - Gelişmiş GUI Uygulaması
 
 // 450x350 boyutunda penceremizi açalım
-window = mete.window(450, 350, "MeteScript GUI Uygulaması");
+window = cicekli.window(450, 350, "CicekliScript GUI Uygulaması");
 
 // Koyu tema arka plan
 window.color("#1e1e2e");
 
 // Başlık ve metinler ekleyelim
-window.text("MeteScript GUI Demo", "#89b4fa", 24, 80, 30);
+window.text("CicekliScript GUI Demo", "#89b4fa", 24, 80, 30);
 window.text("Python Kolaylığı + C Gücü + ;", "#cdd6f4", 14, 110, 75);
 
 // Şekiller çizelim
@@ -26,7 +26,7 @@ window.circle(350, 270, 30, "#f9e2af");
 // Çizgiler: window.line(x1, y1, x2, y2, renk, kalinlik);
 window.line(40, 320, 410, 320, "#585b70", 2);
 
-mete.println("Pencere açıldı! Çıkmak için pencereyi kapatın.");
+cicekli.println("Pencere açıldı! Çıkmak için pencereyi kapatın.");
 
 // Pencereyi açık tutan döngü
 window.mainloop();

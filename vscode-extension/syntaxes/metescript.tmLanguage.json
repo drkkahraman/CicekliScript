@@ -96,7 +96,7 @@
           }
         },
         {
-          "match": "\\b(mete)\\b",
+          "match": "\\b(mete|math|file)\\b",
           "name": "support.class.mete.metescript"
         }
       ]
@@ -116,7 +116,7 @@
       "patterns": [
         {
           "name": "support.function.builtin.metescript",
-          "match": "\\b(type|len|range|str|int|float|time|clock|read_file|write_file|append_file|file_exists|delete_file|sin|cos|tan|sqrt|abs|floor|ceil|round|pow|log|min|max|random)\\b"
+          "match": "\\b(type|len|range|str|int|float|time|sleep|bekle|clock|read_file|write_file|append_file|file_exists|delete_file|sin|cos|tan|sqrt|abs|floor|ceil|round|pow|log|min|max|random|split|join|trim|replace|contains|to_upper|to_lower|starts_with|ends_with|slice|sort|reverse|keys|values|has_key|clear|cls)\\b"
         }
       ]
     },
@@ -124,7 +124,7 @@
       "patterns": [
         {
           "name": "keyword.control.metescript",
-          "match": "\\b(if|elif|else|while|for|in|return|break|continue)\\b"
+          "match": "\\b(if|elif|else|while|for|in|import|return|break|continue)\\b"
         },
         {
           "name": "keyword.declaration.function.metescript",

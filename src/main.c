@@ -6,12 +6,12 @@
 #include "parser.h"
 #include "eval.h"
 
-#define METESCRIPT_VERSION "1.0.0"
+#define CICEKLISCRIPT_VERSION "1.0.0"
 
 static char* read_file(const char* path) {
     FILE* file = fopen(path, "rb");
     if (!file) {
-        fprintf(stderr, "MeteScript Hatası: '%s' dosyası açılamadı!\n", path);
+        fprintf(stderr, "CicekliScript Hatası: '%s' dosyası açılamadı!\n", path);
         return NULL;
     }
 
@@ -22,7 +22,7 @@ static char* read_file(const char* path) {
     char* buffer = (char*)malloc(size + 1);
     if (!buffer) {
         fclose(file);
-        fprintf(stderr, "MeteScript Hatası: Bellek ayrılamadı!\n");
+        fprintf(stderr, "CicekliScript Hatası: Bellek ayrılamadı!\n");
         return NULL;
     }
 
@@ -52,9 +52,9 @@ static int run_source(const char* source, Environment* env) {
 
 static void run_repl(Environment* env) {
     printf("╔═══════════════════════════════════════════════════╗\n");
-    printf("║            MeteScript v%s REPL                 ║\n", METESCRIPT_VERSION);
+    printf("║          CicekliScript v%s REPL                 ║\n", CICEKLISCRIPT_VERSION);
     printf("║  Python kolaylığı + C gücü + Zorunlu ';'         ║\n");
-    printf("║  Çıkmak için: exit() veya mete.exit();            ║\n");
+    printf("║  Çıkmak için: exit() veya cicekli.exit();        ║\n");
     printf("╚═══════════════════════════════════════════════════╝\n\n");
 
     char buffer[4096];
@@ -63,9 +63,9 @@ static void run_repl(Environment* env) {
 
     for (;;) {
         if (total_input[0] == '\0') {
-            printf("mete>>> ");
+            printf("cicekli>>> ");
         } else {
-            printf("mete... ");
+            printf("cicekli... ");
         }
         fflush(stdout);
 
@@ -139,9 +139,9 @@ static void run_repl(Environment* env) {
 static void print_help(const char* prog) {
     printf("Kullanım:\n");
     printf("  %s                   REPL etkileşimli kabuğunu başlatır\n", prog);
-    printf("  %s <dosya.ms>        MeteScript dosyasını çalıştırır\n", prog);
-    printf("  %s -c \"<kod>\"        Tek satır MeteScript kodunu çalıştırır\n", prog);
-    printf("  %s --version, -v     MeteScript sürümünü gösterir\n", prog);
+    printf("  %s <dosya.ccl>       CicekliScript dosyasını çalıştırır\n", prog);
+    printf("  %s -c \"<kod>\"        Tek satır CicekliScript kodunu çalıştırır\n", prog);
+    printf("  %s --version, -v     CicekliScript sürümünü gösterir\n", prog);
     printf("  %s --help, -h        Bu yardım menüsünü gösterir\n", prog);
 }
 
@@ -152,14 +152,26 @@ int main(int argc, char** argv) {
 
     if (argc == 1) {
         run_repl(global_env);
-    } else if (argc == 2) {
+    } else if (argc >= 2) {
         if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
             print_help(argv[0]);
             return 0;
         } else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
-            printf("MeteScript v%s (C tabanlı, Python hissi, ';' zorunlu)\n", METESCRIPT_VERSION);
+            printf("CicekliScript v%s\n", CICEKLISCRIPT_VERSION);
             return 0;
+        } else if (strcmp(argv[1], "-c") == 0) {
+            if (argc < 3) {
+                print_help(argv[0]);
+                return 1;
+            }
+            eval_set_args(global_env, argc, argv, 2);
+            int ret = run_source(argv[2], global_env);
+            ast_free_all();
+            gc_free_all();
+            gui_cleanup();
+            return ret;
         } else {
+            eval_set_args(global_env, argc, argv, 1);
             char* source = read_file(argv[1]);
             if (!source) return 1;
             int ret = run_source(source, global_env);
@@ -169,15 +181,6 @@ int main(int argc, char** argv) {
             gui_cleanup();
             return ret;
         }
-    } else if (argc == 3 && strcmp(argv[1], "-c") == 0) {
-        int ret = run_source(argv[2], global_env);
-        ast_free_all();
-        gc_free_all();
-        gui_cleanup();
-        return ret;
-    } else {
-        print_help(argv[0]);
-        return 1;
     }
 
     ast_free_all();

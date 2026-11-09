@@ -1,5 +1,5 @@
-#ifndef METESCRIPT_AST_H
-#define METESCRIPT_AST_H
+#ifndef CICEKLISCRIPT_AST_H
+#define CICEKLISCRIPT_AST_H
 
 #include "lexer.h"
 #include "value.h"
@@ -178,4 +178,4 @@ Stmt* make_return_stmt(Expr* expr, int line);
 Stmt* make_break_stmt(int line);
 Stmt* make_continue_stmt(int line);
 
-#endif // METESCRIPT_AST_H
+#endif // CICEKLISCRIPT_AST_H

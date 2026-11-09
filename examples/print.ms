@@ -1,1 +1,0 @@
-mete.println("Hello, World!");

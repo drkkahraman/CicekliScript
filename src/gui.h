@@ -1,5 +1,5 @@
-#ifndef METESCRIPT_GUI_H
-#define METESCRIPT_GUI_H
+#ifndef CICEKLISCRIPT_GUI_H
+#define CICEKLISCRIPT_GUI_H
 
 #include "value.h"
 #include <X11/Xlib.h>
@@ -49,4 +49,4 @@ Value native_mete_window(Value self, size_t argc, Value* args, int line);
 Value gui_window_get_method(Value win_val, const char* name);
 Value gui_window_get_property(Value win_val, const char* name);
 
-#endif // METESCRIPT_GUI_H
+#endif // CICEKLISCRIPT_GUI_H

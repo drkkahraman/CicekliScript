@@ -32,7 +32,7 @@ typedef enum {
     TOKEN_METE_DEFFUNCTION,                  // mete.deffunction
     TOKEN_DEF,                               // def, deffunction
     TOKEN_IF, TOKEN_ELIF, TOKEN_ELSE,        // if, elif, else
-    TOKEN_WHILE, TOKEN_FOR, TOKEN_IN,        // while, for, in
+    TOKEN_WHILE, TOKEN_FOR, TOKEN_IN, TOKEN_IMPORT,        // while, for, in, import
     TOKEN_RETURN, TOKEN_BREAK, TOKEN_CONTINUE,// return, break, continue
     TOKEN_TRUE, TOKEN_FALSE,                 // true, True, false, False
     TOKEN_NULL,                              // null, None, nil

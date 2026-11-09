@@ -1,0 +1,28 @@
+# CicekliScript - Liste ve Harita (Sözlük) Veri Yapıları
+
+// Dinamik Liste
+liste = [10, "CicekliScript", true, [1, 2]];
+cicekli.println("Orijinal liste:", liste);
+
+cicekli.append(liste, 99.5);
+cicekli.println("Eleman eklendikten sonra:", liste);
+
+ilk_eleman = liste[0];
+son_eleman = liste[-1];
+cicekli.println("İlk eleman:", ilk_eleman);
+cicekli.println("Son eleman (negatif indeks):", son_eleman);
+
+// Sözlük / Nesne (Map)
+kullanici = {
+    "kullanici_adi": "mete_dev",
+    "seviye": 99,
+    "aktif": true
+};
+
+cicekli.println("\nKullanıcı:", kullanici);
+cicekli.println("Kullanıcı adı (nokta ile erişim):", kullanici.kullanici_adi);
+cicekli.println("Seviye (indeks ile erişim):", kullanici["seviye"]);
+
+// Değer güncelleme
+kullanici.seviye = 100;
+cicekli.println("Güncellenmiş seviye:", kullanici.seviye);

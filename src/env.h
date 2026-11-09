@@ -1,5 +1,5 @@
-#ifndef METESCRIPT_ENV_H
-#define METESCRIPT_ENV_H
+#ifndef CICEKLISCRIPT_ENV_H
+#define CICEKLISCRIPT_ENV_H
 
 #include "value.h"
 
@@ -23,4 +23,4 @@ bool env_get(Environment* env, const char* name, Value* out);
 bool env_set_at(Environment* env, int distance, const char* name, Value value);
 bool env_get_at(Environment* env, int distance, const char* name, Value* out);
 
-#endif // METESCRIPT_ENV_H
+#endif // CICEKLISCRIPT_ENV_H

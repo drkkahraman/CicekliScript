@@ -1,8 +1,8 @@
 {
-  "mete.println": {
-    "prefix": ["println", "mete.println"],
+  "cicekli.println": {
+    "prefix": ["println", "cicekli.println"],
     "body": [
-      "mete.println(${1:\"Hello World\"});"
+      "cicekli.println(${1:\"Hello World\"});"
     ],
     "description": "Ekrana alt satıra geçerek yazdırır"
   },
@@ -90,7 +90,7 @@
     "prefix": ["for", "forin"],
     "body": [
       "for ${1:eleman} in ${2:liste} {",
-      "    ${0:mete.println(eleman);}",
+      "    ${0:cicekli.println(eleman);}",
       "};"
     ],
     "description": "Python tarzı for..in döngüsü"
@@ -99,7 +99,7 @@
     "prefix": ["forrange", "range"],
     "body": [
       "for ${1:i} in range(${2:0}, ${3:10}) {",
-      "    ${0:mete.println(i);}",
+      "    ${0:cicekli.println(i);}",
       "};"
     ],
     "description": "range() ile sayısal döngü"

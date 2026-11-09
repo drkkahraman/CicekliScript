@@ -1,0 +1,20 @@
+# CicekliScript - Fibonacci ve Zaman Ölçümü
+
+cicekli.deffunction fib(n) {
+    if (n <= 1) {
+        return n;
+    };
+    return fib(n - 1) + fib(n - 2);
+};
+
+cicekli.println("Fibonacci Serisi Hesaplanıyor...");
+
+baslangic = cicekli.time();
+
+for (i in cicekli.range(0, 16)) {
+    cicekli.println("fib(" + cicekli.str(i) + ") =", fib(i));
+};
+
+bitis = cicekli.time();
+gecen_sure = bitis - baslangic;
+cicekli.println("Toplam geçen süre (saniye):", gecen_sure);

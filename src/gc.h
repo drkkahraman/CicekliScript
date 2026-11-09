@@ -1,5 +1,5 @@
-#ifndef METESCRIPT_GC_H
-#define METESCRIPT_GC_H
+#ifndef CICEKLISCRIPT_GC_H
+#define CICEKLISCRIPT_GC_H
 
 #include "value.h"
 #include "env.h"
@@ -16,4 +16,4 @@ void gc_mark_value(Value val);
 void gc_mark_obj(Obj* obj);
 void gc_mark_env(Environment* env);
 
-#endif // METESCRIPT_GC_H
+#endif // CICEKLISCRIPT_GC_H

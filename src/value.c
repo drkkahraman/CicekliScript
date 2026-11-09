@@ -332,19 +332,19 @@ char* value_to_string(Value v) {
                 }
                 case OBJ_FUNCTION: {
                     ObjFunction* fn = as_function(v);
-                    snprintf(buffer, sizeof(buffer), "<mete.function %s>", fn->name ? fn->name : "anonim");
+                    snprintf(buffer, sizeof(buffer), "<cicekli.function %s>", fn->name ? fn->name : "anonim");
                     return strdup(buffer);
                 }
                 case OBJ_NATIVE: {
                     ObjNative* nat = as_native(v);
-                    snprintf(buffer, sizeof(buffer), "<mete.native %s>", nat->name);
+                    snprintf(buffer, sizeof(buffer), "<cicekli.native %s>", nat->name);
                     return strdup(buffer);
                 }
                 case OBJ_BOUND_METHOD: {
-                    return strdup("<mete.method>");
+                    return strdup("<cicekli.method>");
                 }
                 case OBJ_WINDOW: {
-                    snprintf(buffer, sizeof(buffer), "<mete.window>");
+                    snprintf(buffer, sizeof(buffer), "<cicekli.window>");
                     return strdup(buffer);
                 }
                 default:

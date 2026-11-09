@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<title>MeteScript — Dokümantasyon</title>
+<title>CicekliScript — Dokümantasyon</title>
 <style>
   /* ============ TEMA DEĞİŞKENLERİ ============ */
   :root {
@@ -680,8 +680,8 @@
 <div id="progress"></div>
 
 <header>
-  <div class="logo">M</div>
-  <h1>MeteScript <span>Dokümantasyon</span></h1>
+  <div class="logo">Ç</div>
+  <h1>CicekliScript <span>Dokümantasyon</span></h1>
   <div class="spacer"></div>
   <div class="search-wrap">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -714,7 +714,7 @@
   <a href="#yorumlar"><span class="ico">💬</span>Yorumlar</a>
   <h3>Referans</h3>
   <a href="#gui"><span class="ico">📐</span>GUI — Pencere ve Grafik</a>
-  <a href="#api"><span class="ico">📚</span>mete API'si</a>
+  <a href="#api"><span class="ico">📚</span>cicekli API'si</a>
   <a href="#ornekler"><span class="ico">✨</span>Örnekler</a>
 </nav>
 
@@ -727,7 +727,7 @@
 
   <div class="hero">
     <span class="kicker">⚡ Modern · Dinamik · C Tabanlı</span>
-    <h2>MeteScript <em>Dokümantasyonu</em></h2>
+    <h2>CicekliScript <em>Dokümantasyonu</em></h2>
     <p>Python'ın pratikliği ve yüksek seviyeli sözdizimi ile C dilinin gücünü, blok yapısını (<code class="inline">{}</code>) ve hızını birleştiren; her cümlenin sonuna <code class="inline">;</code> (noktalı virgül) koymanın zorunlu olduğu modern, dinamik ve C tabanlı bir programlama dili.</p>
     <div class="actions">
       <a class="btn btn-primary" href="#compiler">⚡ Online Compiler (Dene)</a>
@@ -747,7 +747,7 @@
   <!-- ONLINE COMPILER SECTION -->
   <section id="compiler">
     <h2><span class="num">00</span> Online Compiler (Web IDE)</h2>
-    <p>MeteScript kodlarınızı bilgisayarınıza bir şey kurmadan doğrudan tarayıcınızda yazıp anında çalıştırabilirsiniz. Kodlarınız arka plandaki saf C11 MeteScript derleyicisi ve yorumlayıcısı tarafından derlenip çalıştırılır.</p>
+    <p>CicekliScript kodlarınızı bilgisayarınıza bir şey kurmadan doğrudan tarayıcınızda yazıp anında çalıştırabilirsiniz. Kodlarınız arka plandaki saf C11 CicekliScript derleyicisi ve yorumlayıcısı tarafından derlenip çalıştırılır.</p>
 
     <div class="compiler-wrapper">
       <div class="compiler-toolbar">
@@ -779,12 +779,12 @@
         <div class="editor-pane">
           <div class="pane-header">
             <div class="dots"><i></i><i></i><i></i></div>
-            <span class="pane-title">main.ms — Kod Editörü</span>
-            <span style="font-size:11.5px;color:var(--text-faint);font-family:var(--mono);">MeteScript v1.0.0</span>
+            <span class="pane-title">main.ccl — Kod Editörü</span>
+            <span style="font-size:11.5px;color:var(--text-faint);font-family:var(--mono);">CicekliScript v1.0.0</span>
           </div>
           <div class="editor-body">
             <div class="line-numbers" id="lineNumbers">1</div>
-            <textarea id="codeEditor" spellcheck="false" placeholder="MeteScript kodunuzu buraya yazın... (noktalı virgül ';' zorunludur!)"></textarea>
+            <textarea id="codeEditor" spellcheck="false" placeholder="CicekliScript kodunuzu buraya yazın... (noktalı virgül ';' zorunludur!)"></textarea>
           </div>
         </div>
 
@@ -799,7 +799,7 @@
               <button id="clearOutputBtn" class="copy-btn">Temizle</button>
             </div>
           </div>
-          <div class="terminal-body" id="terminalOutput"><span class="term-placeholder">MeteScript kodunuzu çalıştırmak için "▶ Çalıştır" butonuna veya Ctrl+Enter tuşlarına basın...</span></div>
+          <div class="terminal-body" id="terminalOutput"><span class="term-placeholder">CicekliScript kodunuzu çalıştırmak için "▶ Çalıştır" butonuna veya Ctrl+Enter tuşlarına basın...</span></div>
           <div class="gui-pane" id="guiPane"></div>
           <div class="term-input-row" id="terminalInputRow">
             <span class="term-prompt">❯</span>
@@ -812,33 +812,33 @@
 
   <section id="giris">
     <h2><span class="num">01</span> Giriş</h2>
-    <p>MeteScript, yorumlayıcısı sıfırdan saf C (C11) ile yazılmış son derece hafif ve hızlı bir dildir. Dinamik tipler, listeler, sözlükler, dilimleme ve negatif indeksleme gibi Python benzeri özellikler sunarken; blok yapısı ve noktalı virgül zorunluluğu ile C disiplini taşır.</p>
+    <p>CicekliScript, yorumlayıcısı sıfırdan saf C (C11) ile yazılmış son derece hafif ve hızlı bir dildir. Dinamik tipler, listeler, sözlükler, dilimleme ve negatif indeksleme gibi Python benzeri özellikler sunarken; blok yapısı ve noktalı virgül zorunluluğu ile C disiplini taşır.</p>
     <div class="callout">
       <span class="ci">💡</span>
-      <div><p>MeteScript'te her ifadenin sonuna <code class="inline">;</code> konulması <b>zorunludur</b>. Unutulursa derleyici hata verir.</p></div>
+      <div><p>CicekliScript'te her ifadenin sonuna <code class="inline">;</code> konulması <b>zorunludur</b>. Unutulursa derleyici hata verir.</p></div>
     </div>
     <h3>Örnek: İlk Program</h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>mete.println("Merhaba Dünya!");
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>cicekli.println("Merhaba Dünya!");
 a = 10;
 b = 20;
-mete.println("Toplam:", a + b);</code></pre>
+cicekli.println("Toplam:", a + b);</code></pre>
     </div>
   </section>
 
   <section id="kurulum">
     <h2><span class="num">02</span> Kurulum</h2>
-    <p>MeteScript, GCC ve Make ile tek komutla derlenir:</p>
+    <p>CicekliScript, GCC ve Make ile tek komutla derlenir:</p>
     <div class="codeblock" data-lang="bash">
       <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cd /home/admin/metescript
+      <pre><code>cd /home/admin/cicekliscript
 make</code></pre>
     </div>
-    <p>Derlenen ikili <code class="inline">bin/metescript</code> altında ve <code class="inline">~/.local/bin/metescript</code> yolunda bulunur. Sistem geneli kurulum için:</p>
+    <p>Derlenen ikili <code class="inline">bin/cicekliscript</code> altında ve <code class="inline">~/.local/bin/cicekliscript</code> yolunda bulunur. Sistem geneli kurulum için:</p>
     <div class="codeblock" data-lang="bash">
       <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>make install   # /usr/local/bin/metescript</code></pre>
+      <pre><code>make install   # /usr/local/bin/cicekliscript</code></pre>
     </div>
   </section>
 
@@ -847,38 +847,38 @@ make</code></pre>
     <h3>1. Etkileşimli REPL Kabuğu</h3>
     <div class="codeblock" data-lang="bash">
       <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>metescript</code></pre>
+      <pre><code>cicekliscript</code></pre>
     </div>
     <div class="codeblock" data-lang="repl">
       <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">repl</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>╔═══════════════════════════════════════════════════╗
-║            MeteScript v1.0.0 REPL                 ║
+║            CicekliScript v1.0.0 REPL                 ║
 ║  Python kolaylığı + C gücü + Zorunlu ';'         ║
-║  Çıkmak için: exit() veya mete.exit();            ║
+║  Çıkmak için: exit() veya cicekli.exit();            ║
 ╚═══════════════════════════════════════════════════╝
 
-mete&gt;&gt;&gt; mete.println("Merhaba Dünya!");
+mete&gt;&gt;&gt; cicekli.println("Merhaba Dünya!");
 Merhaba Dünya!
 mete&gt;&gt;&gt; a = 10; b = 20;
-mete&gt;&gt;&gt; mete.println("Toplam:", a + b);
+mete&gt;&gt;&gt; cicekli.println("Toplam:", a + b);
 Toplam: 30
 mete&gt;&gt;&gt; exit();</code></pre>
     </div>
     <h3>2. Dosyadan Betik Çalıştırma</h3>
     <div class="codeblock" data-lang="bash">
       <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>metescript script.ms</code></pre>
+      <pre><code>cicekliscript script.ccl</code></pre>
     </div>
     <h3>3. Tek Satır Komut (<code class="inline">-c</code>)</h3>
     <div class="codeblock" data-lang="bash">
       <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>metescript -c 'mete.println("Hello World");'</code></pre>
+      <pre><code>cicekliscript -c 'cicekli.println("Hello World");'</code></pre>
     </div>
   </section>
 
   <section id="degiskenler">
     <h2><span class="num">04</span> Değişkenler &amp; Veri Tipleri</h2>
-    <p>MeteScript dinamik tiplidir; değişken tanımlarken tip belirtmenize gerek yoktur.</p>
+    <p>CicekliScript dinamik tiplidir; değişken tanımlarken tip belirtmenize gerek yoktur.</p>
     <div class="table-wrap"><table>
       <thead><tr><th>Tip</th><th>Örnek</th><th>Açıklama</th></tr></thead>
       <tbody>
@@ -890,8 +890,8 @@ mete&gt;&gt;&gt; exit();</code></pre>
       <tr><td>Sözlük</td><td><code>{"ad": "Mete", "yas": 25}</code></td><td>Anahtar-değer haritası</td></tr>
       </tbody>
     </table></div>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>sayi = 42;
 ondalik = 3.14;
 metin = "Merhaba" + " " + "Dünya";
@@ -904,52 +904,52 @@ sozluk = {"ad": "Mete", "yas": 25};</code></pre>
 
   <section id="io">
     <h2><span class="num">05</span> Girdi / Çıktı</h2>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>// Ekrana satır sonlu yazdırma
-mete.println("Hello World");
+cicekli.println("Hello World");
 
 // Ekrana satır sonu OLMADAN yazdırma
-mete.print("Satır sonu yok: ");
-mete.println("devamı bu.");
+cicekli.print("Satır sonu yok: ");
+cicekli.println("devamı bu.");
 
 // Kullanıcıdan girdi alma
-a = mete.input("Cümle giriniz: ");
-mete.println("Girdiğiniz cümle:", a);</code></pre>
+a = cicekli.input("Cümle giriniz: ");
+cicekli.println("Girdiğiniz cümle:", a);</code></pre>
     </div>
     <div class="callout warn">
       <span class="ci">⚠️</span>
-      <div><b>Dikkat</b><p><code class="inline">mete.print</code> satır sonu eklemez; <code class="inline">mete.println</code> ekler.</p></div>
+      <div><b>Dikkat</b><p><code class="inline">cicekli.print</code> satır sonu eklemez; <code class="inline">cicekli.println</code> ekler.</p></div>
     </div>
   </section>
 
   <section id="fonksiyonlar">
     <h2><span class="num">06</span> Fonksiyonlar</h2>
-    <p>Fonksiyonlar <code class="inline">mete.deffunction</code> ile tanımlanır. İsimli, anonim (değişkene atanan) veya doğrudan çalıştırılan üç kullanım biçimi vardır.</p>
+    <p>Fonksiyonlar <code class="inline">cicekli.deffunction</code> ile tanımlanır. İsimli, anonim (değişkene atanan) veya doğrudan çalıştırılan üç kullanım biçimi vardır.</p>
     <h3>İsimli Fonksiyon</h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>mete.deffunction topla(a, b) {
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>cicekli.deffunction topla(a, b) {
     return a + b;
 };
 
 sonuc = topla(15, 25);
-mete.println("Sonuç:", sonuc);</code></pre>
+cicekli.println("Sonuç:", sonuc);</code></pre>
     </div>
     <h3>Anonim Fonksiyon (Değişkene Atama)</h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>kare = mete.deffunction(x) {
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>kare = cicekli.deffunction(x) {
     return x * x;
 };
 
-mete.println("5'in karesi:", kare(5));</code></pre>
+cicekli.println("5'in karesi:", kare(5));</code></pre>
     </div>
     <h3>Anonim Olarak Doğrudan Çalıştırma</h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>mete.deffunction() {
-    mete.println("Bu blok hemen çalışır!");
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>cicekli.deffunction() {
+    cicekli.println("Bu blok hemen çalışır!");
 }();</code></pre>
     </div>
   </section>
@@ -957,16 +957,16 @@ mete.println("5'in karesi:", kare(5));</code></pre>
   <section id="kosullar">
     <h2><span class="num">07</span> Koşul İfadeleri</h2>
     <p><code class="inline">if</code>, <code class="inline">elif</code> ve <code class="inline">else</code> blokları kullanılır. Tüm blok yapısının sonuna <code class="inline">;</code> konur.</p>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>puan = 85;
 
 if (puan >= 90) {
-    mete.println("Harf notu: AA");
+    cicekli.println("Harf notu: AA");
 } elif (puan >= 70) {
-    mete.println("Harf notu: BB");
+    cicekli.println("Harf notu: BB");
 } else {
-    mete.println("Harf notu: CC");
+    cicekli.println("Harf notu: CC");
 };</code></pre>
     </div>
   </section>
@@ -974,35 +974,35 @@ if (puan >= 90) {
   <section id="donguler">
     <h2><span class="num">08</span> Döngüler</h2>
     <h3>Python Tarzı <code class="inline">for..in</code></h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>meyveler = ["Elma", "Armut", "Muz"];
 for (m in meyveler) {
-    mete.println("Meyve:", m);
+    cicekli.println("Meyve:", m);
 };
 
 // range() ile kullanım:
-for (i in mete.range(5)) {
-    mete.println("İndeks:", i);
+for (i in cicekli.range(5)) {
+    cicekli.println("İndeks:", i);
 };</code></pre>
     </div>
     <h3>C Tarzı <code class="inline">for(init; cond; step)</code></h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>for (i = 0; i < 5; i = i + 1) {
-    mete.println("Adım:", i);
+    cicekli.println("Adım:", i);
 };</code></pre>
     </div>
     <h3><code class="inline">while</code> Döngüsü</h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>sayac = 0;
 while (sayac < 5) {
     sayac += 1;
     if (sayac == 2) {
         continue;
     };
-    mete.println("Sayaç:", sayac);
+    cicekli.println("Sayaç:", sayac);
 };</code></pre>
     </div>
     <p>Döngülerde <code class="inline">break;</code> (döngüyü sonlandır) ve <code class="inline">continue;</code> (sonraki adıma geç) kullanılır.</p>
@@ -1014,62 +1014,62 @@ while (sayac < 5) {
     <div class="table-wrap"><table>
       <thead><tr><th>İşlem</th><th>Sözdizimi</th></tr></thead>
       <tbody>
-      <tr><td>Eleman ekleme</td><td><code>mete.append(liste, eleman);</code></td></tr>
-      <tr><td>Son elemanı çıkarma</td><td><code>mete.pop(liste);</code></td></tr>
-      <tr><td>Uzunluk</td><td><code>mete.len(liste);</code></td></tr>
+      <tr><td>Eleman ekleme</td><td><code>cicekli.append(liste, eleman);</code></td></tr>
+      <tr><td>Son elemanı çıkarma</td><td><code>cicekli.pop(liste);</code></td></tr>
+      <tr><td>Uzunluk</td><td><code>cicekli.len(liste);</code></td></tr>
       <tr><td>Eleman erişimi</td><td><code>liste[0]</code>, <code>liste[-1]</code> (negatif indeks)</td></tr>
       </tbody>
     </table></div>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>sayilar = [10, 20, 30];
-mete.append(sayilar, 40);
-mete.println("Uzunluk:", mete.len(sayilar));
-mete.println("Son eleman:", sayilar[-1]);
-son = mete.pop(sayilar);
-mete.println("Çıkarılan:", son);</code></pre>
+cicekli.append(sayilar, 40);
+cicekli.println("Uzunluk:", cicekli.len(sayilar));
+cicekli.println("Son eleman:", sayilar[-1]);
+son = cicekli.pop(sayilar);
+cicekli.println("Çıkarılan:", son);</code></pre>
     </div>
   </section>
 
   <section id="sozlukler">
     <h2><span class="num">10</span> Sözlükler (Maps)</h2>
     <p>Sözlükler anahtar-değer çiftlerinden oluşur. Hem nokta hem de indeks ile erişilebilir.</p>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code>kullanici = {"ad": "Mete", "yas": 25};
 
 // Nokta erişimi
-mete.println(kullanici.ad);
+cicekli.println(kullanici.ad);
 
 // İndeks erişimi
-mete.println(kullanici["yas"]);
+cicekli.println(kullanici["yas"]);
 
 // Yeni anahtar ekleme
 kullanici.sehir = "İzmir";
-mete.println(kullanici.sehir);</code></pre>
+cicekli.println(kullanici.sehir);</code></pre>
     </div>
   </section>
 
   <section id="yorumlar">
     <h2><span class="num">11</span> Yorumlar</h2>
-    <p>MeteScript üç yorum biçimini de destekler:</p>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+    <p>CicekliScript üç yorum biçimini de destekler:</p>
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
       <pre><code># Python tarzı yorum
 // C tarzı tek satır yorum
 /* C tarzı
    çok satırlı yorum */
 
-mete.println("Yorumlar çalışmaz, bu çalışır!");</code></pre>
+cicekli.println("Yorumlar çalışmaz, bu çalışır!");</code></pre>
     </div>
   </section>
 
   <section id="gui">
     <h2><span class="num">📐</span> GUI — Pencere ve Grafik</h2>
-    <p>MeteScript ile X11 + Cairo tabanlı GUI pencereleri açabilir, metin, dikdörtgen, daire ve çizgi çizebilirsiniz. <b>Online Compiler'da</b> GUI kodlarının çizimleri terminalin altında canvas önizlemesi olarak gösterilir; masaüstü ortamında (X11) ise gerçek bir pencere açılır.</p>
+    <p>CicekliScript ile X11 + Cairo tabanlı GUI pencereleri açabilir, metin, dikdörtgen, daire ve çizgi çizebilirsiniz. <b>Online Compiler'da</b> GUI kodlarının çizimleri terminalin altında canvas önizlemesi olarak gösterilir; masaüstü ortamında (X11) ise gerçek bir pencere açılır.</p>
     <div class="callout">
       <span class="ci">💡</span>
-      <div><p><code class="inline">mete.window(genislik, yukseklik, "başlık")</code> bir pencere nesnesi döndürür. Tüm çizimler kalıcıdır; <code class="inline">window.mainloop()</code> pencereyi kapatana kadar olay döngüsünü çalıştırır (web önizlemesinde bu adım atlanır).</p></div>
+      <div><p><code class="inline">cicekli.window(genislik, yukseklik, "başlık")</code> bir pencere nesnesi döndürür. Tüm çizimler kalıcıdır; <code class="inline">window.mainloop()</code> pencereyi kapatana kadar olay döngüsünü çalıştırır (web önizlemesinde bu adım atlanır).</p></div>
     </div>
     <h3>Metotlar</h3>
     <div class="table-wrap"><table>
@@ -1092,9 +1092,9 @@ mete.println("Yorumlar çalışmaz, bu çalışır!");</code></pre>
       </tbody>
     </table></div>
     <h3>Örnek</h3>
-    <div class="codeblock" data-lang="metescript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>window = mete.window(100, 100);
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>window = cicekli.window(100, 100);
 
 window.color();
 window.text("Mete", "red", 16, 20, 35);
@@ -1106,19 +1106,19 @@ window.mainloop();</code></pre>
   </section>
 
   <section id="api">
-    <h2><span class="num">12</span> mete API'si</h2>
+    <h2><span class="num">12</span> cicekli API'si (ve mete)</h2>
     <div class="table-wrap"><table>
       <thead><tr><th>Fonksiyon</th><th>Açıklama</th></tr></thead>
       <tbody>
-      <tr><td><code>mete.println(...)</code></td><td>Argümanları ekrana satır sonlu yazdırır</td></tr>
-      <tr><td><code>mete.print(...)</code></td><td>Argümanları ekrana satır sonu olmadan yazdırır</td></tr>
-      <tr><td><code>mete.input(prompt)</code></td><td>Kullanıcıdan metin girdisi alır</td></tr>
-      <tr><td><code>mete.deffunction</code></td><td>Fonksiyon tanımlar (isimli / anonim)</td></tr>
-      <tr><td><code>mete.range(n)</code></td><td><code>0..n-1</code> aralığı üretir (for..in ile)</td></tr>
-      <tr><td><code>mete.append(liste, x)</code></td><td>Listeye eleman ekler</td></tr>
-      <tr><td><code>mete.pop(liste)</code></td><td>Listeden son elemanı çıkarır</td></tr>
-      <tr><td><code>mete.len(liste)</code></td><td>Liste uzunluğunu döndürür</td></tr>
-      <tr><td><code>mete.exit()</code></td><td>REPL'den / betikten çıkar</td></tr>
+      <tr><td><code>cicekli.println(...)</code></td><td>Argümanları ekrana satır sonlu yazdırır</td></tr>
+      <tr><td><code>cicekli.print(...)</code></td><td>Argümanları ekrana satır sonu olmadan yazdırır</td></tr>
+      <tr><td><code>cicekli.input(prompt)</code></td><td>Kullanıcıdan metin girdisi alır</td></tr>
+      <tr><td><code>cicekli.deffunction</code></td><td>Fonksiyon tanımlar (isimli / anonim)</td></tr>
+      <tr><td><code>cicekli.range(n)</code></td><td><code>0..n-1</code> aralığı üretir (for..in ile)</td></tr>
+      <tr><td><code>cicekli.append(liste, x)</code></td><td>Listeye eleman ekler</td></tr>
+      <tr><td><code>cicekli.pop(liste)</code></td><td>Listeden son elemanı çıkarır</td></tr>
+      <tr><td><code>cicekli.len(liste)</code></td><td>Liste uzunluğunu döndürür</td></tr>
+      <tr><td><code>cicekli.exit()</code></td><td>REPL'den / betikten çıkar</td></tr>
       </tbody>
     </table></div>
   </section>
@@ -1129,17 +1129,17 @@ window.mainloop();</code></pre>
     <div class="table-wrap"><table>
       <thead><tr><th>Dosya</th><th>İçerik</th></tr></thead>
       <tbody>
-      <tr><td><code>01_merhaba.ms</code></td><td>Girdi/çıktı ve değişkenler</td></tr>
-      <tr><td><code>02_fonksiyonlar.ms</code></td><td><code>mete.deffunction</code> varyasyonları</td></tr>
-      <tr><td><code>03_donguler.ms</code></td><td><code>for in</code>, <code>for(;;)</code> ve <code>while</code> döngüleri</td></tr>
-      <tr><td><code>04_fibonacci.ms</code></td><td>Özyinelemeli algoritma ve zaman ölçümü</td></tr>
-      <tr><td><code>05_listeler_ve_sozlukler.ms</code></td><td>Dinamik listeler ve haritalar</td></tr>
-      <tr><td><code>06_hesap_makinesi.ms</code></td><td>Fonksiyonel hesap makinesi</td></tr>
+      <tr><td><code>01_merhaba.ccl</code></td><td>Girdi/çıktı ve değişkenler</td></tr>
+      <tr><td><code>02_fonksiyonlar.ccl</code></td><td><code>cicekli.deffunction</code> varyasyonları</td></tr>
+      <tr><td><code>03_donguler.ccl</code></td><td><code>for in</code>, <code>for(;;)</code> ve <code>while</code> döngüleri</td></tr>
+      <tr><td><code>04_fibonacci.ccl</code></td><td>Özyinelemeli algoritma ve zaman ölçümü</td></tr>
+      <tr><td><code>05_listeler_ve_sozlukler.ccl</code></td><td>Dinamik listeler ve haritalar</td></tr>
+      <tr><td><code>06_hesap_makinesi.ccl</code></td><td>Fonksiyonel hesap makinesi</td></tr>
       </tbody>
     </table></div>
     <div class="codeblock" data-lang="bash">
       <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>metescript examples/04_fibonacci.ms</code></pre>
+      <pre><code>cicekliscript examples/04_fibonacci.ccl</code></pre>
     </div>
     <div class="callout success">
       <span class="ci">✅</span>
@@ -1150,7 +1150,7 @@ window.mainloop();</code></pre>
 </div>
 
 <footer>
-  <span>MeteScript v1.0.0</span> · <span>Saf C11 yorumlayıcı</span> ·
+  <span>CicekliScript v1.0.0</span> · <span>Saf C11 yorumlayıcı</span> ·
   <span>Bu dokümantasyon <code class="inline">docs/index.html</code> üzerinden servis edilmektedir</span>
   <span class="heart">♥</span>
 </footer>
@@ -1188,7 +1188,7 @@ function escapeHtml(s) {
 }
 function highlight(code, lang) {
   let out = '';
-  const isMs = (lang === 'metescript');
+  const isMs = (lang === 'cicekliscript');
   for (const line of code.split('\n')) {
     let l = escapeHtml(line);
     if (isMs) {
@@ -1200,8 +1200,8 @@ function highlight(code, lang) {
       l = l.replace(/(&quot;[^&]*?&quot;|'[^']*?')/g, '<span class="tok-str">$1</span>');
       l = l.replace(/\b(if|elif|else|for|while|in|return|break|continue|true|false|True|False|null|None|nil)\b/g, '<span class="tok-kw">$1</span>');
       l = l.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
-      l = l.replace(/\b(mete\.)(println|print|input|deffunction|range|append|pop|len|exit)\b/g,
-                    '<span class="tok-fn">mete.</span><span class="tok-fn">$2</span>');
+      l = l.replace(/\b(cicekli\.|mete\.)(println|print|input|deffunction|range|append|pop|len|exit)\b/g,
+                    '<span class="tok-fn">$1</span><span class="tok-fn">$2</span>');
       l = l.replace(/\b(deffunction)\b/g, '<span class="tok-kw">$1</span>');
     } else if (lang === 'bash') {
       l = l.replace(/(#[^\n]*)/g, '<span class="tok-cm">$1</span>');
@@ -1267,17 +1267,17 @@ toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smoot
 
 /* ============ ONLINE COMPILER (WEB IDE) SCRIPT ============ */
 const SAMPLES = {
-  merhaba: `# MeteScript 1.0 - Merhaba Dünya
-mete.println("══════════════════════════════════");
-mete.println("⚡ MeteScript Dünyasına Hoş Geldiniz!");
-mete.println("══════════════════════════════════");
+  merhaba: `# CicekliScript 1.0 - Merhaba Dünya
+cicekli.println("══════════════════════════════════");
+cicekli.println("⚡ CicekliScript Dünyasına Hoş Geldiniz!");
+cicekli.println("══════════════════════════════════");
 
 ad = "Gezgin";
 surum = 1.0;
-mete.println("Kullanıcı:", ad, "| Dil Sürümü:", surum);
+cicekli.println("Kullanıcı:", ad, "| Dil Sürümü:", surum);
 
-// Unutmayın: MeteScript'te her ifadenin sonuna ';' zorunludur!
-mete.println("MeteScript: C Hızı + Python Sözdizimi!");
+// Unutmayın: CicekliScript'te her ifadenin sonuna ';' zorunludur!
+cicekli.println("CicekliScript: C Hızı + Python Sözdizimi!");
 `,
   fonksiyonlar: `// 1. İsimli Fonksiyon Tanımlama
 def topla(a, b) {
@@ -1285,12 +1285,12 @@ def topla(a, b) {
 };
 
 // 2. Anonim Fonksiyon (Değişkene Atanabilir)
-carp = mete.deffunction(x, y) {
+carp = cicekli.deffunction(x, y) {
     return x * y;
 };
 
-mete.println("Toplama (3 + 5) =", topla(3, 5));
-mete.println("Çarpma  (4 * 6) =", carp(4, 6));
+cicekli.println("Toplama (3 + 5) =", topla(3, 5));
+cicekli.println("Çarpma  (4 * 6) =", carp(4, 6));
 
 // 3. Mantıksal Fonksiyon
 def mutlak_deger(n) {
@@ -1300,7 +1300,7 @@ def mutlak_deger(n) {
     return n;
 };
 
-mete.println("Mutlak Değer |-42| =", mutlak_deger(-42));
+cicekli.println("Mutlak Değer |-42| =", mutlak_deger(-42));
 `,
   fibonacci: `// Fibonacci Dizisi (Özyinelemeli / Recursive)
 def fib(n) {
@@ -1310,50 +1310,50 @@ def fib(n) {
     return fib(n - 1) + fib(n - 2);
 };
 
-mete.println("--- İlk 10 Fibonacci Sayısı ---");
+cicekli.println("--- İlk 10 Fibonacci Sayısı ---");
 for (i in range(10)) {
-    mete.println("fib(" + str(i) + ") =", fib(i));
+    cicekli.println("fib(" + str(i) + ") =", fib(i));
 }
 `,
-  donguler: `mete.println("--- 1. Python Tarzı for..in Döngüsü ---");
+  donguler: `cicekli.println("--- 1. Python Tarzı for..in Döngüsü ---");
 for (sayi in [10, 20, 30, 40]) {
-    mete.println("Liste elemanı:", sayi);
+    cicekli.println("Liste elemanı:", sayi);
 }
 
-mete.println("\\n--- 2. C Tarzı for(init; cond; step) Döngüsü ---");
+cicekli.println("\\n--- 2. C Tarzı for(init; cond; step) Döngüsü ---");
 toplam = 0;
 for (i = 1; i <= 5; i = i + 1) {
     toplam = toplam + i;
 }
-mete.println("1'den 5'e sayıların toplamı:", toplam);
+cicekli.println("1'den 5'e sayıların toplamı:", toplam);
 
-mete.println("\\n--- 3. While Döngüsü ---");
+cicekli.println("\\n--- 3. While Döngüsü ---");
 sayac = 3;
 while (sayac > 0) {
-    mete.println("Geri sayım:", sayac);
+    cicekli.println("Geri sayım:", sayac);
     sayac = sayac - 1;
 }
-mete.println("Roket fırlatıldı! 🚀");
+cicekli.println("Roket fırlatıldı! 🚀");
 `,
   listeler: `// Listeler (Dinamik Dizi)
 meyveler = ["Elma", "Muz", "Çilek"];
-mete.append(meyveler, "Portakal");
-mete.println("Meyve Listesi:", meyveler);
-mete.println("Liste Boyutu:", mete.len(meyveler));
-mete.println("Son Eleman (negatif indeks):", meyveler[-1]);
+cicekli.append(meyveler, "Portakal");
+cicekli.println("Meyve Listesi:", meyveler);
+cicekli.println("Liste Boyutu:", cicekli.len(meyveler));
+cicekli.println("Son Eleman (negatif indeks):", meyveler[-1]);
 
 // Sözlükler (Key-Value)
 gelistirici = {
     "ad": "Mete",
-    "dil": "MeteScript",
+    "dil": "CicekliScript",
     "hiz": "C11",
     "puan": 100
 };
 
-mete.println("\\nGeliştirici Bilgileri:");
-mete.println("Geliştirici:", gelistirici["ad"]);
-mete.println("Dil:", gelistirici["dil"], "| Çekirdek:", gelistirici["hiz"]);
-mete.println("Puan:", gelistirici["puan"]);
+cicekli.println("\\nGeliştirici Bilgileri:");
+cicekli.println("Geliştirici:", gelistirici["ad"]);
+cicekli.println("Dil:", gelistirici["dil"], "| Çekirdek:", gelistirici["hiz"]);
+cicekli.println("Puan:", gelistirici["puan"]);
 `,
   hesap: `def hesapla(a, b, islem) {
     if (islem == "+") {
@@ -1372,44 +1372,44 @@ mete.println("Puan:", gelistirici["puan"]);
     }
 };
 
-mete.println("15 + 25 =", hesapla(15, 25, "+"));
-mete.println("100 - 37 =", hesapla(100, 37, "-"));
-mete.println("8 * 9    =", hesapla(8, 9, "*"));
-mete.println("48 / 6   =", hesapla(48, 6, "/"));
-mete.println("50 / 0   =", hesapla(50, 0, "/"));
+cicekli.println("15 + 25 =", hesapla(15, 25, "+"));
+cicekli.println("100 - 37 =", hesapla(100, 37, "-"));
+cicekli.println("8 * 9    =", hesapla(8, 9, "*"));
+cicekli.println("48 / 6   =", hesapla(48, 6, "/"));
+cicekli.println("50 / 0   =", hesapla(50, 0, "/"));
 `,
   girdi: `// Kullanıcıdan Girdi Örneği
 // Çalıştırınca terminalde adınızı ❯ satırına yazıp Enter'a basın.
-mete.println("Lütfen adınızı giriniz:");
-isim = mete.input();
+cicekli.println("Lütfen adınızı giriniz:");
+isim = cicekli.input();
 
-if (mete.len(isim) == 0) {
+if (cicekli.len(isim) == 0) {
     isim = "Misafir";
 }
 
-mete.println("MeteScript'e hoş geldin,", isim + "!");
-mete.println("Harika kodlar yazmaya hazır mısın?");
+cicekli.println("CicekliScript'e hoş geldin,", isim + "!");
+cicekli.println("Harika kodlar yazmaya hazır mısın?");
 `,
   guipencere: `// GUI Pencere Örneği
 // Web'de pencere önizlemesi, çıktı terminalinin altında canvas olarak çizilir.
 // Masaüstü (X11) ortamında ise gerçek bir pencere açılır.
 
-window = mete.window(100, 100);
+window = cicekli.window(100, 100);
 
 window.color();
 window.text("Mete", "red", 16, 20, 35);
 window.rect(10, 50, 40, 20, "blue");
 window.circle(70, 60, 15, "green");
 
-mete.println("Pencere oluşturuldu!");
+cicekli.println("Pencere oluşturuldu!");
 window.mainloop();
 `,
   guigelismis: `// GUI: Gelişmiş Tasarım
-window = mete.window(450, 350, "MeteScript GUI Uygulaması");
+window = cicekli.window(450, 350, "CicekliScript GUI Uygulaması");
 
 window.color("#1e1e2e");
 
-window.text("MeteScript GUI Demo", "#89b4fa", 24, 80, 30);
+window.text("CicekliScript GUI Demo", "#89b4fa", 24, 80, 30);
 window.text("Python Kolaylığı + C Gücü + ;", "#cdd6f4", 14, 110, 75);
 
 // Dikdörtgen: window.rect(x, y, genislik, yukseklik, renk);
@@ -1427,7 +1427,7 @@ window.circle(350, 270, 30, "#f9e2af");
 // Çizgiler: window.line(x1, y1, x2, y2, renk, kalinlik);
 window.line(40, 320, 410, 320, "#585b70", 2);
 
-mete.println("GUI penceresi hazır!");
+cicekli.println("GUI penceresi hazır!");
 window.mainloop();
 `
 };
@@ -1520,13 +1520,13 @@ function appendTerm(text, cls) {
   terminalOutput.scrollTop = terminalOutput.scrollHeight;
 }
 
-// --- GUI önizleme (headless mete.window çıktısı) ---
+// --- GUI önizleme (headless cicekli.window çıktısı) ---
 let guiSourceBuf = '';
 let guiSeen = 0;
 let feedBuffer = '';
 
 function parseGuiData() {
-  const re = /METE_GUI (\{.*\})/g;
+  const re = /(?:CICEKLI_GUI|METE_GUI) (\{.*\})/g;
   let m, idx = 0;
   while ((m = re.exec(guiSourceBuf)) !== null) {
     if (idx >= guiSeen) {
@@ -1549,7 +1549,7 @@ function renderGuiWindow(d) {
   wrap.className = 'gui-window';
   const title = document.createElement('div');
   title.className = 'gui-title';
-  title.textContent = d.title || 'MeteScript Penceresi';
+  title.textContent = d.title || 'CicekliScript Penceresi';
   const canvas = document.createElement('canvas');
   canvas.width = d.w;
   canvas.height = d.h;
@@ -1595,10 +1595,10 @@ function feedStdout(text) {
   while ((nl = feedBuffer.indexOf('\n')) >= 0) {
     const line = feedBuffer.slice(0, nl + 1);
     feedBuffer = feedBuffer.slice(nl + 1);
-    if (/^METE_GUI /.test(line)) continue; // GUI verisi terminal metninde gösterilmez
+    if (/^(?:CICEKLI_GUI|METE_GUI) /.test(line)) continue; // GUI verisi terminal metninde gösterilmez
     appendTerm(line, 'term-stdout');
   }
-  if (feedBuffer.startsWith('METE_GUI ')) return; // tamamlanmamış GUI satırı beklesin
+  if (feedBuffer.startsWith('CICEKLI_GUI ') || feedBuffer.startsWith('METE_GUI ')) return; // tamamlanmamış GUI satırı beklesin
   if (feedBuffer) {
     appendTerm(feedBuffer, 'term-stdout');
     feedBuffer = '';
@@ -1707,7 +1707,7 @@ async function runCode() {
     runBtn.innerHTML = '⏳ Başlatılıyor...';
   }
   setPill('running', 'Çalışıyor...');
-  terminalOutput.innerHTML = '<span class="term-placeholder">MeteScript yorumlayıcısı başlatılıyor...</span>';
+  terminalOutput.innerHTML = '<span class="term-placeholder">CicekliScript yorumlayıcısı başlatılıyor...</span>';
   lastRawOutput = '';
   guiSourceBuf = '';
   guiSeen = 0;

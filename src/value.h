@@ -1,5 +1,5 @@
-#ifndef METESCRIPT_VALUE_H
-#define METESCRIPT_VALUE_H
+#ifndef CICEKLISCRIPT_VALUE_H
+#define CICEKLISCRIPT_VALUE_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -156,4 +156,4 @@ ObjFunction* new_function(const char* name, char** params, size_t arity, struct 
 ObjNative* new_native(const char* name, NativeFn fn, int arity);
 ObjBoundMethod* new_bound_method(Value receiver, Value method);
 
-#endif // METESCRIPT_VALUE_H
+#endif // CICEKLISCRIPT_VALUE_H

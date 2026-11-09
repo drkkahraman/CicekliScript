@@ -18,7 +18,10 @@
 #endif
 
 static bool gui_headless_mode(void) {
-    const char* env = getenv("METE_GUI_HEADLESS");
+    const char* env = getenv("CICEKLI_GUI_HEADLESS");
+    if (!env || env[0] == '\0') {
+        env = getenv("METE_GUI_HEADLESS");
+    }
     return env != NULL && env[0] != '\0';
 }
 
@@ -198,7 +201,7 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
     if (!is_headless) {
         d = open_display_fallback();
         if (!d) {
-            fprintf(stderr, "[MeteScript GUI]: Grafik sunucusuna (X11/Wayland) bağlanılamadı, web/sanal (headless) modda çalıştırılıyor.\n");
+            fprintf(stderr, "[CicekliScript GUI]: Grafik sunucusuna (X11/Wayland) bağlanılamadı, web/sanal (headless) modda çalıştırılıyor.\n");
             is_headless = true;
         }
     }
@@ -215,7 +218,7 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
         win->cr = NULL;
         win->width = width;
         win->height = height;
-        win->title = strdup(title ? title : "MeteScript Penceresi");
+        win->title = strdup(title ? title : "CicekliScript Penceresi");
         win->is_open = true;
         win->bg_r = 1.0;
         win->bg_g = 1.0;
@@ -245,7 +248,7 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
                              DefaultVisual(d, screen),
                              CWBackPixel | CWEventMask, &attrs);
 
-    XStoreName(d, w, title ? title : "MeteScript Penceresi");
+    XStoreName(d, w, title ? title : "CicekliScript Penceresi");
 
     // Pencere yöneticisi boyut ve durum ipuçları
     XSizeHints size_hints;
@@ -286,7 +289,7 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
     win->cr = cr;
     win->width = width;
     win->height = height;
-    win->title = strdup(title ? title : "MeteScript Penceresi");
+    win->title = strdup(title ? title : "CicekliScript Penceresi");
     win->is_open = true;
     win->bg_r = 1.0;
     win->bg_g = 1.0;
@@ -318,7 +321,7 @@ static void emit_headless_json(GuiWindow* win) {
     win->emitted = true;
     char title_e[512];
     json_escape(win->title ? win->title : "", title_e, sizeof(title_e));
-    printf("METE_GUI {\"w\":%d,\"h\":%d,\"title\":\"%s\",\"ops\":[", win->width, win->height, title_e);
+    printf("CICEKLI_GUI {\"w\":%d,\"h\":%d,\"title\":\"%s\",\"ops\":[", win->width, win->height, title_e);
     for (int i = 0; i < win->op_count; i++) {
         printf("%s%s", i > 0 ? "," : "", win->ops[i]);
     }
@@ -543,11 +546,11 @@ Value native_mete_window(Value self, size_t argc, Value* args, int line) {
     (void)self;
     int width = 400;
     int height = 300;
-    const char* title = "MeteScript Penceresi";
+    const char* title = "CicekliScript Penceresi";
 
     if (argc >= 2) {
         if (!is_number(args[0]) || !is_number(args[1])) {
-            fprintf(stderr, "MeteScript Hatası (Satır %d): mete.window(genislik, yukseklik) sayı bekler!\n", line);
+            fprintf(stderr, "CicekliScript Hatası (Satır %d): cicekli.window(genislik, yukseklik) sayı bekler!\n", line);
             return make_null();
         }
         width = (int)as_number(args[0]);

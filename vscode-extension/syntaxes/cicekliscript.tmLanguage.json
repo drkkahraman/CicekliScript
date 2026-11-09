@@ -1,0 +1,225 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "CicekliScript",
+  "scopeName": "source.cicekliscript",
+  "patterns": [
+    { "include": "#shebang" },
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#cicekli-namespace" },
+    { "include": "#window-methods" },
+    { "include": "#builtin-functions" },
+    { "include": "#keywords" },
+    { "include": "#constants" },
+    { "include": "#function-definitions" },
+    { "include": "#function-calls" },
+    { "include": "#operators" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "shebang": {
+      "match": "^#!.*$",
+      "name": "comment.line.shebang.cicekliscript"
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.cicekliscript",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.number-sign.cicekliscript",
+          "match": "#.*$"
+        },
+        {
+          "name": "comment.block.cicekliscript",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.cicekliscript",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.cicekliscript",
+              "match": "\\\\(?:[nrtbf\\\\\"0]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.cicekliscript",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.cicekliscript",
+              "match": "\\\\(?:[nrtbf\\\\'0]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4})"
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.cicekliscript",
+          "match": "\\b0[xX][0-9a-fA-F]+\\b"
+        },
+        {
+          "name": "constant.numeric.binary.cicekliscript",
+          "match": "\\b0[bB][01]+\\b"
+        },
+        {
+          "name": "constant.numeric.float.cicekliscript",
+          "match": "\\b\\d+\\.\\d+([eE][+-]?\\d+)?\\b"
+        },
+        {
+          "name": "constant.numeric.integer.cicekliscript",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "cicekli-namespace": {
+      "patterns": [
+        {
+          "match": "\\b(cicekli|cicekliscript|mete)\\s*(\\.)\\s*(println|print|input|deffunction|window)\\b",
+          "captures": {
+            "1": { "name": "support.class.cicekli.cicekliscript" },
+            "2": { "name": "punctuation.accessor.cicekliscript" },
+            "3": { "name": "support.function.builtin.cicekliscript" }
+          }
+        },
+        {
+          "match": "\\b(cicekli|cicekliscript|mete|math|file)\\b",
+          "name": "support.class.cicekli.cicekliscript"
+        }
+      ]
+    },
+    "window-methods": {
+      "patterns": [
+        {
+          "match": "(\\.)\\s*(color|text|rect|circle|line|mainloop|update|close|is_open|sleep)\\b",
+          "captures": {
+            "1": { "name": "punctuation.accessor.cicekliscript" },
+            "2": { "name": "support.function.member.cicekliscript" }
+          }
+        }
+      ]
+    },
+    "builtin-functions": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.cicekliscript",
+          "match": "\\b(type|len|range|str|int|float|time|sleep|bekle|clock|read_file|write_file|append_file|file_exists|delete_file|sin|cos|tan|sqrt|abs|floor|ceil|round|pow|log|min|max|random|split|join|trim|replace|contains|to_upper|to_lower|starts_with|ends_with|slice|sort|reverse|keys|values|has_key|clear|cls)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.cicekliscript",
+          "match": "\\b(if|elif|else|while|for|in|import|return|break|continue)\\b"
+        },
+        {
+          "name": "keyword.declaration.function.cicekliscript",
+          "match": "\\b(function|func|def)\\b"
+        },
+        {
+          "name": "keyword.declaration.variable.cicekliscript",
+          "match": "\\b(var|let)\\b"
+        },
+        {
+          "name": "keyword.operator.logical.cicekliscript",
+          "match": "\\b(and|or|not)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.cicekliscript",
+          "match": "\\b(true|false)\\b"
+        },
+        {
+          "name": "constant.language.null.cicekliscript",
+          "match": "\\bnull\\b"
+        }
+      ]
+    },
+    "function-definitions": {
+      "patterns": [
+        {
+          "match": "\\b(cicekli\\.deffunction|function|func|def)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+          "captures": {
+            "1": { "name": "keyword.declaration.function.cicekliscript" },
+            "2": { "name": "entity.name.function.cicekliscript" }
+          }
+        }
+      ]
+    },
+    "function-calls": {
+      "patterns": [
+        {
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()",
+          "captures": {
+            "1": { "name": "entity.name.function.cicekliscript" }
+          }
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.cicekliscript",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.logical.cicekliscript",
+          "match": "&&|\\|\\||!"
+        },
+        {
+          "name": "keyword.operator.assignment.cicekliscript",
+          "match": "="
+        },
+        {
+          "name": "keyword.operator.arithmetic.cicekliscript",
+          "match": "\\+|-|\\*|/|%"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.terminator.statement.cicekliscript",
+          "match": ";"
+        },
+        {
+          "name": "punctuation.separator.comma.cicekliscript",
+          "match": ","
+        },
+        {
+          "name": "punctuation.accessor.cicekliscript",
+          "match": "\\."
+        },
+        {
+          "name": "punctuation.bracket.curly.cicekliscript",
+          "match": "[{}]"
+        },
+        {
+          "name": "punctuation.bracket.round.cicekliscript",
+          "match": "[()]"
+        },
+        {
+          "name": "punctuation.bracket.square.cicekliscript",
+          "match": "[\\[\\]]"
+        }
+      ]
+    }
+  }
+}

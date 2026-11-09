@@ -1,0 +1,17 @@
+# CicekliScript - Merhaba Dünya & Giriş Örneği
+// Her ifade sonuna ';' koymak zorunludur!
+
+cicekli.println("=== CicekliScript 1.0 Başlatıldı ===");
+cicekli.println("Hello World!");
+
+// Kullanıcıdan girdi alma (input)
+# İsim alalım:
+isim = cicekli.input("Lütfen adınızı giriniz: ");
+cicekli.println("Hoş geldin,", isim, "!");
+
+// Sayı alıp karesini hesaplayalım:
+sayi_metni = cicekli.input("Bir sayı giriniz: ");
+sayi = cicekli.float(sayi_metni);
+kare = sayi * sayi;
+
+ccl.println(sayi, "sayısının karesi:", kare);

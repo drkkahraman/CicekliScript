@@ -191,6 +191,7 @@ static TokenType identifier_type(const char* start, size_t length) {
         case 'i':
             if (length == 2 && memcmp(start, "if", 2) == 0) return TOKEN_IF;
             if (length == 2 && memcmp(start, "in", 2) == 0) return TOKEN_IN;
+            if (length == 6 && memcmp(start, "import", 6) == 0) return TOKEN_IMPORT;
             break;
         case 'n':
             if (length == 4 && memcmp(start, "null", 4) == 0) return TOKEN_NULL;
@@ -210,24 +211,36 @@ static TokenType identifier_type(const char* start, size_t length) {
 }
 
 static Token scan_identifier_or_keyword(Lexer* lexer, const char* start) {
-    // Check for mete.deffunction
+    // Check for cicekli.deffunction, cicekliscript.deffunction, mete.deffunction
+    if (strncmp(start, "cicekli.deffunction", 19) == 0 &&
+        !isalnum(start[19]) && start[19] != '_') {
+        lexer->current = start + 19;
+        return make_token(lexer, TOKEN_CICEKLI_DEFFUNCTION, start);
+    }
+    if (strncmp(start, "cicekliscript.deffunction", 25) == 0 &&
+        !isalnum(start[25]) && start[25] != '_') {
+        lexer->current = start + 25;
+        return make_token(lexer, TOKEN_CICEKLI_DEFFUNCTION, start);
+    }
     if (strncmp(start, "mete.deffunction", 16) == 0 &&
         !isalnum(start[16]) && start[16] != '_') {
         lexer->current = start + 16;
-        return make_token(lexer, TOKEN_METE_DEFFUNCTION, start);
+        return make_token(lexer, TOKEN_CICEKLI_DEFFUNCTION, start);
     }
 
     while (isalnum(peek(lexer)) || peek(lexer) == '_') {
         advance(lexer);
     }
 
-    // If identifier is "mete" and next is ".deffunction"
+    // If identifier is "cicekli", "cicekliscript" or "mete" and next is ".deffunction"
     size_t len = (size_t)(lexer->current - start);
-    if (len == 4 && memcmp(start, "mete", 4) == 0 && peek(lexer) == '.') {
+    if (((len == 7 && memcmp(start, "cicekli", 7) == 0) ||
+         (len == 13 && memcmp(start, "cicekliscript", 13) == 0) ||
+         (len == 4 && memcmp(start, "mete", 4) == 0)) && peek(lexer) == '.') {
         if (strncmp(lexer->current, ".deffunction", 12) == 0 &&
             !isalnum(lexer->current[12]) && lexer->current[12] != '_') {
             lexer->current += 12;
-            return make_token(lexer, TOKEN_METE_DEFFUNCTION, start);
+            return make_token(lexer, TOKEN_CICEKLI_DEFFUNCTION, start);
         }
     }
 
@@ -346,7 +359,7 @@ const char* token_type_name(TokenType type) {
         case TOKEN_IDENTIFIER: return "tanımlayıcı";
         case TOKEN_STRING: return "metin";
         case TOKEN_NUMBER: return "sayı";
-        case TOKEN_METE_DEFFUNCTION: return "mete.deffunction";
+        case TOKEN_CICEKLI_DEFFUNCTION: return "cicekli.deffunction";
         case TOKEN_DEF: return "def";
         case TOKEN_IF: return "if";
         case TOKEN_ELIF: return "elif";
@@ -354,6 +367,7 @@ const char* token_type_name(TokenType type) {
         case TOKEN_WHILE: return "while";
         case TOKEN_FOR: return "for";
         case TOKEN_IN: return "in";
+        case TOKEN_IMPORT: return "import";
         case TOKEN_RETURN: return "return";
         case TOKEN_BREAK: return "break";
         case TOKEN_CONTINUE: return "continue";

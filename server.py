@@ -12,7 +12,11 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOCS_DIR = os.path.join(BASE_DIR, "docs")
-BIN_PATH = os.path.join(BASE_DIR, "bin", "metescript")
+BIN_PATH = os.path.join(BASE_DIR, "bin", "cicekliscript")
+if not os.path.isfile(BIN_PATH):
+    fallback_bin = os.path.join(BASE_DIR, "bin", "metescript")
+    if os.path.isfile(fallback_bin):
+        BIN_PATH = fallback_bin
 
 # --- Etkileşimli oturum yönetimi -----------------------------------------
 SESSIONS = {}
@@ -24,7 +28,7 @@ REAP_INTERVAL = 5.0            # temizlik döngüsü
 IDLE_KILL_REASON = "Zaman aşımı: oturum çok uzun süre hareketsiz kaldı."
 TOTAL_KILL_REASON = "Zaman aşımı: oturum en fazla çalışma süresini aştı."
 
-class MeteScriptHandler(SimpleHTTPRequestHandler):
+class CicekliScriptHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DOCS_DIR, **kwargs)
 
@@ -219,7 +223,8 @@ class MeteScriptHandler(SimpleHTTPRequestHandler):
 
 def _child_env():
     env = dict(os.environ)
-    env["METE_GUI_HEADLESS"] = "1"  # GUI kodları web önizlemesi için komut dökümü yazar
+    env["CICEKLI_GUI_HEADLESS"] = "1"  # GUI kodları web önizlemesi için komut dökümü yazar
+    env["METE_GUI_HEADLESS"] = "1"
     return env
 
 
@@ -349,8 +354,8 @@ def _spawn_interactive(code, initial_stdin=""):
 def _serve_port(port):
     try:
         ThreadingHTTPServer.allow_reuse_address = True
-        server = ThreadingHTTPServer(("0.0.0.0", port), MeteScriptHandler)
-        print(f"MeteScript Dokümantasyon & Online Compiler sunucusu çalışıyor: http://0.0.0.0:{port}")
+        server = ThreadingHTTPServer(("0.0.0.0", port), CicekliScriptHandler)
+        print(f"CicekliScript Dokümantasyon & Online Compiler sunucusu çalışıyor: http://0.0.0.0:{port}")
         server.serve_forever()
     except Exception as e:
         print(f"Port {port} üzerinde sunucu başlatılamadı: {e}", file=sys.stderr)

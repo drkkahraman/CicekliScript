@@ -9,18 +9,21 @@
     "_folder_open": {
       "iconPath": "./folder-open.svg"
     },
-    "_ms_file": {
-      "iconPath": "./ms.svg"
+    "_ccl_file": {
+      "iconPath": "./ccl.svg"
     }
   },
   "file": "_file",
   "folder": "_folder",
   "folderExpanded": "_folder_open",
   "fileExtensions": {
-    "ms": "_ms_file",
-    "metescript": "_ms_file"
+    "ccl": "_ccl_file",
+    "cicekli": "_ccl_file",
+    "ms": "_ccl_file",
+    "metescript": "_ccl_file"
   },
   "languageIds": {
-    "metescript": "_ms_file"
+    "cicekliscript": "_ccl_file",
+    "metescript": "_ccl_file"
   }
 }

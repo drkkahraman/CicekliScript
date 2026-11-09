@@ -1,12 +1,12 @@
 {
-  "name": "metescript",
-  "displayName": "MeteScript",
-  "description": "MeteScript dili desteği — Sözdizimi renklendirme, MS dosya logosu, zengin snippet'lar ve tek tıkla çalıştırma.",
+  "name": "cicekliscript",
+  "displayName": "CicekliScript",
+  "description": "CicekliScript dili desteği (.ccl) — Sözdizimi renklendirme, dosya logosu, zengin snippet'lar ve tek tıkla çalıştırma.",
   "version": "1.0.0",
-  "publisher": "metescript",
+  "publisher": "cicekliscript",
   "repository": {
     "type": "git",
-    "url": "https://github.com/metescript/metescript"
+    "url": "https://github.com/cicekliscript/cicekliscript"
   },
   "engines": {
     "vscode": "^1.70.0"
@@ -17,9 +17,11 @@
     "Themes"
   ],
   "keywords": [
+    "cicekliscript",
+    "ccl",
+    "cicekli",
     "metescript",
     "ms",
-    "mete",
     "programming language",
     "python-like",
     "c-based"
@@ -27,116 +29,123 @@
   "icon": "icons/logo.png",
   "main": "./extension.js",
   "activationEvents": [
+    "onLanguage:cicekliscript",
     "onLanguage:metescript",
+    "workspaceContains:**/*.ccl",
+    "workspaceContains:**/*.cicekli",
     "workspaceContains:**/*.ms"
   ],
   "contributes": {
     "languages": [
       {
-        "id": "metescript",
+        "id": "cicekliscript",
         "aliases": [
+          "CicekliScript",
+          "cicekliscript",
+          "ccl",
           "MeteScript",
-          "metescript",
-          "ms"
+          "metescript"
         ],
         "extensions": [
+          ".ccl",
+          ".cicekli",
           ".ms",
           ".metescript"
         ],
         "configuration": "./language-configuration.json",
         "icon": {
-          "light": "./icons/ms.svg",
-          "dark": "./icons/ms.svg"
+          "light": "./icons/ccl.svg",
+          "dark": "./icons/ccl.svg"
         }
       }
     ],
     "grammars": [
       {
-        "language": "metescript",
-        "scopeName": "source.metescript",
-        "path": "./syntaxes/metescript.tmLanguage.json"
+        "language": "cicekliscript",
+        "scopeName": "source.cicekliscript",
+        "path": "./syntaxes/cicekliscript.tmLanguage.json"
       }
     ],
     "snippets": [
       {
-        "language": "metescript",
-        "path": "./snippets/metescript.code-snippets.json"
+        "language": "cicekliscript",
+        "path": "./snippets/cicekliscript.code-snippets.json"
       }
     ],
     "iconThemes": [
       {
-        "id": "metescript-icons",
-        "label": "MeteScript File Icons (MS)",
+        "id": "cicekliscript-icons",
+        "label": "CicekliScript File Icons (.ccl)",
         "path": "./icons/icon-theme.json"
       }
     ],
     "commands": [
       {
-        "command": "metescript.run",
-        "title": "MeteScript: Dosyayı Çalıştır",
+        "command": "cicekliscript.run",
+        "title": "CicekliScript: Dosyayı Çalıştır",
         "icon": "$(play)"
       },
       {
-        "command": "metescript.runInTerminal",
-        "title": "MeteScript: Entegre Terminalde Çalıştır",
+        "command": "cicekliscript.runInTerminal",
+        "title": "CicekliScript: Entegre Terminalde Çalıştır",
         "icon": "$(terminal)"
       },
       {
-        "command": "metescript.runSelection",
-        "title": "MeteScript: Seçili Kodu Çalıştır",
+        "command": "cicekliscript.runSelection",
+        "title": "CicekliScript: Seçili Kodu Çalıştır",
         "icon": "$(play)"
       },
       {
-        "command": "metescript.openDocs",
-        "title": "MeteScript: Dokümantasyon & Online Derleyiciyi Aç",
+        "command": "cicekliscript.openDocs",
+        "title": "CicekliScript: Dokümantasyon & Online Derleyiciyi Aç",
         "icon": "$(book)"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "metescript.run",
-          "when": "editorLangId == metescript || resourceExtname == .ms",
+          "command": "cicekliscript.run",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
           "group": "navigation"
         }
       ],
       "editor/context": [
         {
-          "command": "metescript.run",
-          "when": "editorLangId == metescript || resourceExtname == .ms",
+          "command": "cicekliscript.run",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
           "group": "1_run@1"
         },
         {
-          "command": "metescript.runSelection",
-          "when": "editorHasSelection && editorLangId == metescript",
+          "command": "cicekliscript.runSelection",
+          "when": "editorHasSelection && (editorLangId == cicekliscript || editorLangId == metescript)",
           "group": "1_run@2"
         }
       ],
       "explorer/context": [
         {
-          "command": "metescript.run",
-          "when": "resourceExtname == .ms || resourceExtname == .metescript",
+          "command": "cicekliscript.run",
+          "when": "resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms || resourceExtname == .metescript",
           "group": "1_run"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "metescript.run",
+        "command": "cicekliscript.run",
         "key": "ctrl+f5",
         "mac": "cmd+f5",
-        "when": "editorLangId == metescript || resourceExtname == .ms"
+        "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms"
       }
     ],
     "configuration": {
-      "title": "MeteScript",
+      "title": "CicekliScript",
       "properties": {
-        "metescript.executablePath": {
+        "cicekliscript.executablePath": {
           "type": "string",
           "default": "",
-          "description": "MeteScript ikili dosyasının (metescript) tam yolu. Boş bırakılırsa sistem PATH ve ~/.local/bin/metescript otomatik aranır."
+          "description": "CicekliScript ikili dosyasının (cicekliscript) tam yolu. Boş bırakılırsa sistem PATH ve ~/.local/bin/cicekliscript otomatik aranır."
         },
-        "metescript.clearTerminalBeforeRun": {
+        "cicekliscript.clearTerminalBeforeRun": {
           "type": "boolean",
           "default": true,
           "description": "Kodu çalıştırmadan önce terminali temizle."

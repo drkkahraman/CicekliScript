@@ -1,6 +1,6 @@
-# MeteScript 🚀
+# CicekliScript 🚀
 
-**MeteScript**, Python'ın pratikliği ve yüksek seviyeli sözdizimi ile C dilinin gücünü, blok yapısını (`{}`) ve hızını birleştiren; her cümlenin sonuna **`;` (noktalı virgül)** koymanın zorunlu olduğu modern, dinamik ve C tabanlı bir programlama dilidir!
+**CicekliScript**, Python'ın pratikliği ve yüksek seviyeli sözdizimi ile C dilinin gücünü, blok yapısını (`{}`) ve hızını birleştiren; her cümlenin sonuna **`;` (noktalı virgül)** koymanın zorunlu olduğu modern, dinamik ve C tabanlı bir programlama dilidir!
 
 ---
 
@@ -9,11 +9,11 @@
 1. **C Tabanlı**: Yorumlayıcı tamamen sıfırdan saf C (C11) ile yazılmıştır, son derece hafif ve hızlıdır.
 2. **Python Kolaylığı**: Dinamik tipler, listeler `[1, 2, 3]`, sözlükler/haritalar `{"anahtar": "deger"}`, dilimleme ve negatif indeksleme (`[-1]`).
 3. **Zorunlu Noktalı Virgül (`;`)**: Tıpkı C'de olduğu gibi tüm ifadelerin sonuna `;` konulması zorunludur!
-4. **`mete` Çekirdek Modülü**:
-   - `a = mete.input("Cümle");` ile kullanıcıdan girdi alma
-   - `mete.println("Hello World");` ile ekrana satır sonlu yazdırma
-   - `mete.print(...)` ile ekrana satır sonu olmadan yazdırma
-   - `mete.deffunction` ile isimli veya anonim fonksiyon tanımlama
+4. **`cicekli` Çekirdek Modülü** (Geriye uyumluluk için `mete` de desteklenir):
+   - `a = cicekli.input("Cümle");` ile kullanıcıdan girdi alma
+   - `cicekli.println("Hello World");` ile ekrana satır sonlu yazdırma
+   - `cicekli.print(...)` ile ekrana satır sonu olmadan yazdırma
+   - `cicekli.deffunction` veya `def` ile isimli veya anonim fonksiyon tanımlama
 5. **Esnek Döngü Desteği**:
    - Python tarzı: `for (eleman in liste) { ... };`
    - C tarzı: `for (i = 0; i < 10; i = i + 1) { ... };`
@@ -23,20 +23,20 @@
    - `# Python tarzı yorum`
    - `// C tarzı tek satır yorum`
    - `/* C tarzı çok satırlı yorum */`
-7. **Etkileşimli Kabuk (REPL)**: Terminalde `metescript` yazarak canlı deneme yapabilme.
+7. **Etkileşimli Kabuk (REPL)**: Terminalde `cicekliscript` yazarak canlı deneme yapabilme.
 
 ---
 
 ## 🛠️ Kurulum ve Derleme
 
-MeteScript doğrudan GCC ve Make ile tek komutla derlenebilir:
+CicekliScript doğrudan GCC ve Make ile tek komutla derlenebilir:
 
 ```bash
-cd /home/admin/metescript
 make
+make install
 ```
 
-Derlenen ikili dosya `bin/metescript` altında ve `~/.local/bin/metescript` yolunda hazır haldedir.
+Derlenen ikili dosya `bin/cicekliscript` altında ve `~/.local/bin/cicekliscript` yolunda hazır haldedir.
 
 ---
 
@@ -44,31 +44,31 @@ Derlenen ikili dosya `bin/metescript` altında ve `~/.local/bin/metescript` yolu
 
 ### 1. Etkileşimli REPL Kabuğu
 ```bash
-metescript
+cicekliscript
 ```
 ```
 ╔═══════════════════════════════════════════════════╗
-║            MeteScript v1.0.0 REPL                 ║
+║          CicekliScript v1.0.0 REPL                ║
 ║  Python kolaylığı + C gücü + Zorunlu ';'         ║
-║  Çıkmak için: exit() veya mete.exit();            ║
+║  Çıkmak için: exit() veya cicekli.exit();        ║
 ╚═══════════════════════════════════════════════════╝
 
-mete>>> mete.println("Merhaba Dünya!");
+cicekli>>> cicekli.println("Merhaba Dünya!");
 Merhaba Dünya!
-mete>>> a = 10; b = 20;
-mete>>> mete.println("Toplam:", a + b);
+cicekli>>> a = 10; b = 20;
+cicekli>>> cicekli.println("Toplam:", a + b);
 Toplam: 30
-mete>>> exit();
+cicekli>>> exit();
 ```
 
 ### 2. Dosyadan Betik Çalıştırma
 ```bash
-metescript script.ms
+cicekliscript script.ccl
 ```
 
 ### 3. Tek Satır Komut Çalıştırma (`-c`)
 ```bash
-metescript -c 'mete.println("Hello World");'
+cicekliscript -c 'cicekli.println("Hello World");'
 ```
 
 ---
@@ -78,54 +78,54 @@ metescript -c 'mete.println("Hello World");'
 ### 1. Girdi ve Çıktı (I/O)
 ```javascript
 // Ekrana yazdırma
-mete.println("Hello World");
+cicekli.println("Hello World");
 
 // Kullanıcıdan girdi alma (input)
-a = mete.input("Cümle giriniz: ");
-mete.println("Girdiğiniz cümle:", a);
+a = cicekli.input("Cümle giriniz: ");
+cicekli.println("Girdiğiniz cümle:", a);
 ```
 
-### 2. Fonksiyon Tanımlama (`mete.deffunction`)
+### 2. Fonksiyon Tanımlama (`cicekli.deffunction` / `def`)
 
 #### İsimli Fonksiyon:
 ```javascript
-mete.deffunction topla(a, b) {
+cicekli.deffunction topla(a, b) {
     return a + b;
 };
 
 sonuc = topla(15, 25);
-mete.println("Sonuç:", sonuc);
+cicekli.println("Sonuç:", sonuc);
 ```
 
 #### Değişkene Atanan Anonim Fonksiyon:
 ```javascript
-kare = mete.deffunction(x) {
+kare = cicekli.deffunction(x) {
     return x * x;
 };
 
-mete.println("5'in karesi:", kare(5));
+cicekli.println("5'in karesi:", kare(5));
 ```
 
 #### Anonim Olarak Doğrudan Çalıştırma:
 ```javascript
-mete.deffunction() {
-    mete.println("Bu blok hemen çalışır!");
+cicekli.deffunction() {
+    cicekli.println("Bu blok hemen çalışır!");
 }();
 ```
 
 ### 3. GUI (Pencere ve Grafik) Desteği
 
-MeteScript ile doğrudan donanım hızlandırmalı ve çift arabelleğe (double buffering) sahip GUI pencereleri oluşturabilirsiniz:
+CicekliScript ile doğrudan donanım hızlandırmalı ve çift arabelleğe (double buffering) sahip GUI pencereleri oluşturabilirsiniz:
 
 ```javascript
-// 100x100 boyutunda pencere aç:
-window = mete.window(100, 100);
+// 400x300 boyutunda pencere aç:
+window = cicekli.window(400, 300, "Uygulama Penceresi");
 
 // Arka plan rengini ayarla:
 window.color(); // veya window.color("red"); veya window.color("#1e1e2e");
 
 // Metin ekle: window.text(metin, renk, boyut, x, y);
-window.text("Mete", "red", 16, 20, 35);
+window.text("CicekliScript", "red", 16, 20, 35);
 
 // Geometrik şekiller:
 window.rect(10, 50, 40, 20, "blue");
@@ -140,33 +140,33 @@ window.mainloop();
 puan = 85;
 
 if (puan >= 90) {
-    mete.println("Harf notu: AA");
+    cicekli.println("Harf notu: AA");
 } elif (puan >= 70) {
-    mete.println("Harf notu: BB");
+    cicekli.println("Harf notu: BB");
 } else {
-    mete.println("Harf notu: CC");
+    cicekli.println("Harf notu: CC");
 };
 ```
 
-### 4. Döngüler
+### 5. Döngüler
 
 #### Python Tarzı `for..in`:
 ```javascript
 meyveler = ["Elma", "Armut", "Muz"];
 for (m in meyveler) {
-    mete.println("Meyve:", m);
+    cicekli.println("Meyve:", m);
 };
 
 // range() ile kullanım:
-for (i in mete.range(5)) {
-    mete.println("İndeks:", i);
+for (i in cicekli.range(5)) {
+    cicekli.println("İndeks:", i);
 };
 ```
 
 #### C Tarzı `for(init; cond; step)`:
 ```javascript
 for (i = 0; i < 5; i = i + 1) {
-    mete.println("Adım:", i);
+    cicekli.println("Adım:", i);
 };
 ```
 
@@ -178,22 +178,22 @@ while (sayac < 5) {
     if (sayac == 2) {
         continue;
     };
-    mete.println("Sayaç:", sayac);
+    cicekli.println("Sayaç:", sayac);
 };
 ```
 
-### 5. Veri Tipleri
+### 6. Veri Tipleri
 
 - **Sayılar**: `10`, `3.14`, `-42`
-- **Metinler**: `"Merhaba"`, `'MeteScript'`, `\n`, `\t` kaçış dizileri, metin birleştirme `+`
+- **Metinler**: `"Merhaba"`, `'CicekliScript'`, `\n`, `\t` kaçış dizileri, metin birleştirme `+`
 - **Mantıksal**: `true`, `false`, `True`, `False`
 - **Boş Değer**: `null`, `None`, `nil`
 - **Dinamik Listeler**: `[1, 2, "üç", [4, 5]]`
-  - Eleman ekleme: `mete.append(liste, eleman);`
-  - Eleman çıkarma: `mete.pop(liste);`
-  - Uzunluk: `mete.len(liste);`
+  - Eleman ekleme: `cicekli.append(liste, eleman);` veya `liste.append(eleman);`
+  - Eleman çıkarma: `cicekli.pop(liste);` veya `liste.pop();`
+  - Uzunluk: `cicekli.len(liste);` veya `liste.len();`
   - Negatif indeksleme: `liste[-1]`
-- **Sözlükler (Maps)**: `{"ad": "Mete", "yas": 25}`
+- **Sözlükler (Maps)**: `{"ad": "Çiçek", "yas": 25}`
   - Nokta erişimi: `kullanici.ad`
   - İndeks erişimi: `kullanici["yas"]`
 
@@ -202,9 +202,11 @@ while (sayac < 5) {
 ## 📂 Örnek Dosyalar
 
 Tüm örnekler `examples/` klasöründe yer almaktadır:
-- `examples/01_merhaba.ms` - Girdi/çıktı ve değişkenler
-- `examples/02_fonksiyonlar.ms` - `mete.deffunction` varyasyonları
-- `examples/03_donguler.ms` - `for in`, `for(;;)` ve `while` döngüleri
-- `examples/04_fibonacci.ms` - Özyinelemeli (recursive) algoritma ve zaman ölçümü
-- `examples/05_listeler_ve_sozlukler.ms` - Dinamik listeler ve haritalar
-- `examples/06_hesap_makinesi.ms` - Fonksiyonel hesap makinesi
+- `examples/01_merhaba.ccl` - Girdi/çıktı ve değişkenler
+- `examples/02_fonksiyonlar.ccl` - Fonksiyon varyasyonları
+- `examples/03_donguler.ccl` - `for in`, `for(;;)` ve `while` döngüleri
+- `examples/04_fibonacci.ccl` - Özyinelemeli (recursive) algoritma ve zaman ölçümü
+- `examples/05_listeler_ve_sozlukler.ccl` - Dinamik listeler ve haritalar
+- `examples/06_hesap_makinesi.ccl` - Fonksiyonel hesap makinesi
+- `examples/07_gui_pencere.ccl` - GUI temel pencere örneği
+- `examples/08_gui_gelismis.ccl` - İnteraktif GUI animasyon ve çizim örneği

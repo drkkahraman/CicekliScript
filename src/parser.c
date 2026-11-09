@@ -8,7 +8,7 @@ static void error_at(Parser* parser, Token* token, const char* message) {
     parser->panic_mode = true;
     parser->had_error = true;
 
-    fprintf(stderr, "MeteScript Sözdizimi Hatası (Satır %d): %s", token->line, message);
+    fprintf(stderr, "CicekliScript Sözdizimi Hatası (Satır %d): %s", token->line, message);
     if (token->type == TOKEN_EOF) {
         fprintf(stderr, " (Dosya sonu)\n");
     } else if (token->type == TOKEN_ERROR) {
@@ -52,6 +52,29 @@ static void consume(Parser* parser, TokenType type, const char* message) {
         return;
     }
     error_current(parser, message);
+}
+
+static void synchronize(Parser* parser) {
+    parser->panic_mode = false;
+    advance(parser);
+
+    while (!check(parser, TOKEN_EOF)) {
+        if (parser->previous.type == TOKEN_SEMICOLON) return;
+        switch (parser->current.type) {
+            case TOKEN_CICEKLI_DEFFUNCTION:
+            case TOKEN_DEF:
+            case TOKEN_IF:
+            case TOKEN_WHILE:
+            case TOKEN_FOR:
+            case TOKEN_IMPORT:
+            case TOKEN_RETURN:
+            case TOKEN_RIGHT_BRACE:
+                return;
+            default:
+                break;
+        }
+        advance(parser);
+    }
 }
 
 void parser_init(Parser* parser, const char* source) {
@@ -161,8 +184,8 @@ static Expr* parse_primary(Parser* parser) {
         return make_map_expr(entries, count, line);
     }
 
-    // Function expression: mete.deffunction(args) { body } or def(args) { body }
-    if (match(parser, TOKEN_METE_DEFFUNCTION) || match(parser, TOKEN_DEF)) {
+    // Function expression: cicekli.deffunction(args) { body }, mete.deffunction(args) { body } or def(args) { body }
+    if (match(parser, TOKEN_CICEKLI_DEFFUNCTION) || match(parser, TOKEN_DEF)) {
         consume(parser, TOKEN_LEFT_PAREN, "Fonksiyon parametreleri için '(' bekleniyor!");
         size_t cap = 4;
         size_t arity = 0;
@@ -225,6 +248,15 @@ static Expr* parse_call_member_index(Parser* parser) {
             Expr* index = parse_expression(parser);
             consume(parser, TOKEN_RIGHT_BRACKET, "']' bekleniyor!");
             expr = make_index_expr(expr, index, parser->previous.line);
+        } else if (match(parser, TOKEN_PLUS_PLUS) || match(parser, TOKEN_MINUS_MINUS)) {
+            TokenType op = parser->previous.type;
+            int line = parser->previous.line;
+            if (expr->type == EXPR_IDENTIFIER) {
+                Expr* one = make_literal_expr(make_number(1), line);
+                expr = make_assign_expr(expr->as.identifier, op == TOKEN_PLUS_PLUS ? TOKEN_PLUS_EQUAL : TOKEN_MINUS_EQUAL, one, line);
+            } else {
+                error_at(parser, &parser->previous, "++ ve -- sadece değişkenler üzerinde kullanılabilir!");
+            }
         } else {
             break;
         }
@@ -234,6 +266,17 @@ static Expr* parse_call_member_index(Parser* parser) {
 }
 
 static Expr* parse_unary(Parser* parser) {
+    if (match(parser, TOKEN_PLUS_PLUS) || match(parser, TOKEN_MINUS_MINUS)) {
+        TokenType op = parser->previous.type;
+        int line = parser->previous.line;
+        Expr* right = parse_unary(parser);
+        if (right->type == EXPR_IDENTIFIER) {
+            Expr* one = make_literal_expr(make_number(1), line);
+            return make_assign_expr(right->as.identifier, op == TOKEN_PLUS_PLUS ? TOKEN_PLUS_EQUAL : TOKEN_MINUS_EQUAL, one, line);
+        }
+        error_at(parser, &parser->previous, "++ ve -- sadece değişkenler üzerinde kullanılabilir!");
+        return right;
+    }
     if (match(parser, TOKEN_BANG) || match(parser, TOKEN_NOT) || match(parser, TOKEN_MINUS)) {
         TokenType op = parser->previous.type;
         int line = parser->previous.line;
@@ -346,6 +389,9 @@ static Expr* parse_expression(Parser* parser) {
 static Stmt* parse_block(Parser* parser) {
     int line = parser->current.line;
     consume(parser, TOKEN_LEFT_BRACE, "'{' bekleniyor!");
+    if (parser->panic_mode) {
+        return make_block_stmt(NULL, 0, line);
+    }
 
     size_t cap = 8;
     size_t count = 0;
@@ -357,6 +403,9 @@ static Stmt* parse_block(Parser* parser) {
             stmts = (Stmt**)realloc(stmts, sizeof(Stmt*) * cap);
         }
         stmts[count++] = parse_statement(parser);
+        if (parser->panic_mode) {
+            synchronize(parser);
+        }
     }
 
     consume(parser, TOKEN_RIGHT_BRACE, "'}' bekleniyor!");
@@ -514,11 +563,11 @@ static Stmt* parse_for_statement(Parser* parser) {
 Stmt* parse_statement(Parser* parser) {
     int line = parser->current.line;
 
-    if (check(parser, TOKEN_METE_DEFFUNCTION) || check(parser, TOKEN_DEF)) {
+    if (check(parser, TOKEN_CICEKLI_DEFFUNCTION) || check(parser, TOKEN_DEF)) {
         Lexer lookahead = parser->lexer;
         Token next_tok = lexer_next_token(&lookahead);
         if (next_tok.type == TOKEN_IDENTIFIER) {
-            advance(parser); // consume mete.deffunction or def
+            advance(parser); // consume cicekli.deffunction / def
             return parse_function_statement(parser);
         }
     }
@@ -533,6 +582,29 @@ Stmt* parse_statement(Parser* parser) {
 
     if (match(parser, TOKEN_FOR)) {
         return parse_for_statement(parser);
+    }
+
+    if (match(parser, TOKEN_IMPORT)) {
+        Expr* path_expr = NULL;
+        if (match(parser, TOKEN_STRING)) {
+            ObjString* str = copy_string(parser->previous.string_value ? parser->previous.string_value : "");
+            path_expr = make_literal_expr(make_obj((Obj*)str), line);
+        } else if (match(parser, TOKEN_IDENTIFIER)) {
+            char name_buf[256];
+            size_t len = parser->previous.length < 250 ? parser->previous.length : 250;
+            memcpy(name_buf, parser->previous.start, len);
+            name_buf[len] = '\0';
+            strcat(name_buf, ".ccl");
+            path_expr = make_literal_expr(make_obj((Obj*)copy_string(name_buf)), line);
+        } else {
+            path_expr = parse_expression(parser);
+        }
+        consume(parser, TOKEN_SEMICOLON, "import sonuna ';' eklenmelidir!");
+        Expr* import_ident = make_identifier_expr("import", line);
+        Expr** args = (Expr**)malloc(sizeof(Expr*) * 1);
+        args[0] = path_expr;
+        Expr* call = make_call_expr(import_ident, args, 1, line);
+        return make_expr_stmt(call, line);
     }
 
     if (match(parser, TOKEN_RETURN)) {
@@ -578,25 +650,7 @@ Stmt** parse_program(Parser* parser, size_t* out_count) {
         }
         stmts[count++] = parse_statement(parser);
         if (parser->panic_mode) {
-            // Synchronize on error
-            parser->panic_mode = false;
-            advance(parser);
-            while (!check(parser, TOKEN_EOF)) {
-                if (parser->previous.type == TOKEN_SEMICOLON) break;
-                switch (parser->current.type) {
-                    case TOKEN_METE_DEFFUNCTION:
-                    case TOKEN_DEF:
-                    case TOKEN_IF:
-                    case TOKEN_WHILE:
-                    case TOKEN_FOR:
-                    case TOKEN_RETURN:
-                        goto synchronized;
-                    default:
-                        break;
-                }
-                advance(parser);
-            }
-            synchronized:;
+            synchronize(parser);
         }
     }
 

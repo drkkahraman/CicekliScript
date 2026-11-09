@@ -1,5 +1,5 @@
-#ifndef METESCRIPT_PARSER_H
-#define METESCRIPT_PARSER_H
+#ifndef CICEKLISCRIPT_PARSER_H
+#define CICEKLISCRIPT_PARSER_H
 
 #include "lexer.h"
 #include "ast.h"
@@ -16,4 +16,4 @@ void parser_init(Parser* parser, const char* source);
 Stmt* parse_statement(Parser* parser);
 Stmt** parse_program(Parser* parser, size_t* out_count);
 
-#endif // METESCRIPT_PARSER_H
+#endif // CICEKLISCRIPT_PARSER_H

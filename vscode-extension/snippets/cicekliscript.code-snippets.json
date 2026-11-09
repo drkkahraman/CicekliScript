@@ -1,0 +1,136 @@
+{
+  "cicekli.println": {
+    "prefix": ["println", "cicekli.println"],
+    "body": [
+      "cicekli.println(${1:\"Hello World\"});"
+    ],
+    "description": "Ekrana alt satıra geçerek yazdırır"
+  },
+  "cicekli.print": {
+    "prefix": ["print", "cicekli.print"],
+    "body": [
+      "cicekli.print(${1:\"Hello\"});"
+    ],
+    "description": "Ekrana alt satıra geçmeden yazdırır"
+  },
+  "cicekli.input": {
+    "prefix": ["input", "cicekli.input"],
+    "body": [
+      "${1:deger} = cicekli.input(\"${2:Bir değer giriniz: }\");"
+    ],
+    "description": "Kullanıcıdan girdi okur"
+  },
+  "cicekli.deffunction": {
+    "prefix": ["deffunction", "cicekli.deffunction", "func", "def"],
+    "body": [
+      "cicekli.deffunction ${1:fonksiyon_adi}(${2:param}) {",
+      "    ${0:# Kod buraya}",
+      "    return ${3:null};",
+      "};"
+    ],
+    "description": "Yeni bir CicekliScript fonksiyonu tanımlar"
+  },
+  "cicekli.deffunction anonymous": {
+    "prefix": ["anonfunc", "lambda"],
+    "body": [
+      "cicekli.deffunction(${1:x}) {",
+      "    return ${2:x * 2};",
+      "}"
+    ],
+    "description": "Anonim fonksiyon bloğu oluşturur"
+  },
+  "cicekli.window": {
+    "prefix": ["window", "cicekli.window", "gui"],
+    "body": [
+      "window = cicekli.window(${1:400}, ${2:300}, \"${3:CicekliScript GUI}\");",
+      "window.color(\"${4:#1e1e2e}\");",
+      "window.text(\"${5:Merhaba CicekliScript}\", \"${6:#89b4fa}\", ${7:20}, ${8:50}, ${9:40});",
+      "",
+      "// Pencereyi kullanıcı kapatana kadar açık tut",
+      "window.mainloop();"
+    ],
+    "description": "CicekliScript grafiksel arayüz (GUI) penceresi başlatır"
+  },
+  "window.text": {
+    "prefix": ["win.text", "text"],
+    "body": [
+      "window.text(\"${1:metin}\", \"${2:red}\", ${3:16}, ${4:20}, ${5:40});"
+    ],
+    "description": "Pencereye renkli metin çizer"
+  },
+  "window.color": {
+    "prefix": ["win.color", "color"],
+    "body": [
+      "window.color(\"${1:#1e1e2e}\");"
+    ],
+    "description": "Pencere arka plan rengini ayarlar"
+  },
+  "window.rect": {
+    "prefix": ["win.rect", "rect"],
+    "body": [
+      "window.rect(${1:x}, ${2:y}, ${3:genislik}, ${4:yukseklik}, \"${5:#89b4fa}\");"
+    ],
+    "description": "Pencereye dikdörtgen çizer"
+  },
+  "window.circle": {
+    "prefix": ["win.circle", "circle"],
+    "body": [
+      "window.circle(${1:x}, ${2:y}, ${3:yaricap}, \"${4:#a6e3a1}\");"
+    ],
+    "description": "Pencereye daire çizer"
+  },
+  "window.line": {
+    "prefix": ["win.line", "line"],
+    "body": [
+      "window.line(${1:x1}, ${2:y1}, ${3:x2}, ${4:y2}, \"${5:#f38ba8}\", ${6:2});"
+    ],
+    "description": "Pencereye çizgi çizer"
+  },
+  "for in": {
+    "prefix": ["for", "forin"],
+    "body": [
+      "for ${1:eleman} in ${2:liste} {",
+      "    ${0:cicekli.println(eleman);}",
+      "};"
+    ],
+    "description": "Python tarzı for..in döngüsü"
+  },
+  "for range": {
+    "prefix": ["forrange", "range"],
+    "body": [
+      "for ${1:i} in range(${2:0}, ${3:10}) {",
+      "    ${0:cicekli.println(i);}",
+      "};"
+    ],
+    "description": "range() ile sayısal döngü"
+  },
+  "while loop": {
+    "prefix": ["while"],
+    "body": [
+      "while (${1:kosul}) {",
+      "    ${0:# döngü gövdesi}",
+      "};"
+    ],
+    "description": "While döngüsü"
+  },
+  "if statement": {
+    "prefix": ["if"],
+    "body": [
+      "if (${1:kosul}) {",
+      "    ${0:# gövde}",
+      "};"
+    ],
+    "description": "If bloğu"
+  },
+  "if else": {
+    "prefix": ["ifelse"],
+    "body": [
+      "if (${1:kosul}) {",
+      "    ${2:# if gövdesi}",
+      "} else {",
+      "    ${0:# else gövdesi}",
+      "};"
+    ],
+    "description": "If - Else bloğu"
+  }
+}

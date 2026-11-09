@@ -22,7 +22,7 @@ void* gc_allocate(size_t size, ObjType type) {
     bytes_allocated += size;
     Obj* obj = (Obj*)malloc(size);
     if (!obj) {
-        fprintf(stderr, "MeteScript Bellek Hatası: Yetersiz bellek!\n");
+        fprintf(stderr, "CicekliScript Bellek Hatası: Yetersiz bellek!\n");
         exit(1);
     }
     obj->type = type;
