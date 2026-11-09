@@ -1,1 +1,70 @@
-cicekli.println("Hello, World!");
+// ============================================================================
+// 🌸 CicekliBot — İnteraktif Sohbet & Chatbot Uygulaması
+// ============================================================================
+
+cicekli.println("╔═══════════════════════════════════════════════════════╗");
+cicekli.println("║          🌸 CicekliBot Chatbot Asistanı               ║");
+cicekli.println("║   Python kolaylığı + C gücüyle çalışan sohbet botu    ║");
+cicekli.println("║   (Çıkmak için: 'çık', 'exit' veya 'q' yazabilirsiniz)║");
+cicekli.println("╚═══════════════════════════════════════════════════════╝");
+cicekli.println("");
+cicekli.println("🤖 CicekliBot: Merhaba! Ben CicekliScript ile yazılmış akıllı sohbet botuyum.");
+cicekli.println("🤖 CicekliBot: Bana 'selam', 'nasılsın', 'cicekli nedir', 'şaka yap' veya 'yardım' yazabilirsiniz.\n");
+
+aktif = true;
+mesaj_sayisi = 0;
+baslangic_zamani = time();
+
+while (aktif) {
+    girdi = cicekli.input("👤 Siz: ");
+    
+    // Boşlukları temizle ve küçük harfe çevir
+    metin = girdi.trim();
+    if (metin.len() == 0) {
+        continue;
+    };
+    
+    kucuk = metin.to_lower();
+    mesaj_sayisi = mesaj_sayisi + 1;
+
+    // Çıkış komutları
+    if (kucuk == "çık" || kucuk == "exit" || kucuk == "q" || kucuk == "çıkış" || kucuk == "bye") {
+        gecen = math.round(time() - baslangic_zamani);
+        cicekli.println("\n🤖 CicekliBot: Benimle sohbet ettiğin için teşekkürler! (" + mesaj_sayisi + " mesaj, " + gecen + " sn)");
+        cicekli.println("🤖 CicekliBot: Görüşmek üzere, iyi kodlamalar! 🌸👋\n");
+        aktif = false;
+    } elif (kucuk.contains("merhaba") || kucuk.contains("selam") || kucuk == "hey") {
+        cicekli.println("🤖 CicekliBot: Merhaba dostum! Bugün senin için ne yapabilirim?");
+    } elif (kucuk.contains("nasılsın") || kucuk.contains("naber") || kucuk.contains("nasil")) {
+        cicekli.println("🤖 CicekliBot: Harikayım! C11 hızında çalışıyorum ve belleğim dipdiri. Sen nasılsın?");
+    } elif (kucuk.contains("kimsin") || kucuk.contains("adın ne") || kucuk.contains("sen kimsin")) {
+        cicekli.println("🤖 CicekliBot: Ben CicekliBot! CicekliScript diliyle saf C üzerinde geliştirilmiş interaktif bir botum.");
+    } elif (kucuk.contains("cicekli") || kucuk.contains("ccl") || kucuk.contains("script")) {
+        cicekli.println("🤖 CicekliBot: CicekliScript; Python'ın yüksek seviyeli kolaylığı ile C'nin blok yapısını ({}) ve hızını birleştiren modern bir programlama dilidir. Ve evet, her cümlenin sonuna ';' koymak zorunludur! 😉");
+    } elif (kucuk.contains("şaka") || kucuk.contains("fıkra") || kucuk.contains("komik") || kucuk.contains("saka") || kucuk.contains("fikra")) {
+        fikralar = [
+            "Neden C programcıları gözlük takar? Çünkü C# göremezler!",
+            "Dünyada 10 çeşit insan vardır: İkilik (binary) sistemi anlayanlar ve anlamayanlar.",
+            "Bir yazılımcının en büyük yalanı: 'Benim yerelimde çalışıyordu!'",
+            "Yazılımcı bakkala gider: '1 kalıp peynir al, yumurta varsa 10 tane al.' Yazılımcı 10 kalıp peynirle döner."
+        ];
+        secilen = math.round(math.random(0, fikralar.len() - 1));
+        if (secilen >= fikralar.len()) {
+            secilen = 0;
+        };
+        cicekli.println("🤖 CicekliBot: " + fikralar[secilen]);
+    } elif (kucuk.contains("saat") || kucuk.contains("süre") || kucuk.contains("zaman")) {
+        gecen = math.round(time() - baslangic_zamani);
+        cicekli.println("🤖 CicekliBot: Sohbetimiz başlayalı tam " + gecen + " saniye oldu. Zaman su gibi akıyor!");
+    } elif (kucuk.contains("yardım") || kucuk.contains("help") || kucuk.contains("komut") || kucuk.contains("yardim")) {
+        cicekli.println("🤖 CicekliBot: Bana şunları sorabilirsiniz:");
+        cicekli.println("   • 'selam' veya 'nasılsın'");
+        cicekli.println("   • 'cicekli nedir'");
+        cicekli.println("   • 'şaka yap'");
+        cicekli.println("   • 'saat kaç'");
+        cicekli.println("   • 'çık' (sohbeti bitirmek için)");
+    } else {
+        cicekli.println("🤖 CicekliBot: '" + metin + "' dediniz. Ne sormak istediğinizi tam anlayamadım ama öğrenmeye devam ediyorum. 'yardım' yazarak sorabileceğiniz şeyleri görebilirsiniz.");
+    };
+    cicekli.println("");
+};
