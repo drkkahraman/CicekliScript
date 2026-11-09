@@ -211,7 +211,12 @@ static TokenType identifier_type(const char* start, size_t length) {
 }
 
 static Token scan_identifier_or_keyword(Lexer* lexer, const char* start) {
-    // Check for cicekli.deffunction, cicekliscript.deffunction, mete.deffunction
+    // Check for cicekli.deffunction, ccl.deffunction, cicekliscript.deffunction, mete.deffunction
+    if (strncmp(start, "ccl.deffunction", 15) == 0 &&
+        !isalnum(start[15]) && start[15] != '_') {
+        lexer->current = start + 15;
+        return make_token(lexer, TOKEN_CICEKLI_DEFFUNCTION, start);
+    }
     if (strncmp(start, "cicekli.deffunction", 19) == 0 &&
         !isalnum(start[19]) && start[19] != '_') {
         lexer->current = start + 19;

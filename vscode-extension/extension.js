@@ -18,18 +18,21 @@ function resolveExecutable() {
 
     const homeDir = os.homedir();
     const candidatePaths = [
+        path.join(homeDir, '.local', 'bin', 'ccl'),
         path.join(homeDir, '.local', 'bin', 'cicekliscript'),
+        path.join(homeDir, '.local', 'bin', 'cicekli'),
         path.join(homeDir, '.local', 'bin', 'metescript'),
+        '/usr/local/bin/ccl',
         '/usr/local/bin/cicekliscript',
-        '/usr/local/bin/metescript',
+        '/usr/bin/ccl',
         '/usr/bin/cicekliscript',
-        '/usr/bin/metescript',
+        'ccl',
         'cicekliscript',
         'metescript'
     ];
 
     for (const p of candidatePaths) {
-        if (p === 'cicekliscript' || p === 'metescript') return p;
+        if (p === 'ccl' || p === 'cicekliscript' || p === 'metescript') return p;
         try {
             if (fs.existsSync(p)) return p;
         } catch (e) {

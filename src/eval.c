@@ -1228,6 +1228,7 @@ Environment* init_global_environment(void) {
 
     Value cicekli_obj = make_obj((Obj*)cicekli);
     env_define(env, "cicekli", cicekli_obj);
+    env_define(env, "ccl", cicekli_obj);
     env_define(env, "cicekliscript", cicekli_obj);
     env_define(env, "mete", cicekli_obj); // Geriye dönük uyumluluk
     env_define(env, "math", make_obj((Obj*)math_map));

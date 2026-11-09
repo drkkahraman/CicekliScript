@@ -45,6 +45,8 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
+	@ln -sf cicekliscript $(BIN_DIR)/ccl
+	@ln -sf cicekliscript $(BIN_DIR)/cicekli
 	@ln -sf cicekliscript $(BIN_DIR)/metescript
 	@echo "CicekliScript başarıyla derlendi: $(TARGET)$(CUDA_INFO)"
 
@@ -55,11 +57,18 @@ $(SRC_DIR)/gpu_cuda.o: $(SRC_DIR)/gpu_cuda.cu
 	$(NVCC) -O3 -c $< -o $@
 
 clean:
-	rm -f $(SRC_DIR)/*.o $(TARGET) $(BIN_DIR)/metescript
+	rm -f $(SRC_DIR)/*.o $(TARGET) $(BIN_DIR)/ccl $(BIN_DIR)/cicekli $(BIN_DIR)/metescript
 	@echo "Temizlendi."
 
 install: $(TARGET)
 	install -d $(HOME)/.local/bin
 	install -m 755 $(TARGET) $(HOME)/.local/bin/cicekliscript
+	ln -sf $(HOME)/.local/bin/cicekliscript $(HOME)/.local/bin/ccl
+	ln -sf $(HOME)/.local/bin/cicekliscript $(HOME)/.local/bin/cicekli
 	ln -sf $(HOME)/.local/bin/cicekliscript $(HOME)/.local/bin/metescript
-	@echo "CicekliScript ~/.local/bin/cicekliscript konumuna yüklendi."
+	@if [ -d "$(HOME)/.gemini/antigravity/bin" ]; then \
+		ln -sf $(HOME)/.local/bin/cicekliscript $(HOME)/.gemini/antigravity/bin/ccl; \
+		ln -sf $(HOME)/.local/bin/cicekliscript $(HOME)/.gemini/antigravity/bin/cicekli; \
+		ln -sf $(HOME)/.local/bin/cicekliscript $(HOME)/.gemini/antigravity/bin/cicekliscript; \
+	fi
+	@echo "CicekliScript ~/.local/bin/cicekliscript ve 'ccl' kısayolu başarıyla yüklendi."

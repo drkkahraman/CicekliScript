@@ -91,8 +91,12 @@ Ardından Ubuntu konsolunu açıp Linux adımlarını uygulayabilir. Windows 10/
 
 ## 💻 Kullanım Şekilleri
 
+> 💡 **İpucu**: Artık uzun uzun `cicekliscript` yazmak zorunda değilsiniz! Hem **`ccl`** hem de **`cicekliscript`** komutunu her yerde kullanabilirsiniz.
+
 ### 1. Etkileşimli REPL Kabuğu
 ```bash
+ccl
+# veya
 cicekliscript
 ```
 ```
@@ -102,22 +106,24 @@ cicekliscript
 ║  Çıkmak için: exit() veya cicekli.exit();        ║
 ╚═══════════════════════════════════════════════════╝
 
-cicekli>>> cicekli.println("Merhaba Dünya!");
+cicekli>>> ccl.println("Merhaba Dünya!");
 Merhaba Dünya!
 cicekli>>> a = 10; b = 20;
-cicekli>>> cicekli.println("Toplam:", a + b);
+cicekli>>> ccl.println("Toplam:", a + b);
 Toplam: 30
 cicekli>>> exit();
 ```
 
 ### 2. Dosyadan Betik Çalıştırma
 ```bash
+ccl script.ccl
+# veya
 cicekliscript script.ccl
 ```
 
 ### 3. Tek Satır Komut Çalıştırma (`-c`)
 ```bash
-cicekliscript -c 'cicekli.println("Karekök 144 =", math.sqrt(144));'
+ccl -c 'ccl.println("Karekök 144 =", math.sqrt(144));'
 ```
 
 ---

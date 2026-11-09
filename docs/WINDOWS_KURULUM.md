@@ -55,19 +55,21 @@ source ~/.bashrc
 
 ### 4. Adım: Test Edin
 
-Terminalde doğrudan REPL kabuğunu başlatabilirsiniz:
+Terminalde doğrudan REPL kabuğunu başlatabilirsiniz (`ccl` veya `cicekliscript`):
 ```bash
-cicekliscript
+ccl
 ```
 
 Örnek bir betik dosyasını çalıştırmak için:
 ```bash
+ccl examples/01_merhaba.ccl
+# veya
 cicekliscript examples/01_merhaba.ccl
 ```
 
 Grafik penceresi örneğini çalıştırmak için:
 ```bash
-cicekliscript examples/07_gui_pencere.ccl
+ccl examples/07_gui_pencere.ccl
 ```
 *(Windows masaüstünüzde yerel bir grafik penceresi açılacaktır).*
 
