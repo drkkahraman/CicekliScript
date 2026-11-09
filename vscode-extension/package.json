@@ -1,0 +1,147 @@
+{
+  "name": "metescript",
+  "displayName": "MeteScript",
+  "description": "MeteScript dili desteği — Sözdizimi renklendirme, MS dosya logosu, zengin snippet'lar ve tek tıkla çalıştırma.",
+  "version": "1.0.0",
+  "publisher": "metescript",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metescript/metescript"
+  },
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Themes"
+  ],
+  "keywords": [
+    "metescript",
+    "ms",
+    "mete",
+    "programming language",
+    "python-like",
+    "c-based"
+  ],
+  "icon": "icons/logo.png",
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:metescript",
+    "workspaceContains:**/*.ms"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "metescript",
+        "aliases": [
+          "MeteScript",
+          "metescript",
+          "ms"
+        ],
+        "extensions": [
+          ".ms",
+          ".metescript"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/ms.svg",
+          "dark": "./icons/ms.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "metescript",
+        "scopeName": "source.metescript",
+        "path": "./syntaxes/metescript.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "metescript",
+        "path": "./snippets/metescript.code-snippets.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "metescript-icons",
+        "label": "MeteScript File Icons (MS)",
+        "path": "./icons/icon-theme.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "metescript.run",
+        "title": "MeteScript: Dosyayı Çalıştır",
+        "icon": "$(play)"
+      },
+      {
+        "command": "metescript.runInTerminal",
+        "title": "MeteScript: Entegre Terminalde Çalıştır",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "metescript.runSelection",
+        "title": "MeteScript: Seçili Kodu Çalıştır",
+        "icon": "$(play)"
+      },
+      {
+        "command": "metescript.openDocs",
+        "title": "MeteScript: Dokümantasyon & Online Derleyiciyi Aç",
+        "icon": "$(book)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "metescript.run",
+          "when": "editorLangId == metescript || resourceExtname == .ms",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "metescript.run",
+          "when": "editorLangId == metescript || resourceExtname == .ms",
+          "group": "1_run@1"
+        },
+        {
+          "command": "metescript.runSelection",
+          "when": "editorHasSelection && editorLangId == metescript",
+          "group": "1_run@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "metescript.run",
+          "when": "resourceExtname == .ms || resourceExtname == .metescript",
+          "group": "1_run"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "metescript.run",
+        "key": "ctrl+f5",
+        "mac": "cmd+f5",
+        "when": "editorLangId == metescript || resourceExtname == .ms"
+      }
+    ],
+    "configuration": {
+      "title": "MeteScript",
+      "properties": {
+        "metescript.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "MeteScript ikili dosyasının (metescript) tam yolu. Boş bırakılırsa sistem PATH ve ~/.local/bin/metescript otomatik aranır."
+        },
+        "metescript.clearTerminalBeforeRun": {
+          "type": "boolean",
+          "default": true,
+          "description": "Kodu çalıştırmadan önce terminali temizle."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "iconDefinitions": {
+    "_file": {
+      "iconPath": "./file.svg"
+    },
+    "_folder": {
+      "iconPath": "./folder.svg"
+    },
+    "_folder_open": {
+      "iconPath": "./folder-open.svg"
+    },
+    "_ms_file": {
+      "iconPath": "./ms.svg"
+    }
+  },
+  "file": "_file",
+  "folder": "_folder",
+  "folderExpanded": "_folder_open",
+  "fileExtensions": {
+    "ms": "_ms_file",
+    "metescript": "_ms_file"
+  },
+  "languageIds": {
+    "metescript": "_ms_file"
+  }
+}
