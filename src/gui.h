@@ -12,9 +12,10 @@ typedef struct GuiWindow {
     Display* display;
     int screen;
     Window xwindow;
+    Pixmap pixmap;
+    GC gc;
     Atom wm_delete;
     cairo_surface_t* surface;
-    cairo_surface_t* offscreen_surf;
     cairo_t* cr;
     int width;
     int height;
@@ -25,6 +26,11 @@ typedef struct GuiWindow {
     int mouse_y;
     bool mouse_down;
     char last_key[32];
+    bool headless;
+    bool emitted;
+    int op_count;
+    int op_cap;
+    char** ops;
 } GuiWindow;
 
 GuiWindow* new_gui_window(int width, int height, const char* title);

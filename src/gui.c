@@ -10,10 +10,51 @@
 #include <unistd.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
+#include <glob.h>
+#include <sys/types.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+static bool gui_headless_mode(void) {
+    const char* env = getenv("METE_GUI_HEADLESS");
+    return env != NULL && env[0] != '\0';
+}
+
+static void json_escape(const char* s, char* out, size_t out_size) {
+    size_t oi = 0;
+    for (size_t i = 0; s && s[i] && oi + 7 < out_size; i++) {
+        unsigned char c = (unsigned char)s[i];
+        if (c == '"' || c == '\\') {
+            out[oi++] = '\\';
+            out[oi++] = (char)c;
+        } else if (c == '\n') {
+            out[oi++] = '\\';
+            out[oi++] = 'n';
+        } else if (c == '\t') {
+            out[oi++] = '\\';
+            out[oi++] = 't';
+        } else if (c < 0x20) {
+            oi += (size_t)snprintf(out + oi, out_size - oi, "\\u%04x", c);
+        } else {
+            out[oi++] = (char)c;
+        }
+    }
+    out[oi] = '\0';
+}
+
+static void gui_record_op(GuiWindow* win, const char* op_json) {
+    if (!win || !op_json) return;
+    if (win->op_count >= win->op_cap) {
+        int nc = win->op_cap > 0 ? win->op_cap * 2 : 16;
+        char** no = (char**)realloc(win->ops, sizeof(char*) * (size_t)nc);
+        if (!no) return;
+        win->ops = no;
+        win->op_cap = nc;
+    }
+    win->ops[win->op_count++] = strdup(op_json);
+}
 
 static bool parse_hex_color(const char* hex, double* r, double* g, double* b) {
     if (hex[0] == '#') hex++;
@@ -124,18 +165,78 @@ static void parse_color_args(size_t argc, Value* args, size_t start_idx, double*
     parse_color_from_value(args[start_idx], r, g, b);
 }
 
-GuiWindow* new_gui_window(int width, int height, const char* title) {
+static Display* open_display_fallback(void) {
     Display* d = XOpenDisplay(NULL);
-    if (!d) {
-        fprintf(stderr, "MeteScript GUI Hatası: X11 Ekranı (DISPLAY) açılamadı!\n");
-        return NULL;
+    if (d) return d;
+
+    // Oturum Xwayland yetkilendirme dosyasını bul (GNOME Mutter)
+    char pattern[64];
+    snprintf(pattern, sizeof(pattern), "/run/user/%d/.mutter-Xwaylandauth.*", getuid());
+    glob_t g;
+    if (glob(pattern, 0, NULL, &g) == 0 && g.gl_pathc > 0) {
+        char auth[512];
+        snprintf(auth, sizeof(auth), "%s", g.gl_pathv[0]);
+        globfree(&g);
+        setenv("XAUTHORITY", auth, 1);
+        setenv("DISPLAY", ":0", 1);
+        d = XOpenDisplay(NULL);
+        if (d) return d;
+    }
+
+    static const char* try_displays[] = {":0", ":1", ":2"};
+    for (size_t i = 0; i < sizeof(try_displays) / sizeof(try_displays[0]) && !d; i++) {
+        setenv("DISPLAY", try_displays[i], 1);
+        d = XOpenDisplay(NULL);
+    }
+    return d;
+}
+
+GuiWindow* new_gui_window(int width, int height, const char* title) {
+    bool is_headless = gui_headless_mode();
+    Display* d = NULL;
+
+    if (!is_headless) {
+        d = open_display_fallback();
+        if (!d) {
+            fprintf(stderr, "[MeteScript GUI]: Grafik sunucusuna (X11/Wayland) bağlanılamadı, web/sanal (headless) modda çalıştırılıyor.\n");
+            is_headless = true;
+        }
+    }
+
+    if (is_headless) {
+        GuiWindow* win = (GuiWindow*)gc_allocate(sizeof(GuiWindow), OBJ_WINDOW);
+        win->display = NULL;
+        win->screen = 0;
+        win->xwindow = 0;
+        win->pixmap = 0;
+        win->gc = NULL;
+        win->wm_delete = 0;
+        win->surface = NULL;
+        win->cr = NULL;
+        win->width = width;
+        win->height = height;
+        win->title = strdup(title ? title : "MeteScript Penceresi");
+        win->is_open = true;
+        win->bg_r = 1.0;
+        win->bg_g = 1.0;
+        win->bg_b = 1.0;
+        win->mouse_x = 0;
+        win->mouse_y = 0;
+        win->mouse_down = false;
+        win->last_key[0] = '\0';
+        win->headless = true;
+        win->emitted = false;
+        win->op_count = 0;
+        win->op_cap = 0;
+        win->ops = NULL;
+        return win;
     }
 
     int screen = DefaultScreen(d);
     Window root = RootWindow(d, screen);
 
     XSetWindowAttributes attrs;
-    attrs.background_pixel = BlackPixel(d, screen);
+    attrs.background_pixel = WhitePixel(d, screen);
     attrs.event_mask = ExposureMask | KeyPressMask | ButtonPressMask | ButtonReleaseMask |
                        PointerMotionMask | StructureNotifyMask;
 
@@ -146,23 +247,42 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
 
     XStoreName(d, w, title ? title : "MeteScript Penceresi");
 
+    // Pencere yöneticisi boyut ve durum ipuçları
+    XSizeHints size_hints;
+    size_hints.flags = PSize | PMinSize;
+    size_hints.width = width;
+    size_hints.height = height;
+    size_hints.min_width = width;
+    size_hints.min_height = height;
+    XSetWMNormalHints(d, w, &size_hints);
+
+    XWMHints wm_hints;
+    wm_hints.flags = InputHint | StateHint;
+    wm_hints.input = True;
+    wm_hints.initial_state = NormalState;
+    XSetWMHints(d, w, &wm_hints);
+
     Atom wm_delete = XInternAtom(d, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(d, w, &wm_delete, 1);
 
     XMapWindow(d, w);
     XFlush(d);
 
-    cairo_surface_t* surface = cairo_xlib_surface_create(d, w, DefaultVisual(d, screen), width, height);
-    cairo_surface_t* offscreen = cairo_image_surface_create(CAIRO_FORMAT_RGB24, width, height);
-    cairo_t* cr = cairo_create(offscreen);
+    // Çift arabellek için sunucu tarafı Pixmap ve GC oluştur
+    Pixmap pixmap = XCreatePixmap(d, w, (unsigned int)width, (unsigned int)height, (unsigned int)DefaultDepth(d, screen));
+    GC gc = XCreateGC(d, w, 0, NULL);
+
+    cairo_surface_t* surface = cairo_xlib_surface_create(d, pixmap, DefaultVisual(d, screen), width, height);
+    cairo_t* cr = cairo_create(surface);
 
     GuiWindow* win = (GuiWindow*)gc_allocate(sizeof(GuiWindow), OBJ_WINDOW);
     win->display = d;
     win->screen = screen;
     win->xwindow = w;
+    win->pixmap = pixmap;
+    win->gc = gc;
     win->wm_delete = wm_delete;
     win->surface = surface;
-    win->offscreen_surf = offscreen;
     win->cr = cr;
     win->width = width;
     win->height = height;
@@ -175,8 +295,13 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
     win->mouse_y = 0;
     win->mouse_down = false;
     win->last_key[0] = '\0';
+    win->headless = false;
+    win->emitted = false;
+    win->op_count = 0;
+    win->op_cap = 0;
+    win->ops = NULL;
 
-    // Initial white background
+    // Başlangıçta beyaz arka planla doldur
     cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     cairo_paint(cr);
     gui_window_update(win);
@@ -188,28 +313,64 @@ void gui_cleanup(void) {
     cairo_debug_reset_static_data();
 }
 
+static void emit_headless_json(GuiWindow* win) {
+    if (!win || !win->ops || win->op_count == 0 || win->emitted) return;
+    win->emitted = true;
+    char title_e[512];
+    json_escape(win->title ? win->title : "", title_e, sizeof(title_e));
+    printf("METE_GUI {\"w\":%d,\"h\":%d,\"title\":\"%s\",\"ops\":[", win->width, win->height, title_e);
+    for (int i = 0; i < win->op_count; i++) {
+        printf("%s%s", i > 0 ? "," : "", win->ops[i]);
+    }
+    printf("]}\n");
+    fflush(stdout);
+}
+
 void gui_window_destroy(GuiWindow* win) {
     if (!win) return;
+    if (win->headless) {
+        emit_headless_json(win);
+        for (int i = 0; i < win->op_count; i++) free(win->ops[i]);
+        free(win->ops);
+        win->ops = NULL;
+        win->op_count = 0;
+        if (win->title) {
+            free(win->title);
+            win->title = NULL;
+        }
+        return;
+    }
+
     if (win->cr) {
         cairo_destroy(win->cr);
         win->cr = NULL;
-    }
-    if (win->offscreen_surf) {
-        cairo_surface_destroy(win->offscreen_surf);
-        win->offscreen_surf = NULL;
     }
     if (win->surface) {
         cairo_surface_destroy(win->surface);
         win->surface = NULL;
     }
     if (win->display) {
-        if (win->is_open) {
+        if (win->gc) {
+            XFreeGC(win->display, win->gc);
+            win->gc = NULL;
+        }
+        if (win->pixmap) {
+            XFreePixmap(win->display, win->pixmap);
+            win->pixmap = 0;
+        }
+        if (win->is_open && win->xwindow) {
             XDestroyWindow(win->display, win->xwindow);
+            win->xwindow = 0;
         }
         XCloseDisplay(win->display);
         win->display = NULL;
     }
     win->is_open = false;
+    if (win->ops) {
+        for (int i = 0; i < win->op_count; i++) free(win->ops[i]);
+        free(win->ops);
+        win->ops = NULL;
+    }
     if (win->title) {
         free(win->title);
         win->title = NULL;
@@ -217,7 +378,7 @@ void gui_window_destroy(GuiWindow* win) {
 }
 
 void gui_window_poll_events(GuiWindow* win) {
-    if (!win || !win->display || !win->is_open) return;
+    if (!win || win->headless || !win->display || !win->is_open) return;
 
     while (XPending(win->display) > 0) {
         XEvent ev;
@@ -232,14 +393,16 @@ void gui_window_poll_events(GuiWindow* win) {
                 win->is_open = false;
                 break;
             case Expose:
-                // Redraw from offscreen
-                if (ev.xexpose.count == 0) {
-                    cairo_t* wcr = cairo_create(win->surface);
-                    cairo_set_source_surface(wcr, win->offscreen_surf, 0, 0);
-                    cairo_paint(wcr);
-                    cairo_destroy(wcr);
+                // Pixmap'ten ekrana kopyala
+                if (win->pixmap && win->xwindow && win->gc) {
+                    XCopyArea(win->display, win->pixmap, win->xwindow, win->gc, 0, 0,
+                              (unsigned int)win->width, (unsigned int)win->height, 0, 0);
                     XFlush(win->display);
                 }
+                break;
+            case ConfigureNotify:
+                win->width = ev.xconfigure.width;
+                win->height = ev.xconfigure.height;
                 break;
             case MotionNotify:
                 win->mouse_x = ev.xmotion.x;
@@ -276,29 +439,50 @@ void gui_window_poll_events(GuiWindow* win) {
 }
 
 void gui_window_update(GuiWindow* win) {
-    if (!win || !win->display || !win->is_open) return;
+    if (!win || !win->is_open) return;
 
-    cairo_t* wcr = cairo_create(win->surface);
-    cairo_set_source_surface(wcr, win->offscreen_surf, 0, 0);
-    cairo_paint(wcr);
-    cairo_destroy(wcr);
-    XFlush(win->display);
+    if (win->headless) {
+        return;
+    }
 
-    gui_window_poll_events(win);
+    if (win->display && win->xwindow && win->pixmap && win->gc) {
+        cairo_surface_flush(win->surface);
+        XCopyArea(win->display, win->pixmap, win->xwindow, win->gc, 0, 0,
+                  (unsigned int)win->width, (unsigned int)win->height, 0, 0);
+        XFlush(win->display);
+        gui_window_poll_events(win);
+    }
 }
 
 void gui_window_color(GuiWindow* win, double r, double g, double b) {
-    if (!win || !win->cr) return;
+    if (!win) return;
     win->bg_r = r;
     win->bg_g = g;
     win->bg_b = b;
+
+    char buf[128];
+    snprintf(buf, sizeof(buf), "[\"color\",%.3f,%.3f,%.3f]", r, g, b);
+    gui_record_op(win, buf);
+
+    if (win->headless || !win->cr) return;
+
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_paint(win->cr);
     gui_window_update(win);
 }
 
 void gui_window_text(GuiWindow* win, const char* text, double r, double g, double b, double size, double x, double y) {
-    if (!win || !win->cr || !text) return;
+    if (!win || !text) return;
+
+    char et[2048];
+    char buf[2304];
+    json_escape(text, et, sizeof(et));
+    snprintf(buf, sizeof(buf), "[\"text\",\"%s\",%.3f,%.3f,%.3f,%.1f,%.1f,%.1f]", et, r, g, b,
+             size > 0 ? size : 14.0, x, y);
+    gui_record_op(win, buf);
+
+    if (win->headless || !win->cr) return;
+
     cairo_select_font_face(win->cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(win->cr, size > 0 ? size : 14.0);
     cairo_set_source_rgb(win->cr, r, g, b);
@@ -308,7 +492,14 @@ void gui_window_text(GuiWindow* win, const char* text, double r, double g, doubl
 }
 
 void gui_window_rect(GuiWindow* win, double x, double y, double w, double h, double r, double g, double b) {
-    if (!win || !win->cr) return;
+    if (!win) return;
+
+    char buf[128];
+    snprintf(buf, sizeof(buf), "[\"rect\",%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f]", x, y, w, h, r, g, b);
+    gui_record_op(win, buf);
+
+    if (win->headless || !win->cr) return;
+
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_rectangle(win->cr, x, y, w, h);
     cairo_fill(win->cr);
@@ -316,7 +507,14 @@ void gui_window_rect(GuiWindow* win, double x, double y, double w, double h, dou
 }
 
 void gui_window_circle(GuiWindow* win, double x, double y, double radius, double r, double g, double b) {
-    if (!win || !win->cr) return;
+    if (!win) return;
+
+    char buf[128];
+    snprintf(buf, sizeof(buf), "[\"circle\",%.1f,%.1f,%.1f,%.3f,%.3f,%.3f]", x, y, radius, r, g, b);
+    gui_record_op(win, buf);
+
+    if (win->headless || !win->cr) return;
+
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_arc(win->cr, x, y, radius, 0, 2 * M_PI);
     cairo_fill(win->cr);
@@ -324,7 +522,15 @@ void gui_window_circle(GuiWindow* win, double x, double y, double radius, double
 }
 
 void gui_window_line(GuiWindow* win, double x1, double y1, double x2, double y2, double r, double g, double b, double width) {
-    if (!win || !win->cr) return;
+    if (!win) return;
+
+    char buf[160];
+    snprintf(buf, sizeof(buf), "[\"line\",%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f,%.1f]", x1, y1, x2, y2, r, g, b,
+             width > 0 ? width : 1.0);
+    gui_record_op(win, buf);
+
+    if (win->headless || !win->cr) return;
+
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_set_line_width(win->cr, width > 0 ? width : 1.0);
     cairo_move_to(win->cr, x1, y1);
@@ -333,7 +539,6 @@ void gui_window_line(GuiWindow* win, double x1, double y1, double x2, double y2,
     gui_window_update(win);
 }
 
-// Native bindings
 Value native_mete_window(Value self, size_t argc, Value* args, int line) {
     (void)self;
     int width = 400;
@@ -366,7 +571,6 @@ static Value native_win_color(Value self, size_t argc, Value* args, int line) {
 
     double r = 1.0, g = 1.0, b = 1.0;
     if (argc == 0) {
-        // window.color() without args sets default white background
         r = 1.0; g = 1.0; b = 1.0;
     } else {
         parse_color_args(argc, args, 0, &r, &g, &b, win->bg_r, win->bg_g, win->bg_b);
@@ -380,28 +584,39 @@ static Value native_win_text(Value self, size_t argc, Value* args, int line) {
     if (!is_window(self)) return make_null();
     GuiWindow* win = (GuiWindow*)self.as.obj;
 
-    // window.text("", color, size, posx, posy);
     if (argc < 1) return self;
 
     char* text_str = value_to_string(args[0]);
     double r = 0.0, g = 0.0, b = 0.0;
-    if (argc >= 2) {
-        parse_color_args(argc, args, 1, &r, &g, &b, 0.0, 0.0, 0.0);
-    }
-
     double size = 16.0;
-    if (argc >= 3 && is_number(args[2])) {
-        size = as_number(args[2]);
-    }
-
     double posx = 10.0;
-    if (argc >= 4 && is_number(args[3])) {
-        posx = as_number(args[3]);
-    }
-
     double posy = 10.0;
-    if (argc >= 5 && is_number(args[4])) {
-        posy = as_number(args[4]);
+
+    if (argc >= 7 && is_number(args[1]) && is_number(args[2]) && is_number(args[3])) {
+        // window.text(metin, r, g, b, size, posx, posy)
+        double nr = as_number(args[1]);
+        double ng = as_number(args[2]);
+        double nb = as_number(args[3]);
+        r = nr > 1.0 ? nr / 255.0 : nr;
+        g = ng > 1.0 ? ng / 255.0 : ng;
+        b = nb > 1.0 ? nb / 255.0 : nb;
+        if (is_number(args[4])) size = as_number(args[4]);
+        if (argc >= 6 && is_number(args[5])) posx = as_number(args[5]);
+        if (argc >= 7 && is_number(args[6])) posy = as_number(args[6]);
+    } else {
+        // window.text(metin, color, size, posx, posy)
+        if (argc >= 2) {
+            parse_color_from_value(args[1], &r, &g, &b);
+        }
+        if (argc >= 3 && is_number(args[2])) {
+            size = as_number(args[2]);
+        }
+        if (argc >= 4 && is_number(args[3])) {
+            posx = as_number(args[3]);
+        }
+        if (argc >= 5 && is_number(args[4])) {
+            posy = as_number(args[4]);
+        }
     }
 
     gui_window_text(win, text_str, r, g, b, size, posx, posy);
@@ -505,6 +720,7 @@ static Value native_win_sleep(Value self, size_t argc, Value* args, int line) {
         ms = (int)as_number(args[0]);
     }
     gui_window_update(win);
+    if (win->headless) return self;
     usleep(ms * 1000);
     gui_window_poll_events(win);
     return self;
@@ -517,17 +733,21 @@ static Value native_win_mainloop(Value self, size_t argc, Value* args, int line)
 
     gui_window_update(win);
 
+    if (win->headless) {
+        emit_headless_json(win);
+        return make_null();
+    }
+
     while (win->is_open) {
         gui_window_poll_events(win);
         if (!win->is_open) break;
 
-        // If callback function was passed
         if (argc >= 1 && (is_function(args[0]) || is_native(args[0]))) {
-            // Callback execution can be performed if needed
+            // Callback desteği
         }
 
         gui_window_update(win);
-        usleep(16000); // ~60 fps
+        usleep(16000); // ~60 FPS
     }
 
     return make_null();

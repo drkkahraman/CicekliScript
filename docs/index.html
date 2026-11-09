@@ -526,31 +526,6 @@
     color: var(--text-faint);
     font-style: italic;
   }
-  .stdin-container {
-    border-top: 1px solid var(--border-soft);
-    background: var(--bg-soft);
-    padding: 8px 16px;
-  }
-  .stdin-container details summary {
-    font-size: 12px;
-    color: var(--text-dim);
-    cursor: pointer;
-    font-weight: 600;
-    user-select: none;
-  }
-  .stdin-container details textarea {
-    width: 100%;
-    margin-top: 8px;
-    padding: 8px 10px;
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--text);
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    outline: none;
-    resize: vertical;
-  }
   .terminal-pane {
     display: flex;
     flex-direction: column;
@@ -629,6 +604,64 @@
     border: 1px solid rgba(255,255,255,0.2);
     margin-left: 4px;
   }
+  .term-input-row {    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-top: 1px dashed rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.03);
+  }
+  .term-input-row.active { display: flex; }
+  .term-prompt {
+    color: var(--green);
+    font-weight: 700;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  #terminalInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e2e8f0;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 2px 0;
+    caret-color: var(--green);
+  }
+  #terminalInput::placeholder { color: #475569; font-style: italic; }
+  .term-input { color: #7dd3fc; }
+  .gui-pane {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 12px 16px 4px;
+    border-top: 1px dashed rgba(255,255,255,0.15);
+  }
+  .gui-pane:empty { display: none; }
+  .gui-window {
+    width: 100%;
+    max-width: 470px;
+    background: #10151c;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .gui-window .gui-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: #93a4ba;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.05);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .gui-window canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 
   @media (max-width: 940px) {
     nav.sidebar { display: none; }
@@ -680,6 +713,7 @@
   <a href="#sozlukler"><span class="ico">🗂️</span>Sözlükler</a>
   <a href="#yorumlar"><span class="ico">💬</span>Yorumlar</a>
   <h3>Referans</h3>
+  <a href="#gui"><span class="ico">📐</span>GUI — Pencere ve Grafik</a>
   <a href="#api"><span class="ico">📚</span>mete API'si</a>
   <a href="#ornekler"><span class="ico">✨</span>Örnekler</a>
 </nav>
@@ -727,6 +761,8 @@
             <option value="listeler">05 — Listeler & Sözlükler</option>
             <option value="hesap">06 — Hesap Makinesi</option>
             <option value="girdi">07 — Kullanıcıdan Girdi (input)</option>
+            <option value="guipencere">08 — GUI: Pencere ve Şekiller</option>
+            <option value="guigelismis">09 — GUI: Gelişmiş Tasarım</option>
           </select>
         </div>
         <div class="compiler-right">
@@ -750,12 +786,6 @@
             <div class="line-numbers" id="lineNumbers">1</div>
             <textarea id="codeEditor" spellcheck="false" placeholder="MeteScript kodunuzu buraya yazın... (noktalı virgül ';' zorunludur!)"></textarea>
           </div>
-          <div class="stdin-container">
-            <details id="stdinDetails">
-              <summary><span style="margin-right:4px;">⌨️</span> Standart Girdi (stdin) — <span style="font-weight:normal;color:var(--text-faint);">mete.input() için opsiyonel</span></summary>
-              <textarea id="stdinInput" rows="2" placeholder="Programınız 'mete.input()' çağırıyorsa, okunacak değerleri buraya satır satır girebilirsiniz..."></textarea>
-            </details>
-          </div>
         </div>
 
         <!-- Terminal Konsolu -->
@@ -770,6 +800,11 @@
             </div>
           </div>
           <div class="terminal-body" id="terminalOutput"><span class="term-placeholder">MeteScript kodunuzu çalıştırmak için "▶ Çalıştır" butonuna veya Ctrl+Enter tuşlarına basın...</span></div>
+          <div class="gui-pane" id="guiPane"></div>
+          <div class="term-input-row" id="terminalInputRow">
+            <span class="term-prompt">❯</span>
+            <input id="terminalInput" autocomplete="off" spellcheck="false" placeholder="Program girdi bekliyorsa buraya yazın ve Enter'a basın...">
+          </div>
         </div>
       </div>
     </div>
@@ -1026,6 +1061,47 @@ mete.println(kullanici.sehir);</code></pre>
    çok satırlı yorum */
 
 mete.println("Yorumlar çalışmaz, bu çalışır!");</code></pre>
+    </div>
+  </section>
+
+  <section id="gui">
+    <h2><span class="num">📐</span> GUI — Pencere ve Grafik</h2>
+    <p>MeteScript ile X11 + Cairo tabanlı GUI pencereleri açabilir, metin, dikdörtgen, daire ve çizgi çizebilirsiniz. <b>Online Compiler'da</b> GUI kodlarının çizimleri terminalin altında canvas önizlemesi olarak gösterilir; masaüstü ortamında (X11) ise gerçek bir pencere açılır.</p>
+    <div class="callout">
+      <span class="ci">💡</span>
+      <div><p><code class="inline">mete.window(genislik, yukseklik, "başlık")</code> bir pencere nesnesi döndürür. Tüm çizimler kalıcıdır; <code class="inline">window.mainloop()</code> pencereyi kapatana kadar olay döngüsünü çalıştırır (web önizlemesinde bu adım atlanır).</p></div>
+    </div>
+    <h3>Metotlar</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Metot</th><th>Açıklama</th></tr></thead>
+      <tbody>
+        <tr><td><code>window.color(renk)</code></td><td>Arka planı boyar (boş = beyaz; <code>"red"</code>, <code>"#1e1e2e"</code>, <code>[r,g,b]</code>)</td></tr>
+        <tr><td><code>window.text(metin, renk, boyut, x, y)</code></td><td>Kalın Sans yazısı ekler</td></tr>
+        <tr><td><code>window.rect(x, y, g, y, renk)</code></td><td>Dikdörtgen çizer</td></tr>
+        <tr><td><code>window.circle(x, y, r, renk)</code></td><td>Daire çizer</td></tr>
+        <tr><td><code>window.line(x1, y1, x2, y2, renk, k)</code></td><td>Çizgi çizer (k = kalınlık)</td></tr>
+        <tr><td><code>window.clear(renk)</code></td><td>Tüm çizimleri siler (renk ile)</td></tr>
+        <tr><td><code>window.update()</code> / <code>show()</code></td><td>Çizimleri ekrana basar</td></tr>
+        <tr><td><code>window.sleep(ms)</code></td><td>Bir kare bekler (~60 FPS: 16 ms)</td></tr>
+        <tr><td><code>window.mainloop()</code> / <code>run()</code></td><td>Olay döngüsünü çalıştırır</td></tr>
+        <tr><td><code>window.is_open()</code></td><td>Pencere açıksa <code>true</code></td></tr>
+        <tr><td><code>window.close()</code></td><td>Pencereyi kapatır</td></tr>
+        <tr><td><code>window.get_mouse_x() / get_mouse_y()</code></td><td>İmleç konumunu döndürür</td></tr>
+        <tr><td><code>window.is_mouse_down()</code></td><td>Sol tuş basılı mı?</td></tr>
+        <tr><td><code>window.width / height</code></td><td>Pencere boyutları</td></tr>
+      </tbody>
+    </table></div>
+    <h3>Örnek</h3>
+    <div class="codeblock" data-lang="metescript">
+      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">metescript</span></div><button class="copy-btn">Kopyala</button></div>
+      <pre><code>window = mete.window(100, 100);
+
+window.color();
+window.text("Mete", "red", 16, 20, 35);
+window.rect(10, 50, 40, 20, "blue");
+window.circle(70, 60, 15, "green");
+
+window.mainloop();</code></pre>
     </div>
   </section>
 
@@ -1302,8 +1378,8 @@ mete.println("8 * 9    =", hesapla(8, 9, "*"));
 mete.println("48 / 6   =", hesapla(48, 6, "/"));
 mete.println("50 / 0   =", hesapla(50, 0, "/"));
 `,
-  girdi: `// Standart Girdi (stdin) Örneği
-// Aşağıdaki 'Standart Girdi' kutusuna adınızı yazabilirsiniz.
+  girdi: `// Kullanıcıdan Girdi Örneği
+// Çalıştırınca terminalde adınızı ❯ satırına yazıp Enter'a basın.
 mete.println("Lütfen adınızı giriniz:");
 isim = mete.input();
 
@@ -1313,6 +1389,46 @@ if (mete.len(isim) == 0) {
 
 mete.println("MeteScript'e hoş geldin,", isim + "!");
 mete.println("Harika kodlar yazmaya hazır mısın?");
+`,
+  guipencere: `// GUI Pencere Örneği
+// Web'de pencere önizlemesi, çıktı terminalinin altında canvas olarak çizilir.
+// Masaüstü (X11) ortamında ise gerçek bir pencere açılır.
+
+window = mete.window(100, 100);
+
+window.color();
+window.text("Mete", "red", 16, 20, 35);
+window.rect(10, 50, 40, 20, "blue");
+window.circle(70, 60, 15, "green");
+
+mete.println("Pencere oluşturuldu!");
+window.mainloop();
+`,
+  guigelismis: `// GUI: Gelişmiş Tasarım
+window = mete.window(450, 350, "MeteScript GUI Uygulaması");
+
+window.color("#1e1e2e");
+
+window.text("MeteScript GUI Demo", "#89b4fa", 24, 80, 30);
+window.text("Python Kolaylığı + C Gücü + ;", "#cdd6f4", 14, 110, 75);
+
+// Dikdörtgen: window.rect(x, y, genislik, yukseklik, renk);
+window.rect(40, 120, 160, 90, "#313244");
+window.text("Kutu 1", "#a6adc8", 14, 90, 155);
+
+window.rect(240, 120, 160, 90, "#45475a");
+window.text("Kutu 2", "#a6adc8", 14, 290, 155);
+
+// Daireler: window.circle(x, y, yaricap, renk);
+window.circle(100, 270, 30, "#f38ba8");
+window.circle(225, 270, 30, "#a6e3a1");
+window.circle(350, 270, 30, "#f9e2af");
+
+// Çizgiler: window.line(x1, y1, x2, y2, renk, kalinlik);
+window.line(40, 320, 410, 320, "#585b70", 2);
+
+mete.println("GUI penceresi hazır!");
+window.mainloop();
 `
 };
 
@@ -1326,8 +1442,7 @@ const terminalOutput = document.getElementById('terminalOutput');
 const execPill = document.getElementById('execPill');
 const copyOutputBtn = document.getElementById('copyOutputBtn');
 const clearOutputBtn = document.getElementById('clearOutputBtn');
-const stdinInput = document.getElementById('stdinInput');
-const stdinDetails = document.getElementById('stdinDetails');
+const guiPane = document.getElementById('guiPane');
 
 function updateLineNumbers() {
   if (!editor || !lineNumbers) return;
@@ -1364,10 +1479,6 @@ function loadSample(key) {
   if (editor && SAMPLES[key]) {
     editor.value = SAMPLES[key];
     updateLineNumbers();
-    if (key === 'girdi') {
-      if (stdinDetails) stdinDetails.open = true;
-      if (stdinInput && !stdinInput.value.trim()) stdinInput.value = "Doruk\\n";
-    }
   }
 }
 
@@ -1393,95 +1504,266 @@ if (resetCodeBtn && exampleSelector) {
 
 let lastRawOutput = '';
 
+const terminalInputRow = document.getElementById('terminalInputRow');
+const terminalInput = document.getElementById('terminalInput');
+
+let activeSession = null;
+let pollTimer = null;
+let runStartedAt = 0;
+
+function appendTerm(text, cls) {
+  const span = document.createElement('span');
+  span.className = cls;
+  span.textContent = text;
+  terminalOutput.appendChild(span);
+  lastRawOutput += text;
+  terminalOutput.scrollTop = terminalOutput.scrollHeight;
+}
+
+// --- GUI önizleme (headless mete.window çıktısı) ---
+let guiSourceBuf = '';
+let guiSeen = 0;
+let feedBuffer = '';
+
+function parseGuiData() {
+  const re = /METE_GUI (\{.*\})/g;
+  let m, idx = 0;
+  while ((m = re.exec(guiSourceBuf)) !== null) {
+    if (idx >= guiSeen) {
+      try { renderGuiWindow(JSON.parse(m[1])); } catch (e) { /* bozuk veriyi yoksay */ }
+      guiSeen++;
+    }
+    idx++;
+  }
+  if (guiSeen > idx) guiSeen = idx;
+}
+
+function rgbStr(f) {
+  const c = (v) => Math.max(0, Math.min(255, Math.round(v * 255)));
+  return 'rgb(' + c(f[0]) + ',' + c(f[1]) + ',' + c(f[2]) + ')';
+}
+
+function renderGuiWindow(d) {
+  if (!guiPane || !d || !d.w || !d.h) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'gui-window';
+  const title = document.createElement('div');
+  title.className = 'gui-title';
+  title.textContent = d.title || 'MeteScript Penceresi';
+  const canvas = document.createElement('canvas');
+  canvas.width = d.w;
+  canvas.height = d.h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, d.w, d.h);
+  (d.ops || []).forEach((op) => {
+    if (op[0] === 'color') {
+      ctx.fillStyle = rgbStr(op.slice(1, 4));
+      ctx.fillRect(0, 0, d.w, d.h);
+    } else if (op[0] === 'rect') {
+      ctx.fillStyle = rgbStr(op.slice(5, 8));
+      ctx.fillRect(op[1], op[2], op[3], op[4]);
+    } else if (op[0] === 'circle') {
+      ctx.fillStyle = rgbStr(op.slice(4, 7));
+      ctx.beginPath();
+      ctx.arc(op[1], op[2], Math.max(0, op[3]), 0, 2 * Math.PI);
+      ctx.fill();
+    } else if (op[0] === 'line') {
+      ctx.strokeStyle = rgbStr(op.slice(5, 8));
+      ctx.lineWidth = op[8] || 1;
+      ctx.beginPath();
+      ctx.moveTo(op[1], op[2]);
+      ctx.lineTo(op[3], op[4]);
+      ctx.stroke();
+    } else if (op[0] === 'text') {
+      ctx.fillStyle = rgbStr(op.slice(2, 5));
+      ctx.font = 'bold ' + op[5] + 'px Sans, Arial, sans-serif';
+      ctx.fillText(op[1], op[6], op[7] + op[5]);
+    }
+  });
+  wrap.appendChild(title);
+  wrap.appendChild(canvas);
+  guiPane.appendChild(wrap);
+}
+
+// Çıktı akışı: GUI veri satırlarını terminalden gizler
+function feedStdout(text) {
+  guiSourceBuf += text;
+  parseGuiData();
+  feedBuffer += text;
+  let nl;
+  while ((nl = feedBuffer.indexOf('\n')) >= 0) {
+    const line = feedBuffer.slice(0, nl + 1);
+    feedBuffer = feedBuffer.slice(nl + 1);
+    if (/^METE_GUI /.test(line)) continue; // GUI verisi terminal metninde gösterilmez
+    appendTerm(line, 'term-stdout');
+  }
+  if (feedBuffer.startsWith('METE_GUI ')) return; // tamamlanmamış GUI satırı beklesin
+  if (feedBuffer) {
+    appendTerm(feedBuffer, 'term-stdout');
+    feedBuffer = '';
+  }
+}
+
+function setInputActive(active) {
+  if (terminalInputRow) terminalInputRow.classList.toggle('active', active);
+  if (terminalInput) {
+    terminalInput.value = '';
+    if (active && window.innerWidth > 500) terminalInput.focus();
+  }
+}
+
+function setRunBtn(running) {
+  if (!runBtn) return;
+  runBtn.disabled = false;
+  runBtn.innerHTML = running
+    ? '⏹ Durdur'
+    : '<span class="run-ico">▶</span> Çalıştır <kbd class="kbd">Ctrl+↵</kbd>';
+}
+
+function setPill(cls, text) {
+  if (!execPill) return;
+  execPill.className = cls ? 'exec-pill ' + cls : 'exec-pill';
+  execPill.textContent = text;
+}
+
+function finishRun(data) {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  activeSession = null;
+  setInputActive(false);
+  parseGuiData();
+
+  const elapsed = ((Date.now() - runStartedAt) / 1000).toFixed(1);
+  let statusText = '';
+  if (data && data.kill_reason) {
+    appendTerm(data.kill_reason + '\n', 'term-stderr');
+    setPill('error', 'Zaman Aşımı');
+    statusText = '✕ ' + elapsed + ' sn · ' + data.kill_reason;
+  } else if (data && data.exit_code === 0) {
+    setPill('success', '✓ ' + elapsed + ' sn');
+    statusText = '⏱️ ' + elapsed + ' sn · ✓ Kod 0 (Başarılı)';
+  } else if (data) {
+    setPill('error', '✕ Hata');
+    statusText = '⏱️ ' + elapsed + ' sn · ✕ Kod ' + data.exit_code + ' (Hata)';
+  } else {
+    setPill('', 'Hazır');
+    statusText = '';
+  }
+
+  if (statusText) {
+    const meta = document.createElement('div');
+    meta.className = 'term-meta';
+    meta.textContent = statusText;
+    terminalOutput.appendChild(meta);
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+  }
+  setRunBtn(false);
+}
+
+async function pollSession() {
+  if (!activeSession) return;
+  try {
+    const res = await fetch('/api/interactive/' + activeSession + '/poll');
+    const data = await res.json();
+    if (data.stdout) feedStdout(data.stdout);
+    if (data.stderr) appendTerm(data.stderr, 'term-stderr');
+    if (!data.running) finishRun(data);
+  } catch (err) {
+    appendTerm('\n\nBağlantı Hatası: ' + err.message + '\n', 'term-stderr');
+    finishRun(null);
+  }
+}
+
+async function stopRun() {
+  if (!activeSession) return;
+  const id = activeSession;
+  activeSession = null;
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  try { await fetch('/api/interactive/' + id + '/stop', { method: 'POST' }); } catch (e) { /* yoksay */ }
+  setInputActive(false);
+  appendTerm('\n[Program durduruldu]\n', 'term-stderr');
+  setPill('error', 'Durduruldu');
+  setRunBtn(false);
+}
+
 async function runCode() {
   if (!editor) return;
-  const code = editor.value;
-  const stdin = stdinInput ? stdinInput.value : '';
 
-  if (!code.trim()) {
-    terminalOutput.innerHTML = '<span class="term-stderr">Uyarı: Editörde çalıştırılacak kod bulunamadı!</span>';
-    if (execPill) {
-      execPill.className = 'exec-pill error';
-      execPill.textContent = 'Boş Kod';
-    }
+  if (activeSession) {
+    stopRun();
     return;
   }
 
+  if (!editor.value.trim()) {
+    terminalOutput.innerHTML = '<span class="term-stderr">Uyarı: Editörde çalıştırılacak kod bulunamadı!</span>';
+    setPill('error', 'Boş Kod');
+    return;
+  }
+
+  const code = editor.value;
+
   if (runBtn) {
     runBtn.disabled = true;
-    runBtn.innerHTML = '⏳ Çalışıyor...';
+    runBtn.innerHTML = '⏳ Başlatılıyor...';
   }
-  if (execPill) {
-    execPill.className = 'exec-pill running';
-    execPill.textContent = 'Çalışıyor...';
-  }
-  terminalOutput.innerHTML = '<span class="term-placeholder">MeteScript yorumlayıcısı çalıştırılıyor...</span>';
+  setPill('running', 'Çalışıyor...');
+  terminalOutput.innerHTML = '<span class="term-placeholder">MeteScript yorumlayıcısı başlatılıyor...</span>';
+  lastRawOutput = '';
+  guiSourceBuf = '';
+  guiSeen = 0;
+  feedBuffer = '';
+  if (guiPane) guiPane.innerHTML = '';
+  runStartedAt = Date.now();
 
   try {
-    const res = await fetch('/api/run', {
+    const res = await fetch('/api/interactive/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, stdin })
+      body: JSON.stringify({ code })
     });
-
-    if (!res.ok) {
-      throw new Error('Sunucu hatası: ' + res.status + ' ' + res.statusText);
-    }
-
     const data = await res.json();
-    let html = '';
-    let raw = '';
+    if (!res.ok) throw new Error(data.error || res.status + ' ' + res.statusText);
 
-    if (data.stdout) {
-      html += '<span class="term-stdout">' + escapeHtml(data.stdout) + '</span>';
-      raw += data.stdout;
-    }
-    if (data.stderr) {
-      html += '<span class="term-stderr">' + escapeHtml(data.stderr) + '</span>';
-      raw += (raw ? '\n' : '') + data.stderr;
-    }
-
-    const ms = data.execution_time_ms !== undefined ? data.execution_time_ms + ' ms' : '';
-    const codeStatus = data.exit_code === 0 ? '✓ Kod 0 (Başarılı)' : '✕ Kod ' + data.exit_code + ' (Hata)';
-
-    html += '<div class="term-meta">⏱️ ' + ms + ' · ' + codeStatus + '</div>';
-    terminalOutput.innerHTML = html;
-    lastRawOutput = raw;
-
-    if (execPill) {
-      if (data.exit_code === 0) {
-        execPill.className = 'exec-pill success';
-        execPill.textContent = '✓ ' + ms;
-      } else {
-        execPill.className = 'exec-pill error';
-        execPill.textContent = '✕ Hata';
-      }
-    }
+    activeSession = data.id;
+    setInputActive(true);
+    pollTimer = setInterval(pollSession, 120);
+    setRunBtn(true);
   } catch (err) {
-    terminalOutput.innerHTML = '<span class="term-stderr">Bağlantı Hatası: ' + escapeHtml(err.message) + '</span>';
+    terminalOutput.innerHTML = '<span class="term-stderr">Hata: ' + escapeHtml(err.message) + '</span>';
     lastRawOutput = err.message;
-    if (execPill) {
-      execPill.className = 'exec-pill error';
-      execPill.textContent = 'Bağlantı Hatası';
-    }
-  } finally {
-    if (runBtn) {
-      runBtn.disabled = false;
-      runBtn.innerHTML = '<span class="run-ico">▶</span> Çalıştır <kbd class="kbd">Ctrl+↵</kbd>';
-    }
+    setPill('error', 'Bağlantı Hatası');
+    setRunBtn(false);
   }
 }
 
 if (runBtn) runBtn.addEventListener('click', runCode);
 
+if (terminalInput) {
+  terminalInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!activeSession) return;
+      const val = terminalInput.value;
+      terminalInput.value = '';
+      fetch('/api/interactive/' + activeSession + '/input', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: val + '\n' })
+      });
+      if (val) appendTerm(val + '\n', 'term-input');
+    }
+  });
+}
+
 if (clearOutputBtn) {
   clearOutputBtn.addEventListener('click', () => {
     terminalOutput.innerHTML = '<span class="term-placeholder">Konsol temizlendi.</span>';
     lastRawOutput = '';
-    if (execPill) {
-      execPill.className = 'exec-pill';
-      execPill.textContent = 'Hazır';
-    }
+    guiSourceBuf = '';
+    guiSeen = 0;
+    feedBuffer = '';
+    if (guiPane) guiPane.innerHTML = '';
+    setPill('', 'Hazır');
   });
 }
 
