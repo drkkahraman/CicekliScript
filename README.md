@@ -43,6 +43,7 @@
 8. **Çift Yorum Desteği**: `# Yorum`, `// Tek satır yorum` ve `/* Çok satırlı blok */`.
 9. **Etkileşimli Kabuk (REPL)**: Canlı denemeler için zengin terminal ortamı.
 10. **Resmi VS Code Eklentisi**: `.ccl` dosyaları için sözdizimi renklendirmesi, ikonlar ve tek tıkla çalıştırma.
+11. **CUDA & GPU Tensör Hesaplama Motoru**: NVIDIA GPU (CUDA) ve CPU tensör desteği. PyTorch tarzı `cicekli.tensor()`, `w1.matmul(w2)`, `.relu()`, `.to("cuda")` ve süper hızlı matris işlemleri.
 
 ---
 
@@ -285,3 +286,4 @@ Tüm örnekler `examples/` klasöründe yer almaktadır:
 - `examples/06_hesap_makinesi.ccl` - Fonksiyonel hesap makinesi
 - `examples/07_gui_pencere.ccl` - GUI temel pencere ve şekil çizimi
 - `examples/08_gui_gelismis.ccl` - İnteraktif GUI animasyon ve çizim örneği
+- `examples/09_gpu_tensor.ccl` - CUDA & GPU Tensör hesaplama ve hız testi örneği

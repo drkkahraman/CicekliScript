@@ -14,6 +14,7 @@ CicekliScript, zengin bir yerleşik standart kütüphaneye ve nesne metotlarına
 7. [Liste (Array / List) Metotları](#7-liste-array--list-metotları)
 8. [Sözlük (Map / Dictionary) Metotları](#8-sözlük-map--dictionary-metotları)
 9. [Grafiksel Arayüz Modülü (`cicekli.window`)](#9-grafiksel-arayüz-modülü-cicekliwindow)
+10. [GPU & Tensör Hesaplama Modülü (`cicekli.cuda` & `tensor`)](#10-gpu--tensör-hesaplama-modülü-ciceklikcuda--tensor)
 
 ---
 
@@ -267,3 +268,43 @@ win = cicekli.window(genislik, yukseklik, [baslik]);
 - `win.mouse_x`: Fare imlecinin anlık X koordinatı.
 - `win.mouse_y`: Fare imlecinin anlık Y koordinatı.
 - `win.is_mouse_down()`: Fare sol tuşuna basılı tutuluyor mu (`true`/`false`).
+
+
+---
+
+## 10. GPU & Tensör Hesaplama Modülü (`cicekli.cuda` & `tensor`) ⚡
+
+CicekliScript, doğrudan NVIDIA GPU donanım hızlandırmalı (CUDA) ve CPU destekli yerel bir **Tensör Hesaplama Motoruna** sahiptir.
+
+### 1. CUDA Durum Kontrolleri (`cicekli.cuda.*`)
+
+- `cicekli.cuda.is_available()`: Sistemde aktif bir NVIDIA CUDA GPU var mı (`true`/`false`).
+- `cicekli.cuda.device_name()`: GPU model adını döndürür (Örn: `"NVIDIA GeForce RTX 5090"`).
+- `cicekli.cuda.device_count()`: Sistemdeki toplam GPU sayısını döndürür.
+- `cicekli.cuda.memory_info()`: VRAM durumunu içeren harita döndürür: `{"free_mb": 28300, "total_mb": 32199}`.
+
+### 2. Tensör Oluşturucuları
+
+- `cicekli.tensor(liste, [shape], [device])`: Verilen liste veya değerlerden tensör üretir (`device="cuda"` veya `"cpu"`).
+  ```javascript
+  A = cicekli.tensor([[1.0, 2.0], [3.0, 4.0]], "cuda");
+  ```
+- `cicekli.randn(rows, cols, [device])`: Standart normal dağılımlı rastgele tensör üretir.
+- `cicekli.zeros(rows, cols, [device])`: Sıfırlardan oluşan tensör üretir.
+- `cicekli.ones(rows, cols, [device])`: Birlerden oluşan tensör üretir.
+
+### 3. Tensör Metotları ve İşlemleri
+
+- `t.shape`: `[satir, sutun]` boyut listesi.
+- `t.device`: Tensörün bulunduğu cihaz (`"cuda:0"` veya `"cpu"`).
+- `t.to("cuda")` / `t.to("cpu")`: Tensörü GPU ve CPU arasında aktarır.
+- `t.matmul(other)` / `t.mm(other)`: GPU üzerinde yüksek hızlı matris çarpımı ($A \times B$).
+- `t1 + t2` veya `t1.add(t2)`: Eleman düzeyinde toplama (veya skaler ekleme: `t + 2.5`).
+- `t1 - t2` veya `t1.sub(t2)`: Eleman düzeyinde çıkarma (veya skaler çıkarma: `t - 1.0`).
+- `t1 * t2` veya `t1.mul(t2)`: Eleman düzeyinde çarpma (veya skaler çarpma: `t * 0.5`).
+- `t.relu()`: Doğrultulmuş Doğrusal Birim (ReLU) aktivasyonu.
+- `t.sigmoid()`: Sigmoid aktivasyon fonksiyonu.
+- `t.sum()`: Tensördeki tüm elemanların toplamı.
+- `t.mean()`: Tensör elemanlarının ortalaması.
+- `t.tolist()`: Tensörü CicekliScript iç içe listesine dönüştürür.
+- `t.print()`: Tensörü PyTorch formatında ekrana formatlar.

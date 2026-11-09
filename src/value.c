@@ -1,5 +1,6 @@
 #include "value.h"
 #include "gc.h"
+#include "tensor.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -235,6 +236,7 @@ const char* value_type_name(Value v) {
                 case OBJ_NATIVE: return "native_fn";
                 case OBJ_BOUND_METHOD: return "method";
                 case OBJ_WINDOW: return "window";
+                case OBJ_TENSOR: return "tensor";
                 case OBJ_ENV: return "env";
             }
         }
@@ -346,6 +348,9 @@ char* value_to_string(Value v) {
                 case OBJ_WINDOW: {
                     snprintf(buffer, sizeof(buffer), "<cicekli.window>");
                     return strdup(buffer);
+                }
+                case OBJ_TENSOR: {
+                    return tensor_to_string((ObjTensor*)v.as.obj);
                 }
                 default:
                     return strdup("<obj>");

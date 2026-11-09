@@ -1,0 +1,84 @@
+// ============================================================================
+// ⚡ CicekliScript GPU Hızlandırması & Tensör Modülü (CUDA Engine)
+// ============================================================================
+
+cicekli.println("═════════════════════════════════════════════════════════════");
+cicekli.println("🚀 CicekliScript CUDA & Tensör Hesaplama Motoru");
+cicekli.println("═════════════════════════════════════════════════════════════");
+
+// 1. Donanım ve CUDA Durum Kontrolü
+if (cicekli.cuda.is_available()) {
+    cicekli.println("✓ CUDA Durumu       : Aktif (GPU Kullanılabilir)");
+    cicekli.println("✓ Grafik Kartı      :", cicekli.cuda.device_name());
+    cicekli.println("✓ Toplam GPU Sayısı :", cicekli.cuda.device_count());
+    
+    mem = cicekli.cuda.memory_info();
+    cicekli.println("✓ Kullanılabilir VRAM:", mem.free_mb, "MB / Toplam:", mem.total_mb, "MB\n");
+} else {
+    cicekli.println("ℹ️ CUDA GPU bulunamadı, CPU hesaplama modu devrede.\n");
+};
+
+// Cihaz seçimi (GPU varsa 'cuda', yoksa 'cpu')
+cihaz = "cpu";
+if (cicekli.cuda.is_available()) {
+    cihaz = "cuda";
+};
+
+// 2. Tensör Tanımlama ve Cihaza Gönderme
+cicekli.println("[1] 2x2 Tensörler Tanımlanıyor (Cihaz: " + cihaz + ")...");
+
+A = cicekli.tensor([
+    [1.0, 2.0],
+    [3.0, 4.0]
+], cihaz);
+
+B = cicekli.tensor([
+    [5.0, 6.0],
+    [7.0, 8.0]
+], cihaz);
+
+cicekli.println("Tensör A:");
+A.print();
+
+cicekli.println("Tensör B:");
+B.print();
+
+// 3. Matris Çarpımı (Matmul)
+cicekli.println("\n[2] Matris Çarpımı (A x B) Hesaplanıyor...");
+C = A.matmul(B);
+C.print();
+
+// 4. Tensör Toplama ve Aktivasyon Fonksiyonları
+cicekli.println("\n[3] Eleman Düzeyinde Toplama (A + B):");
+D = A + B;
+D.print();
+
+cicekli.println("\n[4] ReLU Aktivasyonu ReLU(A - 2.5):");
+E = (A - 2.5).relu();
+E.print();
+
+cicekli.println("\n[5] İstatistikler:");
+cicekli.println("  • C Toplamı :", C.sum());
+cicekli.println("  • C Ortalaması:", C.mean());
+
+// 5. Yüksek Boyutlu GPU Performans Testi (1024x1024 Matris)
+if (cihaz == "cuda") {
+    cicekli.println("\n═════════════════════════════════════════════════════════════");
+    cicekli.println("⚡ 1024x1024 GPU Matris Çarpımı Hız Testi (RTX 5090)");
+    cicekli.println("═════════════════════════════════════════════════════════════");
+
+    w1 = cicekli.randn(1024, 1024, "cuda");
+    w2 = cicekli.randn(1024, 1024, "cuda");
+
+    basla = time();
+    w3 = w1.matmul(w2);
+    bitis = time();
+
+    gecen_ms = math.round((bitis - basla) * 10000) / 10.0;
+    cicekli.println("✓ 1 Milyon Elemanlı Matris Çarpımı Süresi:", gecen_ms, "ms");
+    cicekli.println("✓ Çıktı Boyutu:", w3.shape, "| Cihaz:", w3.device);
+};
+
+cicekli.println("\n═════════════════════════════════════════════════════════════");
+cicekli.println("🎉 CicekliScript artık tam teşekküllü Tensör & GPU desteğine sahip!");
+cicekli.println("═════════════════════════════════════════════════════════════");

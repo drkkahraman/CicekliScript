@@ -1,6 +1,7 @@
 #include "eval.h"
 #include "gc.h"
 #include "gui.h"
+#include "tensor.h"
 #include "parser.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -1139,6 +1140,28 @@ Environment* init_global_environment(void) {
     define_native(env, cicekli, "import", native_import, 1);
     define_native(env, cicekli, "window", native_mete_window, -1);
 
+    // Tensor & CUDA AI Engine
+    define_native(env, cicekli, "tensor", native_tensor_create, -1);
+    define_native(env, cicekli, "randn", native_tensor_randn, -1);
+    define_native(env, cicekli, "zeros", native_tensor_zeros, -1);
+    define_native(env, cicekli, "ones", native_tensor_ones, -1);
+
+    ObjMap* cuda_map = new_map();
+    env_define(env, "cuda", make_obj((Obj*)cuda_map));
+    map_set(cicekli, "cuda", make_obj((Obj*)cuda_map));
+
+    #define DEF_CUDA(name, fn, arity) \
+        do { \
+            define_native(env, cicekli, name, fn, arity); \
+            map_set(cuda_map, name, make_obj((Obj*)new_native(name, fn, arity))); \
+        } while (0)
+
+    DEF_CUDA("is_available", native_cuda_is_available, 0);
+    DEF_CUDA("device_name", native_cuda_device_name, 0);
+    DEF_CUDA("device_count", native_cuda_device_count, 0);
+    DEF_CUDA("memory_info", native_cuda_memory_info, 0);
+    #undef DEF_CUDA
+
     // Math Functions (global + in math map + in cicekli map)
     #define DEF_MATH(name, fn, arity) \
         do { \
@@ -1277,6 +1300,15 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
                         for (size_t i = 0; i < l2->count; i++) list_append(res, l2->items[i]);
                         return make_obj((Obj*)res);
                     }
+                    // Tensor addition
+                    if (is_tensor(left) && (is_tensor(right) || is_number(right))) {
+                        Value m = tensor_get_method(left, "add");
+                        if (!is_null(m) && is_bound_method(m)) {
+                            ObjBoundMethod* bm = as_bound_method(m);
+                            ObjNative* nat = as_native(bm->method);
+                            return nat->fn(bm->receiver, 1, &right, expr->line);
+                        }
+                    }
                     // Numbers
                     if (is_number(left) && is_number(right)) {
                         return make_number(as_number(left) + as_number(right));
@@ -1287,9 +1319,25 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
                     return make_null();
                 }
                 case TOKEN_MINUS:
+                    if (is_tensor(left) && (is_tensor(right) || is_number(right))) {
+                        Value m = tensor_get_method(left, "sub");
+                        if (!is_null(m) && is_bound_method(m)) {
+                            ObjBoundMethod* bm = as_bound_method(m);
+                            ObjNative* nat = as_native(bm->method);
+                            return nat->fn(bm->receiver, 1, &right, expr->line);
+                        }
+                    }
                     if (is_number(left) && is_number(right)) return make_number(as_number(left) - as_number(right));
                     break;
                 case TOKEN_STAR:
+                    if (is_tensor(left) && (is_tensor(right) || is_number(right))) {
+                        Value m = tensor_get_method(left, "mul");
+                        if (!is_null(m) && is_bound_method(m)) {
+                            ObjBoundMethod* bm = as_bound_method(m);
+                            ObjNative* nat = as_native(bm->method);
+                            return nat->fn(bm->receiver, 1, &right, expr->line);
+                        }
+                    }
                     if (is_number(left) && is_number(right)) return make_number(as_number(left) * as_number(right));
                     // String repeat: "abc" * 3
                     if (is_string(left) && is_number(right)) {
@@ -1457,6 +1505,20 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
                     return p;
                 }
                 runtime_error(expr->line, "Pencerede '%s' özelliği veya metodu bulunamadı!", expr->as.member.member);
+                *had_error = true;
+                return make_null();
+            }
+
+            if (is_tensor(obj)) {
+                Value m = tensor_get_method(obj, expr->as.member.member);
+                if (!is_null(m)) {
+                    return m;
+                }
+                Value p = tensor_get_property(obj, expr->as.member.member);
+                if (!is_null(p)) {
+                    return p;
+                }
+                runtime_error(expr->line, "Tensörde '%s' özelliği veya metodu bulunamadı!", expr->as.member.member);
                 *had_error = true;
                 return make_null();
             }

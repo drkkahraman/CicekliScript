@@ -20,7 +20,8 @@ typedef enum {
     OBJ_NATIVE,
     OBJ_ENV,
     OBJ_BOUND_METHOD,
-    OBJ_WINDOW
+    OBJ_WINDOW,
+    OBJ_TENSOR
 } ObjType;
 
 struct Obj;
@@ -120,6 +121,7 @@ static inline bool is_function(Value v) { return is_obj_type(v, OBJ_FUNCTION); }
 static inline bool is_native(Value v) { return is_obj_type(v, OBJ_NATIVE); }
 static inline bool is_bound_method(Value v) { return is_obj_type(v, OBJ_BOUND_METHOD); }
 static inline bool is_window(Value v) { return is_obj_type(v, OBJ_WINDOW); }
+static inline bool is_tensor(Value v) { return is_obj_type(v, OBJ_TENSOR); }
 
 static inline bool as_bool(Value v) { return v.as.boolean; }
 static inline double as_number(Value v) { return v.as.number; }

@@ -1,4 +1,5 @@
 #include "gc.h"
+#include "tensor.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -90,6 +91,7 @@ void gc_mark_obj(Obj* obj) {
             break;
         }
         case OBJ_WINDOW:
+        case OBJ_TENSOR:
             break;
         case OBJ_ENV: {
             Environment* env = (Environment*)obj;
@@ -157,6 +159,11 @@ static void free_object(Obj* obj) {
         }
         case OBJ_WINDOW: {
             gui_window_destroy(obj);
+            free(obj);
+            break;
+        }
+        case OBJ_TENSOR: {
+            tensor_free_data((ObjTensor*)obj);
             free(obj);
             break;
         }

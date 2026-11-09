@@ -29,7 +29,8 @@ typedef enum {
     TOKEN_STRING,
     TOKEN_NUMBER,
 
-    TOKEN_METE_DEFFUNCTION,                  // mete.deffunction
+    TOKEN_CICEKLI_DEFFUNCTION,               // cicekli.deffunction
+    TOKEN_METE_DEFFUNCTION = TOKEN_CICEKLI_DEFFUNCTION, // mete.deffunction
     TOKEN_DEF,                               // def, deffunction
     TOKEN_IF, TOKEN_ELIF, TOKEN_ELSE,        // if, elif, else
     TOKEN_WHILE, TOKEN_FOR, TOKEN_IN, TOKEN_IMPORT,        // while, for, in, import

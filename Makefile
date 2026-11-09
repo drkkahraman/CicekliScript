@@ -1,9 +1,25 @@
 CC ?= gcc
+NVCC ?= $(shell which nvcc 2>/dev/null || which /opt/cuda/bin/nvcc 2>/dev/null)
+CUDA_PATH ?= /opt/cuda
+
 PKG_CFLAGS = $(shell pkg-config --cflags cairo x11)
 PKG_LIBS = $(shell pkg-config --libs cairo x11)
 
-CFLAGS ?= -Wall -Wextra -O2 -std=c11 -D_POSIX_C_SOURCE=200809L $(PKG_CFLAGS)
-LDFLAGS ?= -lm $(PKG_LIBS)
+# CUDA auto-detection
+ifneq ($(NVCC),)
+    CUDA_CFLAGS = -DUSE_CUDA -I$(CUDA_PATH)/include
+    CUDA_LDFLAGS = -L$(CUDA_PATH)/lib64 -lcudart -lstdc++
+    CUDA_OBJS = src/gpu_cuda.o
+    CUDA_INFO = [CUDA & GPU Aktif]
+else
+    CUDA_CFLAGS =
+    CUDA_LDFLAGS =
+    CUDA_OBJS =
+    CUDA_INFO = [CPU Modu]
+endif
+
+CFLAGS ?= -Wall -Wextra -O2 -std=c11 -D_POSIX_C_SOURCE=200809L $(PKG_CFLAGS) $(CUDA_CFLAGS)
+LDFLAGS ?= -lm $(PKG_LIBS) $(CUDA_LDFLAGS)
 
 SRC_DIR = src
 BIN_DIR = bin
@@ -17,9 +33,10 @@ SRCS = $(SRC_DIR)/main.c \
        $(SRC_DIR)/env.c \
        $(SRC_DIR)/gc.c \
        $(SRC_DIR)/eval.c \
-       $(SRC_DIR)/gui.c
+       $(SRC_DIR)/gui.c \
+       $(SRC_DIR)/tensor.c
 
-OBJS = $(SRCS:.c=.o)
+OBJS = $(SRCS:.c=.o) $(CUDA_OBJS)
 
 .PHONY: all clean install test
 
@@ -29,10 +46,13 @@ $(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
 	@ln -sf cicekliscript $(BIN_DIR)/metescript
-	@echo "CicekliScript başarıyla derlendi: $(TARGET)"
+	@echo "CicekliScript başarıyla derlendi: $(TARGET)$(CUDA_INFO)"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(SRC_DIR)/gpu_cuda.o: $(SRC_DIR)/gpu_cuda.cu
+	$(NVCC) -O3 -c $< -o $@
 
 clean:
 	rm -f $(SRC_DIR)/*.o $(TARGET) $(BIN_DIR)/metescript
