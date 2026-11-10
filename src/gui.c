@@ -8,6 +8,14 @@
 #include <strings.h>
 #include <math.h>
 #include <unistd.h>
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#define TokenType WindowsTokenType
+#include <windows.h>
+#undef TokenType
+#endif
 #ifndef NO_X11
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
@@ -20,16 +28,87 @@
 #endif
 
 static bool gui_headless_mode(void) {
-#ifdef NO_X11
-    return true;
-#else
     const char* env = getenv("CICEKLI_GUI_HEADLESS");
     if (!env || env[0] == '\0') {
         env = getenv("METE_GUI_HEADLESS");
     }
-    return env != NULL && env[0] != '\0';
+    if (env != NULL && env[0] != '\0') return true;
+
+#if defined(_WIN32)
+    return false;
+#elif defined(NO_X11)
+    return true;
+#else
+    return false;
 #endif
 }
+
+#ifdef _WIN32
+static bool win32_class_registered = false;
+
+static LRESULT CALLBACK CicekliWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    GuiWindow* win = (GuiWindow*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
+    switch (uMsg) {
+        case WM_CLOSE:
+            if (win) win->is_open = false;
+            DestroyWindow(hwnd);
+            return 0;
+        case WM_DESTROY:
+            if (win) {
+                win->is_open = false;
+                win->hwnd = NULL;
+            }
+            return 0;
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+            if (win && win->hdc_mem) {
+                BitBlt(hdc, 0, 0, win->width, win->height, (HDC)win->hdc_mem, 0, 0, SRCCOPY);
+            }
+            EndPaint(hwnd, &ps);
+            return 0;
+        }
+        case WM_MOUSEMOVE:
+            if (win) {
+                win->mouse_x = (short)LOWORD(lParam);
+                win->mouse_y = (short)HIWORD(lParam);
+            }
+            return 0;
+        case WM_LBUTTONDOWN:
+            if (win) {
+                win->mouse_down = true;
+                win->mouse_x = (short)LOWORD(lParam);
+                win->mouse_y = (short)HIWORD(lParam);
+            }
+            return 0;
+        case WM_LBUTTONUP:
+            if (win) {
+                win->mouse_down = false;
+            }
+            return 0;
+        case WM_KEYDOWN:
+            if (win) {
+                if (wParam == VK_ESCAPE) {
+                    win->is_open = false;
+                    DestroyWindow(hwnd);
+                    return 0;
+                }
+                BYTE kstate[256];
+                GetKeyboardState(kstate);
+                WCHAR wbuf[8];
+                int r = ToUnicode((UINT)wParam, (UINT)(HIWORD(lParam) & 0xFF), kstate, wbuf, 8, 0);
+                if (r > 0) {
+                    int len = WideCharToMultiByte(CP_UTF8, 0, wbuf, r, win->last_key, (int)sizeof(win->last_key) - 1, NULL, NULL);
+                    if (len >= 0 && len < (int)sizeof(win->last_key)) {
+                        win->last_key[len] = '\0';
+                    }
+                }
+            }
+            return 0;
+    }
+    return DefWindowProcA(hwnd, uMsg, wParam, lParam);
+}
+#endif
 
 static void json_escape(const char* s, char* out, size_t out_size) {
     size_t oi = 0;
@@ -218,6 +297,13 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
 
     if (is_headless) {
         GuiWindow* win = (GuiWindow*)gc_allocate(sizeof(GuiWindow), OBJ_WINDOW);
+#ifdef _WIN32
+        win->hwnd = NULL;
+        win->hdc_mem = NULL;
+        win->hbm_mem = NULL;
+        win->hbm_old = NULL;
+        win->hfont = NULL;
+#endif
         win->display = NULL;
         win->screen = 0;
         win->xwindow = 0;
@@ -245,7 +331,89 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
         return win;
     }
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (!win32_class_registered) {
+        WNDCLASSA wc = {0};
+        wc.style = CS_HREDRAW | CS_VREDRAW;
+        wc.lpfnWndProc = CicekliWindowProc;
+        wc.hInstance = GetModuleHandle(NULL);
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+        wc.lpszClassName = "CicekliScriptWindow";
+        RegisterClassA(&wc);
+        win32_class_registered = true;
+    }
+
+    RECT rc = {0, 0, width, height};
+    AdjustWindowRect(&rc, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, FALSE);
+    int win_w = rc.right - rc.left;
+    int win_h = rc.bottom - rc.top;
+
+    HWND hwnd = CreateWindowExA(
+        0,
+        "CicekliScriptWindow",
+        title ? title : "CicekliScript Penceresi",
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        win_w, win_h,
+        NULL, NULL, GetModuleHandle(NULL), NULL
+    );
+
+    if (!hwnd) {
+        fprintf(stderr, "[CicekliScript GUI]: Windows penceresi oluşturulamadı!\n");
+        return NULL;
+    }
+
+    HDC screen_dc = GetDC(hwnd);
+    HDC mem_dc = CreateCompatibleDC(screen_dc);
+    HBITMAP mem_bm = CreateCompatibleBitmap(screen_dc, width, height);
+    HBITMAP old_bm = (HBITMAP)SelectObject(mem_dc, mem_bm);
+    ReleaseDC(hwnd, screen_dc);
+
+    GuiWindow* win = (GuiWindow*)gc_allocate(sizeof(GuiWindow), OBJ_WINDOW);
+    win->hwnd = hwnd;
+    win->hdc_mem = mem_dc;
+    win->hbm_mem = mem_bm;
+    win->hbm_old = old_bm;
+    win->hfont = NULL;
+    win->display = NULL;
+    win->screen = 0;
+    win->xwindow = 0;
+    win->pixmap = 0;
+    win->gc = NULL;
+    win->wm_delete = 0;
+    win->surface = NULL;
+    win->cr = NULL;
+    win->width = width;
+    win->height = height;
+    win->title = strdup(title ? title : "CicekliScript Penceresi");
+    win->is_open = true;
+    win->bg_r = 1.0;
+    win->bg_g = 1.0;
+    win->bg_b = 1.0;
+    win->mouse_x = 0;
+    win->mouse_y = 0;
+    win->mouse_down = false;
+    win->last_key[0] = '\0';
+    win->headless = false;
+    win->emitted = false;
+    win->op_count = 0;
+    win->op_cap = 0;
+    win->ops = NULL;
+
+    SetWindowLongPtrA(hwnd, GWLP_USERDATA, (LONG_PTR)win);
+
+    // Başlangıçta beyaz arka planla doldur
+    HBRUSH br = CreateSolidBrush(RGB(255, 255, 255));
+    RECT client_rc = {0, 0, width, height};
+    FillRect(mem_dc, &client_rc, br);
+    DeleteObject(br);
+
+    ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
+
+    return win;
+#elif !defined(NO_X11)
     int screen = DefaultScreen(d);
     Window root = RootWindow(d, screen);
 
@@ -360,7 +528,24 @@ void gui_window_destroy(GuiWindow* win) {
         return;
     }
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (win->hdc_mem) {
+        if (win->hbm_old) {
+            SelectObject((HDC)win->hdc_mem, (HBITMAP)win->hbm_old);
+            win->hbm_old = NULL;
+        }
+        if (win->hbm_mem) {
+            DeleteObject((HBITMAP)win->hbm_mem);
+            win->hbm_mem = NULL;
+        }
+        DeleteDC((HDC)win->hdc_mem);
+        win->hdc_mem = NULL;
+    }
+    if (win->hwnd) {
+        DestroyWindow((HWND)win->hwnd);
+        win->hwnd = NULL;
+    }
+#elif !defined(NO_X11)
     if (win->cr) {
         cairo_destroy(win->cr);
         win->cr = NULL;
@@ -399,8 +584,18 @@ void gui_window_destroy(GuiWindow* win) {
 }
 
 void gui_window_poll_events(GuiWindow* win) {
-#ifndef NO_X11
-    if (!win || win->headless || !win->display || !win->is_open) return;
+    if (!win || win->headless || !win->is_open) return;
+
+#ifdef _WIN32
+    if (win->hwnd) {
+        MSG msg;
+        while (PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&msg);
+            DispatchMessageA(&msg);
+        }
+    }
+#elif !defined(NO_X11)
+    if (!win->display) return;
 
     while (XPending(win->display) > 0) {
         XEvent ev;
@@ -458,8 +653,6 @@ void gui_window_poll_events(GuiWindow* win) {
             }
         }
     }
-#else
-    (void)win;
 #endif
 }
 
@@ -470,7 +663,14 @@ void gui_window_update(GuiWindow* win) {
         return;
     }
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (win->hwnd && win->hdc_mem) {
+        HDC hdc = GetDC((HWND)win->hwnd);
+        BitBlt(hdc, 0, 0, win->width, win->height, (HDC)win->hdc_mem, 0, 0, SRCCOPY);
+        ReleaseDC((HWND)win->hwnd, hdc);
+        gui_window_poll_events(win);
+    }
+#elif !defined(NO_X11)
     if (win->display && win->xwindow && win->pixmap && win->gc) {
         cairo_surface_flush(win->surface);
         XCopyArea(win->display, win->pixmap, win->xwindow, win->gc, 0, 0,
@@ -491,9 +691,18 @@ void gui_window_color(GuiWindow* win, double r, double g, double b) {
     snprintf(buf, sizeof(buf), "[\"color\",%.3f,%.3f,%.3f]", r, g, b);
     gui_record_op(win, buf);
 
-    if (win->headless || !win->cr) return;
+    if (win->headless) return;
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (win->hdc_mem) {
+        HBRUSH br = CreateSolidBrush(RGB((int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0)));
+        RECT rc = {0, 0, win->width, win->height};
+        FillRect((HDC)win->hdc_mem, &rc, br);
+        DeleteObject(br);
+        gui_window_update(win);
+    }
+#elif !defined(NO_X11)
+    if (!win->cr) return;
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_paint(win->cr);
     gui_window_update(win);
@@ -510,9 +719,26 @@ void gui_window_text(GuiWindow* win, const char* text, double r, double g, doubl
              size > 0 ? size : 14.0, x, y);
     gui_record_op(win, buf);
 
-    if (win->headless || !win->cr) return;
+    if (win->headless) return;
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (win->hdc_mem) {
+        HDC hdc = (HDC)win->hdc_mem;
+        COLORREF col = RGB((int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0));
+        SetTextColor(hdc, col);
+        SetBkMode(hdc, TRANSPARENT);
+        int font_h = size > 0 ? (int)size : 14;
+        HFONT hf = CreateFontA(font_h, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+                               DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+                               CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, "Arial");
+        HFONT old_hf = (HFONT)SelectObject(hdc, hf);
+        TextOutA(hdc, (int)x, (int)y, text, (int)strlen(text));
+        SelectObject(hdc, old_hf);
+        DeleteObject(hf);
+        gui_window_update(win);
+    }
+#elif !defined(NO_X11)
+    if (!win->cr) return;
     cairo_select_font_face(win->cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(win->cr, size > 0 ? size : 14.0);
     cairo_set_source_rgb(win->cr, r, g, b);
@@ -529,9 +755,25 @@ void gui_window_rect(GuiWindow* win, double x, double y, double w, double h, dou
     snprintf(buf, sizeof(buf), "[\"rect\",%.1f,%.1f,%.1f,%.1f,%.3f,%.3f,%.3f]", x, y, w, h, r, g, b);
     gui_record_op(win, buf);
 
-    if (win->headless || !win->cr) return;
+    if (win->headless) return;
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (win->hdc_mem) {
+        HDC hdc = (HDC)win->hdc_mem;
+        COLORREF col = RGB((int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0));
+        HBRUSH br = CreateSolidBrush(col);
+        HPEN pen = CreatePen(PS_SOLID, 1, col);
+        HBRUSH old_br = (HBRUSH)SelectObject(hdc, br);
+        HPEN old_pen = (HPEN)SelectObject(hdc, pen);
+        Rectangle(hdc, (int)x, (int)y, (int)(x + w), (int)(y + h));
+        SelectObject(hdc, old_br);
+        SelectObject(hdc, old_pen);
+        DeleteObject(br);
+        DeleteObject(pen);
+        gui_window_update(win);
+    }
+#elif !defined(NO_X11)
+    if (!win->cr) return;
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_rectangle(win->cr, x, y, w, h);
     cairo_fill(win->cr);
@@ -546,9 +788,25 @@ void gui_window_circle(GuiWindow* win, double x, double y, double radius, double
     snprintf(buf, sizeof(buf), "[\"circle\",%.1f,%.1f,%.1f,%.3f,%.3f,%.3f]", x, y, radius, r, g, b);
     gui_record_op(win, buf);
 
-    if (win->headless || !win->cr) return;
+    if (win->headless) return;
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (win->hdc_mem) {
+        HDC hdc = (HDC)win->hdc_mem;
+        COLORREF col = RGB((int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0));
+        HBRUSH br = CreateSolidBrush(col);
+        HPEN pen = CreatePen(PS_SOLID, 1, col);
+        HBRUSH old_br = (HBRUSH)SelectObject(hdc, br);
+        HPEN old_pen = (HPEN)SelectObject(hdc, pen);
+        Ellipse(hdc, (int)(x - radius), (int)(y - radius), (int)(x + radius), (int)(y + radius));
+        SelectObject(hdc, old_br);
+        SelectObject(hdc, old_pen);
+        DeleteObject(br);
+        DeleteObject(pen);
+        gui_window_update(win);
+    }
+#elif !defined(NO_X11)
+    if (!win->cr) return;
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_arc(win->cr, x, y, radius, 0, 2 * M_PI);
     cairo_fill(win->cr);
@@ -564,9 +822,23 @@ void gui_window_line(GuiWindow* win, double x1, double y1, double x2, double y2,
              width > 0 ? width : 1.0);
     gui_record_op(win, buf);
 
-    if (win->headless || !win->cr) return;
+    if (win->headless) return;
 
-#ifndef NO_X11
+#ifdef _WIN32
+    if (win->hdc_mem) {
+        HDC hdc = (HDC)win->hdc_mem;
+        COLORREF col = RGB((int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0));
+        int pen_w = width > 1.0 ? (int)width : 1;
+        HPEN pen = CreatePen(PS_SOLID, pen_w, col);
+        HPEN old_pen = (HPEN)SelectObject(hdc, pen);
+        MoveToEx(hdc, (int)x1, (int)y1, NULL);
+        LineTo(hdc, (int)x2, (int)y2);
+        SelectObject(hdc, old_pen);
+        DeleteObject(pen);
+        gui_window_update(win);
+    }
+#elif !defined(NO_X11)
+    if (!win->cr) return;
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_set_line_width(win->cr, width > 0 ? width : 1.0);
     cairo_move_to(win->cr, x1, y1);
@@ -758,7 +1030,11 @@ static Value native_win_sleep(Value self, size_t argc, Value* args, int line) {
     }
     gui_window_update(win);
     if (win->headless) return self;
+#ifdef _WIN32
+    Sleep((DWORD)ms);
+#else
     usleep(ms * 1000);
+#endif
     gui_window_poll_events(win);
     return self;
 }
@@ -784,7 +1060,11 @@ static Value native_win_mainloop(Value self, size_t argc, Value* args, int line)
         }
 
         gui_window_update(win);
+#ifdef _WIN32
+        Sleep(16); // ~60 FPS
+#else
         usleep(16000); // ~60 FPS
+#endif
     }
 
     return make_null();

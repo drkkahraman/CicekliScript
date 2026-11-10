@@ -4,6 +4,15 @@
 #include "value.h"
 #include <stdbool.h>
 
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#define TokenType WindowsTokenType
+#include <windows.h>
+#undef TokenType
+#endif
+
 #ifndef NO_X11
 #include <X11/Xlib.h>
 #include <cairo.h>
@@ -20,6 +29,13 @@ typedef void* cairo_t;
 
 typedef struct GuiWindow {
     Obj obj;
+#ifdef _WIN32
+    HWND hwnd;
+    HDC hdc_mem;
+    HBITMAP hbm_mem;
+    HBITMAP hbm_old;
+    HFONT hfont;
+#endif
     Display* display;
     int screen;
     Window xwindow;

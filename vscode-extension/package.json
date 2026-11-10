@@ -109,6 +109,11 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "cicekliscript.runGuiPreview",
+        "title": "CicekliScript: GUI Webview Önizleme Aç",
+        "icon": "$(preview)"
+      },
+      {
         "command": "cicekliscript.openDocs",
         "title": "CicekliScript: Dokümantasyon & Online Derleyiciyi Aç",
         "icon": "$(book)"
@@ -122,9 +127,14 @@
           "group": "navigation@1"
         },
         {
-          "command": "cicekliscript.openRepl",
+          "command": "cicekliscript.runGuiPreview",
           "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
           "group": "navigation@2"
+        },
+        {
+          "command": "cicekliscript.openRepl",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
+          "group": "navigation@3"
         }
       ],
       "editor/context": [
