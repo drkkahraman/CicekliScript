@@ -1,8 +1,8 @@
 {
   "name": "cicekliscript",
   "displayName": "CicekliScript",
-  "description": "CicekliScript dili desteği (.ccl) — Sözdizimi renklendirme, dosya logosu, zengin snippet'lar ve tek tıkla çalıştırma.",
-  "version": "1.0.0",
+  "description": "CicekliScript dili (.ccl) — Dahili yerleşik C11 derleyicisi, sözdizimi renklendirme, snippet'lar ve tek tıkla çalıştırma.",
+  "version": "1.1.0",
   "publisher": "cicekliscript",
   "repository": {
     "type": "git",
@@ -22,6 +22,8 @@
     "cicekli",
     "metescript",
     "ms",
+    "compiler",
+    "cuda",
     "programming language",
     "python-like",
     "c-based"
@@ -96,6 +98,16 @@
         "icon": "$(play)"
       },
       {
+        "command": "cicekliscript.openRepl",
+        "title": "CicekliScript: REPL Kabuğunu Başlat",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "cicekliscript.installToSystem",
+        "title": "CicekliScript: Dili Sisteme Kur (~/.local/bin/ccl)",
+        "icon": "$(cloud-download)"
+      },
+      {
         "command": "cicekliscript.openDocs",
         "title": "CicekliScript: Dokümantasyon & Online Derleyiciyi Aç",
         "icon": "$(book)"
@@ -106,7 +118,12 @@
         {
           "command": "cicekliscript.run",
           "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "cicekliscript.openRepl",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
+          "group": "navigation@2"
         }
       ],
       "editor/context": [
@@ -119,6 +136,11 @@
           "command": "cicekliscript.runSelection",
           "when": "editorHasSelection && (editorLangId == cicekliscript || editorLangId == metescript)",
           "group": "1_run@2"
+        },
+        {
+          "command": "cicekliscript.installToSystem",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript",
+          "group": "1_run@3"
         }
       ],
       "explorer/context": [
@@ -143,7 +165,7 @@
         "cicekliscript.executablePath": {
           "type": "string",
           "default": "",
-          "description": "CicekliScript ikili dosyasının (cicekliscript) tam yolu. Boş bırakılırsa sistem PATH ve ~/.local/bin/cicekliscript otomatik aranır."
+          "description": "CicekliScript ikili dosyasının (cicekliscript) tam yolu. Boş bırakılırsa eklenti içindeki yerleşik derleyici (extension/bin/cicekliscript) veya sistem PATH kullanılır."
         },
         "cicekliscript.clearTerminalBeforeRun": {
           "type": "boolean",

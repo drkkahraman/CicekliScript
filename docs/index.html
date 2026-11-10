@@ -4,15 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark light">
-<title>CicekliScript — Dokümantasyon</title>
+<title>CicekliScript — Resmi Dokümantasyon & Online Compiler</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%236366f1'/><text x='50' y='65' font-size='48' font-weight='900' fill='white' text-anchor='middle' font-family='sans-serif'>ccl</text></svg>">
 <style>
   /* ============ TEMA DEĞİŞKENLERİ ============ */
   :root {
-    --sidebar-w: 270px;
+    --sidebar-w: 285px;
     --radius: 12px;
     --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
     --mono: "SF Mono", "Fira Code", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
     --accent-grad: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+    --accent-grad-warm: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
   }
   /* Koyu tema (varsayılan) */
   :root, [data-theme="dark"] {
@@ -30,11 +32,13 @@
     --accent-2: #22d3ee;
     --accent-soft: rgba(129,140,248,.12);
     --green: #34d399;
+    --green-soft: rgba(52,211,153,.14);
     --amber: #fbbf24;
+    --amber-soft: rgba(251,191,36,.14);
     --red: #f87171;
-    --shadow: 0 8px 32px rgba(0,0,0,.45);
+    --shadow: 0 12px 38px rgba(0,0,0,.5);
     --shadow-sm: 0 2px 10px rgba(0,0,0,.35);
-    --header-bg: rgba(11,15,23,.85);
+    --header-bg: rgba(11,15,23,.88);
     /* token renkler */
     --tok-kw: #f472b6;
     --tok-str: #7dd3fc;
@@ -60,11 +64,13 @@
     --accent-2: #0891b2;
     --accent-soft: rgba(99,102,241,.10);
     --green: #059669;
+    --green-soft: rgba(5,150,105,.12);
     --amber: #d97706;
+    --amber-soft: rgba(217,119,6,.12);
     --red: #dc2626;
-    --shadow: 0 8px 32px rgba(30,41,80,.10);
+    --shadow: 0 12px 38px rgba(30,41,80,.10);
     --shadow-sm: 0 2px 10px rgba(30,41,80,.07);
-    --header-bg: rgba(246,248,252,.85);
+    --header-bg: rgba(246,248,252,.9);
     --tok-kw: #db2777;
     --tok-str: #0284c7;
     --tok-num: #b45309;
@@ -80,9 +86,9 @@
       --bg-hover: #e8eef8; --border: #dbe3f0; --border-soft: #e5ebf5;
       --text: #1a2233; --text-dim: #55617a; --text-faint: #8b96ab;
       --accent: #6366f1; --accent-2: #0891b2; --accent-soft: rgba(99,102,241,.10);
-      --green: #059669; --amber: #d97706; --red: #dc2626;
-      --shadow: 0 8px 32px rgba(30,41,80,.10); --shadow-sm: 0 2px 10px rgba(30,41,80,.07);
-      --header-bg: rgba(246,248,252,.85);
+      --green: #059669; --green-soft: rgba(5,150,105,.12); --amber: #d97706; --amber-soft: rgba(217,119,6,.12); --red: #dc2626;
+      --shadow: 0 12px 38px rgba(30,41,80,.10); --shadow-sm: 0 2px 10px rgba(30,41,80,.07);
+      --header-bg: rgba(246,248,252,.9);
       --tok-kw: #db2777; --tok-str: #0284c7; --tok-num: #b45309; --tok-fn: #4f46e5;
       --tok-cm: #8b96ab; --tok-op: #7c3aed; --tok-inline: #be123c;
     }
@@ -96,6 +102,7 @@
     color: var(--text);
     line-height: 1.7;
     transition: background .3s, color .3s;
+    overflow-x: hidden;
   }
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -112,11 +119,18 @@
   header {
     position: sticky; top: 0; z-index: 50;
     display: flex; align-items: center; gap: 14px;
-    padding: 13px 24px;
+    padding: 12px 24px;
     background: var(--header-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--border);
+  }
+  .hamburger-btn {
+    display: none;
+    width: 38px; height: 38px; border-radius: 9px;
+    background: var(--bg-panel); border: 1px solid var(--border);
+    cursor: pointer; align-items: center; justify-content: center;
+    color: var(--text); font-size: 19px;
   }
   .logo {
     width: 44px; height: 36px; border-radius: 10px;
@@ -128,34 +142,66 @@
   }
   header h1 { font-size: 17px; font-weight: 700; white-space: nowrap; }
   header h1 span { color: var(--text-dim); font-weight: 400; font-size: 13px; margin-left: 8px; }
-  .spacer { flex: 1; }
-  .search-wrap { position: relative; }
-  .search-wrap svg {
-    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    width: 15px; height: 15px; stroke: var(--text-faint); fill: none; stroke-width: 2;
-    pointer-events: none;
-  }
-  .search {
-    background: var(--bg-panel); border: 1px solid var(--border);
-    color: var(--text); border-radius: 9px; padding: 8px 12px 8px 34px;
-    font-size: 13px; width: 210px; outline: none;
-    transition: border-color .2s, width .25s, box-shadow .2s;
-  }
-  .search:focus { border-color: var(--accent); width: 250px; box-shadow: 0 0 0 3px var(--accent-soft); }
-  .search::placeholder { color: var(--text-faint); }
+  .header-badges { display: flex; align-items: center; gap: 8px; }
   .badge {
-    font-size: 11.5px; padding: 4px 11px; border-radius: 999px;
+    font-size: 11px; padding: 4px 10px; border-radius: 999px;
     border: 1px solid var(--border); color: var(--text-dim);
     background: var(--bg-panel); font-weight: 600; letter-spacing: .02em;
-    white-space: nowrap;
+    white-space: nowrap; display: inline-flex; align-items: center;
   }
   .badge .dot {
     display: inline-block; width: 7px; height: 7px; border-radius: 50%;
     background: var(--green); margin-right: 6px;
     box-shadow: 0 0 8px var(--green);
   }
+  .badge-cuda {
+    border-color: rgba(34,211,238,.3);
+    color: var(--accent-2);
+    background: rgba(34,211,238,.08);
+  }
+  .badge-cuda .dot { background: var(--accent-2); box-shadow: 0 0 8px var(--accent-2); }
+  .spacer { flex: 1; }
+
+  .search-wrap { position: relative; }
+  .search-wrap svg {
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; stroke: var(--text-faint); fill: none; stroke-width: 2;
+    pointer-events: none;
+  }
+  .search-wrap .search-clear {
+    position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; border-radius: 50%; background: var(--border);
+    color: var(--text-dim); border: none; font-size: 11px; cursor: pointer;
+    display: none; align-items: center; justify-content: center;
+  }
+  .search-wrap .search-clear.show { display: flex; }
+  .search {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    color: var(--text); border-radius: 9px; padding: 8px 32px 8px 34px;
+    font-size: 13px; width: 230px; outline: none;
+    transition: border-color .2s, width .25s, box-shadow .2s;
+  }
+  .search:focus { border-color: var(--accent); width: 280px; box-shadow: 0 0 0 3px var(--accent-soft); }
+  .search::placeholder { color: var(--text-faint); }
+  .search-kbd {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    font-size: 10px; font-family: var(--mono); color: var(--text-faint);
+    background: var(--bg-soft); border: 1px solid var(--border); padding: 2px 5px;
+    border-radius: 4px; pointer-events: none;
+  }
+
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 9px;
+    background: var(--bg-panel); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: var(--text-dim); transition: transform .15s, border-color .2s, color .2s;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--text); transform: translateY(-1px); }
+  .icon-btn svg { width: 17px; height: 17px; fill: currentColor; }
+
   .theme-btn {
-    width: 38px; height: 38px; border-radius: 10px;
+    width: 38px; height: 38px; border-radius: 9px;
     background: var(--bg-panel); border: 1px solid var(--border);
     cursor: pointer; display: flex; align-items: center; justify-content: center;
     transition: transform .2s, border-color .2s;
@@ -176,26 +222,31 @@
   }
 
   /* ============ LAYOUT ============ */
-  .layout { display: flex; max-width: 1320px; margin: 0 auto; }
+  .layout { display: flex; max-width: 1440px; margin: 0 auto; position: relative; }
+  .sidebar-backdrop {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+    z-index: 45; backdrop-filter: blur(4px);
+  }
   nav.sidebar {
     width: var(--sidebar-w); flex-shrink: 0;
-    position: sticky; top: 64px;
-    height: calc(100vh - 64px);
+    position: sticky; top: 62px;
+    height: calc(100vh - 62px);
     overflow-y: auto;
-    padding: 26px 14px 26px 26px;
+    padding: 22px 14px 40px 22px;
     border-right: 1px solid var(--border);
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
+    background: var(--bg);
   }
   nav.sidebar h3 {
-    font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em;
+    font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
     color: var(--text-faint); margin: 22px 0 8px 10px; font-weight: 700;
   }
   nav.sidebar h3:first-child { margin-top: 0; }
   nav.sidebar a {
     display: flex; align-items: center; gap: 9px;
     padding: 7px 11px; border-radius: 8px;
-    color: var(--text-dim); font-size: 13.5px; font-weight: 500;
+    color: var(--text-dim); font-size: 13px; font-weight: 500;
     border-left: 2px solid transparent;
     transition: all .15s;
   }
@@ -204,9 +255,22 @@
     background: var(--accent-soft); color: var(--accent);
     border-left-color: var(--accent); font-weight: 600;
   }
+  nav.sidebar a.highlight-link {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
   nav.sidebar a .ico { font-size: 14px; width: 18px; text-align: center; opacity: .85; }
+  nav.sidebar .badge-hot {
+    margin-left: auto; font-size: 9.5px; padding: 1px 6px; border-radius: 999px;
+    background: var(--green-soft); color: var(--green); font-weight: 700;
+  }
+  nav.sidebar .badge-cuda-pill {
+    margin-left: auto; font-size: 9.5px; padding: 1px 6px; border-radius: 999px;
+    background: rgba(34,211,238,.12); color: var(--accent-2); font-weight: 700;
+  }
 
-  main { flex: 1; min-width: 0; padding: 44px 52px 120px; }
+  main { flex: 1; min-width: 0; padding: 36px 44px 120px; }
 
   /* ============ HERO ============ */
   .hero {
@@ -214,78 +278,119 @@
     background: var(--bg-panel);
     border: 1px solid var(--border);
     border-radius: 18px;
-    padding: 44px 44px 40px;
-    margin-bottom: 52px;
+    padding: 40px 42px 36px;
+    margin-bottom: 44px;
     overflow: hidden;
     box-shadow: var(--shadow-sm);
   }
   .hero::before {
     content: "";
     position: absolute; top: -120px; right: -80px;
-    width: 380px; height: 380px; border-radius: 50%;
+    width: 420px; height: 420px; border-radius: 50%;
     background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
     pointer-events: none;
   }
   .hero::after {
     content: "";
     position: absolute; bottom: -140px; left: -60px;
-    width: 300px; height: 300px; border-radius: 50%;
+    width: 320px; height: 320px; border-radius: 50%;
     background: radial-gradient(circle, rgba(34,211,238,.08) 0%, transparent 70%);
     pointer-events: none;
   }
   .hero .kicker {
     display: inline-flex; align-items: center; gap: 7px;
-    font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
     color: var(--accent); background: var(--accent-soft);
-    padding: 5px 14px; border-radius: 999px; margin-bottom: 18px;
+    padding: 5px 14px; border-radius: 999px; margin-bottom: 16px;
   }
-  .hero h2 { font-size: 38px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 14px; line-height: 1.2; }
+  .hero h2 { font-size: 36px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 12px; line-height: 1.25; }
   .hero h2 em {
     font-style: normal;
     background: var(--accent-grad);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .hero p { color: var(--text-dim); font-size: 15.5px; max-width: 700px; margin-bottom: 22px; }
+  .hero p { color: var(--text-dim); font-size: 15px; max-width: 740px; margin-bottom: 22px; }
   .hero .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 22px; }
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; border-radius: 10px; font-size: 13.5px; font-weight: 600;
+    padding: 9px 18px; border-radius: 9px; font-size: 13.5px; font-weight: 600;
     cursor: pointer; border: 1px solid transparent;
     transition: transform .15s, box-shadow .2s;
   }
   .btn:hover { text-decoration: none; transform: translateY(-2px); }
   .btn-primary { background: var(--accent-grad); color: #fff; box-shadow: var(--shadow-sm); }
   .btn-ghost { background: var(--bg-soft); color: var(--text); border-color: var(--border); }
+  .btn-cuda { background: linear-gradient(135deg, #0284c7 0%, #06b6d4 100%); color: #fff; }
   .hero .tags { display: flex; flex-wrap: wrap; gap: 8px; }
   .tag {
-    font-size: 12px; padding: 5px 13px; border-radius: 999px;
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
     background: var(--bg-soft); border: 1px solid var(--border); color: var(--text-dim);
     font-weight: 500;
   }
   .tag b { color: var(--accent); font-weight: 700; }
+  .tag.tag-cuda b { color: var(--accent-2); }
 
   /* ============ SECTIONS ============ */
-  section { margin-bottom: 60px; scroll-margin-top: 84px; }
+  section { margin-bottom: 60px; scroll-margin-top: 80px; }
   section h2 {
-    font-size: 25px; font-weight: 800; letter-spacing: -.01em;
-    margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+    font-size: 24px; font-weight: 800; letter-spacing: -.01em;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
   }
   section h2 .num {
     font-size: 13px; font-weight: 800; color: var(--accent);
-    background: var(--accent-soft); padding: 3px 11px; border-radius: 8px;
+    background: var(--accent-soft); padding: 3px 10px; border-radius: 8px;
     font-family: var(--mono);
   }
-  section h3 { font-size: 17.5px; font-weight: 700; margin: 28px 0 10px; }
+  section h3 { font-size: 17px; font-weight: 700; margin: 26px 0 10px; display: flex; align-items: center; gap: 8px; }
+  section h4 { font-size: 15px; font-weight: 700; margin: 18px 0 8px; color: var(--text); }
   section p { margin-bottom: 13px; color: var(--text-dim); font-size: 14.5px; }
   section ul, section ol { margin: 0 0 15px 24px; color: var(--text-dim); font-size: 14.5px; }
   section li { margin-bottom: 7px; }
   section li::marker { color: var(--accent); }
   code.inline {
     background: var(--bg-code); border: 1px solid var(--border);
-    padding: 2px 8px; border-radius: 6px; font-size: 12.5px;
+    padding: 2px 7px; border-radius: 6px; font-size: 12.5px;
     font-family: var(--mono); color: var(--tok-inline);
     white-space: nowrap;
   }
+
+  /* ============ CARDS GRID ============ */
+  .grid-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px; margin: 20px 0 28px;
+  }
+  .card-feature {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-sm);
+    transition: transform .2s, border-color .2s;
+  }
+  .card-feature:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .card-feature .card-ico { font-size: 26px; margin-bottom: 12px; }
+  .card-feature h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .card-feature p { font-size: 13.5px; color: var(--text-dim); margin-bottom: 0; line-height: 1.6; }
+
+  /* ============ TABS COMPONENT ============ */
+  .tab-group {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin: 20px 0 28px;
+    box-shadow: var(--shadow-sm);
+  }
+  .tab-nav {
+    display: flex; gap: 4px; padding: 8px 12px;
+    background: var(--bg-soft); border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab-btn {
+    background: transparent; border: none; padding: 8px 14px;
+    border-radius: 7px; font-size: 13px; font-weight: 600; color: var(--text-dim);
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--bg-hover); }
+  .tab-btn.active { background: var(--bg-panel); color: var(--accent); box-shadow: var(--shadow-sm); }
+  .tab-pane { display: none; padding: 22px; }
+  .tab-pane.active { display: block; }
 
   /* ============ CODE BLOCKS ============ */
   .codeblock {
@@ -297,30 +402,32 @@
   .codeblock:hover { border-color: var(--text-faint); }
   .codeblock .bar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 14px; border-bottom: 1px solid var(--border-soft);
+    padding: 8px 14px; border-bottom: 1px solid var(--border-soft);
     background: var(--bg-soft);
   }
   .codeblock .bar .left { display: flex; align-items: center; gap: 12px; }
   .codeblock .bar .dots { display: flex; gap: 6px; }
-  .codeblock .bar .dots i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .codeblock .bar .dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
   .codeblock .bar .dots i:nth-child(1){ background:#ff5f57; }
   .codeblock .bar .dots i:nth-child(2){ background:#febc2e; }
   .codeblock .bar .dots i:nth-child(3){ background:#28c840; }
   .lang-badge {
-    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
     color: var(--accent); background: var(--accent-soft);
-    padding: 2px 10px; border-radius: 6px;
+    padding: 2px 8px; border-radius: 5px;
   }
-  .copy-btn {
+  .code-actions { display: flex; align-items: center; gap: 6px; }
+  .try-btn, .copy-btn {
     background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-dim);
-    font-size: 11.5px; font-weight: 600; padding: 4px 12px; border-radius: 7px; cursor: pointer;
-    transition: all .15s;
+    font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    transition: all .15s; display: inline-flex; align-items: center; gap: 5px;
   }
+  .try-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
   .copy-btn:hover { color: var(--text); border-color: var(--text-faint); }
   .copy-btn.copied { color: var(--green); border-color: var(--green); }
   pre {
-    padding: 17px 18px; overflow-x: auto;
-    font-family: var(--mono); font-size: 13.5px; line-height: 1.7;
+    padding: 16px 18px; overflow-x: auto;
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.65;
     scrollbar-width: thin; scrollbar-color: var(--border) transparent;
   }
   .tok-kw  { color: var(--tok-kw); font-weight: 600; }
@@ -331,12 +438,12 @@
   .tok-op  { color: var(--tok-op); }
 
   /* ============ TABLES ============ */
-  .table-wrap { overflow-x: auto; margin: 16px 0 22px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
   table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--bg-panel); }
   th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--border-soft); }
   th {
-    background: var(--bg-soft); font-weight: 700; font-size: 12px;
-    text-transform: uppercase; letter-spacing: .05em; color: var(--text-dim);
+    background: var(--bg-soft); font-weight: 700; font-size: 11.5px;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--text-dim);
   }
   tr:last-child td { border-bottom: none; }
   tbody tr { transition: background .15s; }
@@ -353,7 +460,7 @@
     display: flex; gap: 13px;
     border: 1px solid var(--border); border-left: 4px solid var(--accent);
     background: var(--bg-panel);
-    padding: 15px 18px; border-radius: 10px; margin: 16px 0; font-size: 14px;
+    padding: 14px 18px; border-radius: 10px; margin: 16px 0; font-size: 14px;
     box-shadow: var(--shadow-sm);
   }
   .callout .ci { font-size: 19px; line-height: 1.4; flex-shrink: 0; }
@@ -361,31 +468,7 @@
   .callout p { margin: 0; font-size: 13.5px; }
   .callout.warn { border-left-color: var(--amber); }
   .callout.success { border-left-color: var(--green); }
-
-  /* ============ FOOTER ============ */
-  footer {
-    border-top: 1px solid var(--border); padding: 26px 48px;
-    color: var(--text-faint); font-size: 13px; text-align: center;
-    display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
-  }
-  footer .heart { color: var(--red); }
-
-  /* Back to top */
-  #toTop {
-    position: fixed; bottom: 26px; right: 26px; z-index: 60;
-    width: 44px; height: 44px; border-radius: 12px;
-    background: var(--accent-grad); color: #fff; border: none;
-    font-size: 18px; cursor: pointer; box-shadow: var(--shadow);
-    opacity: 0; pointer-events: none; transform: translateY(12px);
-    transition: opacity .25s, transform .25s;
-  }
-  #toTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
-  #toTop:hover { transform: translateY(-3px); }
-
-  .no-results {
-    display: none; text-align: center; padding: 60px 20px; color: var(--text-faint);
-  }
-  .no-results .big { font-size: 44px; margin-bottom: 12px; }
+  .callout.cuda { border-left-color: var(--accent-2); }
 
   /* ============ ONLINE COMPILER (WEB IDE) ============ */
   .compiler-wrapper {
@@ -397,6 +480,11 @@
     margin: 20px 0 35px;
     display: flex;
     flex-direction: column;
+    transition: all .25s ease;
+  }
+  .compiler-wrapper.fullscreen {
+    position: fixed; inset: 0; z-index: 9999;
+    border-radius: 0; margin: 0; height: 100vh; width: 100vw;
   }
   .compiler-toolbar {
     display: flex;
@@ -404,18 +492,18 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 12px 18px;
+    padding: 11px 18px;
     background: var(--bg-soft);
     border-bottom: 1px solid var(--border);
   }
   .compiler-left, .compiler-right {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
     flex-wrap: wrap;
   }
   .compiler-label {
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--text-dim);
   }
@@ -423,9 +511,9 @@
     background: var(--bg-panel);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 7px 14px;
+    padding: 7px 12px;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12.5px;
     font-weight: 600;
     font-family: var(--font);
     cursor: pointer;
@@ -438,13 +526,12 @@
   }
   .compiler-grid {
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    min-height: 480px;
+    grid-template-columns: 1.12fr 0.88fr;
+    min-height: 500px;
+    flex: 1;
   }
   @media (max-width: 960px) {
-    .compiler-grid {
-      grid-template-columns: 1fr;
-    }
+    .compiler-grid { grid-template-columns: 1fr; }
   }
   .editor-pane {
     display: flex;
@@ -453,28 +540,21 @@
     background: var(--bg-code);
   }
   @media (max-width: 960px) {
-    .editor-pane {
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-    }
+    .editor-pane { border-right: none; border-bottom: 1px solid var(--border); }
   }
   .pane-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
+    padding: 9px 15px;
     background: var(--bg-soft);
     border-bottom: 1px solid var(--border-soft);
     font-size: 12px;
     font-weight: 600;
     color: var(--text-dim);
   }
-  .pane-header .dots {
-    display: flex; gap: 6px;
-  }
-  .pane-header .dots i {
-    width: 10px; height: 10px; border-radius: 50%; display: block;
-  }
+  .pane-header .dots { display: flex; gap: 6px; }
+  .pane-header .dots i { width: 10px; height: 10px; border-radius: 50%; display: block; }
   .pane-header .dots i:nth-child(1){ background:#ff5f57; }
   .pane-header .dots i:nth-child(2){ background:#febc2e; }
   .pane-header .dots i:nth-child(3){ background:#28c840; }
@@ -486,11 +566,18 @@
     margin-left: 8px;
     margin-right: auto;
   }
+  .pane-tools { display: flex; align-items: center; gap: 6px; }
+  .pane-tool-btn {
+    background: transparent; border: 1px solid transparent; color: var(--text-dim);
+    font-size: 11px; padding: 2px 7px; border-radius: 5px; cursor: pointer;
+  }
+  .pane-tool-btn:hover { background: var(--bg-panel); border-color: var(--border); color: var(--text); }
+
   .editor-body {
     display: flex;
     flex: 1;
     position: relative;
-    min-height: 380px;
+    min-height: 420px;
   }
   .line-numbers {
     width: 44px;
@@ -500,7 +587,7 @@
     font-size: 13.5px;
     line-height: 1.6;
     color: var(--text-faint);
-    background: rgba(0,0,0,0.05);
+    background: rgba(0,0,0,0.06);
     user-select: none;
     border-right: 1px solid var(--border-soft);
     overflow: hidden;
@@ -521,11 +608,13 @@
     overflow-wrap: normal;
     overflow-x: auto;
     tab-size: 4;
+    transition: background .3s;
   }
-  #codeEditor::placeholder {
-    color: var(--text-faint);
-    font-style: italic;
+  #codeEditor.flash-highlight {
+    background: var(--accent-soft);
   }
+  #codeEditor::placeholder { color: var(--text-faint); font-style: italic; }
+
   .terminal-pane {
     display: flex;
     flex-direction: column;
@@ -536,142 +625,130 @@
     background: #0f172a;
     color: #f1f5f9;
   }
-  .terminal-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .terminal-actions { display: flex; align-items: center; gap: 8px; }
   .exec-pill {
-    font-size: 11px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    background: rgba(255,255,255,0.08);
-    color: #94a3b8;
+    font-size: 11px; padding: 3px 9px; border-radius: 999px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+    background: rgba(148,163,184,.15); color: #94a3b8;
   }
-  .exec-pill.running {
-    background: rgba(251, 191, 36, 0.2);
-    color: var(--amber);
-  }
-  .exec-pill.success {
-    background: rgba(52, 211, 153, 0.2);
-    color: var(--green);
-  }
-  .exec-pill.error {
-    background: rgba(248, 113, 113, 0.2);
-    color: var(--red);
-  }
+  .exec-pill.running { background: rgba(99,102,241,.25); color: #a5b4fc; }
+  .exec-pill.success { background: rgba(52,211,153,.22); color: #6ee7b7; }
+  .exec-pill.error   { background: rgba(248,113,113,.22); color: #fca5a5; }
+
   .terminal-body {
-    flex: 1;
-    padding: 16px;
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.6;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    user-select: text;
-    min-height: 250px;
-    max-height: 600px;
+    flex: 1; padding: 16px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.6;
+    overflow-y: auto; overflow-x: auto;
+    white-space: pre-wrap; word-break: break-word;
+    min-height: 240px; max-height: 480px;
   }
-  .term-stdout {
-    color: #e2e8f0;
-  }
-  .term-stderr {
-    color: #f87171;
-    font-weight: 500;
-  }
-  .term-meta {
-    margin-top: 14px;
-    padding-top: 8px;
-    border-top: 1px dashed rgba(255,255,255,0.18);
-    font-size: 11.5px;
-    color: #64748b;
-  }
-  .term-placeholder {
-    color: #475569;
-    font-style: italic;
-  }
-  .kbd {
-    display: inline-block;
-    padding: 1px 5px;
-    font-size: 10.5px;
-    font-family: var(--mono);
-    background: rgba(0,0,0,0.25);
-    border-radius: 4px;
-    border: 1px solid rgba(255,255,255,0.2);
-    margin-left: 4px;
-  }
-  .term-input-row {    display: none;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-top: 1px dashed rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.03);
+  .term-placeholder { color: #64748b; font-style: italic; }
+  .term-stdout { color: #f8fafc; }
+  .term-stderr { color: #fca5a5; }
+  .term-input  { color: #67e8f9; font-weight: 600; }
+  .term-meta   { color: #94a3b8; font-size: 11.5px; margin-top: 10px; border-top: 1px dashed rgba(148,163,184,.2); padding-top: 8px; }
+
+  .term-input-row {
+    display: none; align-items: center; gap: 8px;
+    padding: 8px 14px; background: rgba(0,0,0,.35);
+    border-top: 1px solid rgba(255,255,255,.08);
   }
   .term-input-row.active { display: flex; }
-  .term-prompt {
-    color: var(--green);
-    font-weight: 700;
-    font-family: var(--mono);
-    font-size: 13px;
-  }
+  .term-prompt { color: var(--accent-2); font-weight: 800; font-family: var(--mono); }
   #terminalInput {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: #e2e8f0;
-    font-family: var(--mono);
-    font-size: 13px;
-    padding: 2px 0;
-    caret-color: var(--green);
+    flex: 1; background: transparent; border: none; outline: none;
+    color: #fff; font-family: var(--mono); font-size: 13px;
   }
-  #terminalInput::placeholder { color: #475569; font-style: italic; }
-  .term-input { color: #7dd3fc; }
+
   .gui-pane {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    padding: 12px 16px 4px;
-    border-top: 1px dashed rgba(255,255,255,0.15);
+    padding: 10px 14px; display: flex; flex-direction: column; gap: 10px;
+    background: rgba(0,0,0,.25); border-top: 1px solid rgba(255,255,255,.08);
   }
   .gui-pane:empty { display: none; }
   .gui-window {
-    width: 100%;
-    max-width: 470px;
-    background: #10151c;
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 8px;
-    overflow: hidden;
+    background: #181825; border: 1px solid #313244;
+    border-radius: 8px; overflow: hidden; align-self: flex-start;
   }
-  .gui-window .gui-title {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: #93a4ba;
-    padding: 6px 10px;
-    background: rgba(255,255,255,0.05);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .gui-title {
+    background: #11111b; color: #a6adc8; padding: 4px 10px;
+    font-size: 11px; font-weight: 700; font-family: var(--mono);
+    border-bottom: 1px solid #313244;
   }
-  .gui-window canvas {
-    display: block;
-    width: 100%;
-    height: auto;
+  .gui-window canvas { display: block; max-width: 100%; height: auto; }
+
+  /* KBD Tuşları */
+  .kbd {
+    background: var(--bg-soft); border: 1px solid var(--border);
+    padding: 2px 6px; border-radius: 4px; font-family: var(--mono);
+    font-size: 11px; color: var(--text-dim);
   }
 
-  @media (max-width: 940px) {
-    nav.sidebar { display: none; }
-    main { padding: 26px 18px 100px; }
-    .hero { padding: 30px 24px; }
+  /* ============ FOOTER ============ */
+  footer {
+    border-top: 1px solid var(--border); padding: 28px 48px;
+    color: var(--text-faint); font-size: 13px; text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;
+  }
+  footer .heart { color: var(--red); }
+
+  /* Back to top */
+  #toTop {
+    position: fixed; bottom: 26px; right: 26px; z-index: 60;
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--accent-grad); color: #fff; border: none;
+    font-size: 18px; cursor: pointer; box-shadow: var(--shadow);
+    opacity: 0; pointer-events: none; transform: translateY(12px);
+    transition: opacity .25s, transform .25s;
+  }
+  #toTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  #toTop:hover { transform: translateY(-3px); }
+
+  .no-results {
+    display: none; text-align: center; padding: 60px 20px; color: var(--text-faint);
+  }
+  .no-results .big { font-size: 44px; margin-bottom: 12px; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,.65); backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: var(--radius); width: 100%; max-width: 520px;
+    padding: 24px; box-shadow: var(--shadow);
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; border-bottom: 1px solid var(--border-soft); padding-bottom: 12px;
+  }
+  .modal-header h3 { font-size: 18px; font-weight: 700; margin: 0; }
+  .modal-close {
+    background: transparent; border: none; color: var(--text-dim);
+    font-size: 18px; cursor: pointer; padding: 4px;
+  }
+  .modal-list { list-style: none; margin: 0; padding: 0; }
+  .modal-list li {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid var(--border-soft); font-size: 13.5px;
+  }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .hamburger-btn { display: inline-flex; }
+    nav.sidebar {
+      position: fixed; top: 0; left: -300px; bottom: 0; z-index: 50;
+      width: 280px; height: 100vh; transition: left .25s ease;
+      box-shadow: var(--shadow);
+    }
+    nav.sidebar.open { left: 0; }
+    .sidebar-backdrop.open { display: block; }
+    main { padding: 24px 20px 80px; }
+    .hero { padding: 28px 24px; }
     .hero h2 { font-size: 28px; }
-    .search { width: 130px; }
-    .search:focus { width: 160px; }
-    header h1 span { display: none; }
-    .badge { display: none; }
+    .header-badges { display: none; }
   }
 </style>
 </head>
@@ -679,90 +756,135 @@
 
 <div id="progress"></div>
 
+<!-- HEADER -->
 <header>
+  <button class="hamburger-btn" id="mobileMenuBtn" aria-label="Menüyü Aç/Kapat">☰</button>
   <div class="logo">ccl</div>
   <h1>CicekliScript <span>Dokümantasyon</span></h1>
+  
+  <div class="header-badges">
+    <span class="badge"><span class="dot"></span>v1.0.0</span>
+    <span class="badge badge-cuda"><span class="dot"></span>RTX 5090 CUDA Hızlandırılmış</span>
+  </div>
+
   <div class="spacer"></div>
+
   <div class="search-wrap">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     <input class="search" id="search" type="text" placeholder="Dokümantasyonda ara…" autocomplete="off">
+    <span class="search-kbd">Ctrl+K</span>
+    <button class="search-clear" id="searchClear" title="Temizle">✕</button>
   </div>
-  <span class="badge"><span class="dot"></span>v1.0.0</span>
-  <button class="theme-btn" id="themeBtn" title="Tema değiştir (Otomatik → Koyu → Açık)" aria-label="Tema">
-    <svg class="ic ic-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
-    <svg class="ic ic-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
-    <svg class="ic ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
-  </button>
+
+  <div class="header-actions">
+    <button class="icon-btn" id="shortcutsBtn" title="Klavye Kısayolları">
+      <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M18 12h.01M8 16h8"/></svg>
+    </button>
+    <a class="icon-btn" href="https://github.com/drkkahraman/CicekliScript" target="_blank" rel="noopener" title="GitHub Deposu">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+    </a>
+    <button class="theme-btn" id="themeBtn" title="Tema değiştir (Otomatik → Koyu → Açık)" aria-label="Tema">
+      <svg class="ic ic-auto" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+      <svg class="ic ic-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+      <svg class="ic ic-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
+    </button>
+  </div>
 </header>
 
 <div class="layout">
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<!-- SIDEBAR -->
 <nav class="sidebar" id="sidebar">
-  <h3>Etkileşimli</h3>
-  <a href="#compiler" class="highlight-link"><span class="ico">⚡</span>Online Compiler</a>
-  <h3>Genel</h3>
-  <a href="#giris"><span class="ico">📖</span>Giriş</a>
-  <a href="#kurulum"><span class="ico">⚙️</span>Kurulum</a>
-  <a href="#kullanim"><span class="ico">🚀</span>Kullanım</a>
-  <h3>Temeller</h3>
-  <a href="#degiskenler"><span class="ico">📦</span>Değişkenler &amp; Tipler</a>
-  <a href="#io"><span class="ico">🖥️</span>Girdi / Çıktı</a>
+  <h3>Etkileşimli Araçlar</h3>
+  <a href="#compiler" class="highlight-link"><span class="ico">⚡</span>Online Compiler <span class="badge-hot">IDE</span></a>
+
+  <h3>Başlangıç</h3>
+  <a href="#giris"><span class="ico">📖</span>Giriş &amp; Felsefe</a>
+  <a href="#karsilastirma"><span class="ico">⚖️</span>Hızlı Karşılaştırma</a>
+  <a href="#kurulum"><span class="ico">⚙️</span>Kurulum (Tüm İşletim Sistemleri)</a>
+  <a href="#vscode"><span class="ico">💻</span>VS Code Eklentisi</a>
+  <a href="#kullanim"><span class="ico">🚀</span>Kullanım &amp; REPL</a>
+
+  <h3>Temel Dil Yapısı</h3>
+  <a href="#degiskenler"><span class="ico">📦</span>Değişkenler, Tipler &amp; Op.</a>
+  <a href="#io"><span class="ico">🖥️</span>Girdi / Çıktı &amp; Sistem</a>
+  <a href="#kosullar"><span class="ico">🔀</span>Koşullar (if / elif / else)</a>
+  <a href="#donguler"><span class="ico">🔁</span>Döngüler (for / while)</a>
   <a href="#fonksiyonlar"><span class="ico">ƒ(x)</span>Fonksiyonlar</a>
-  <a href="#kosullar"><span class="ico">🔀</span>Koşullar</a>
-  <a href="#donguler"><span class="ico">🔁</span>Döngüler</a>
-  <a href="#listeler"><span class="ico">📋</span>Listeler</a>
-  <a href="#sozlukler"><span class="ico">🗂️</span>Sözlükler</a>
-  <a href="#yorumlar"><span class="ico">💬</span>Yorumlar</a>
-  <h3>Referans</h3>
-  <a href="#gui"><span class="ico">📐</span>GUI — Pencere ve Grafik</a>
-  <a href="#api"><span class="ico">📚</span>cicekli API'si</a>
-  <a href="#ornekler"><span class="ico">✨</span>Örnekler</a>
+  <a href="#listeler"><span class="ico">📋</span>Listeler &amp; Dilimleme</a>
+  <a href="#sozlukler"><span class="ico">🗂️</span>Sözlükler (Maps)</a>
+  <a href="#yorumlar"><span class="ico">💬</span>Yorumlar &amp; ';' Kuralı</a>
+
+  <h3>Standart Kütüphane</h3>
+  <a href="#matematik"><span class="ico">🔢</span>Matematik (math.*)</a>
+  <a href="#dosyalar"><span class="ico">📁</span>Dosya &amp; Belge (doc.*)</a>
+  <a href="#metin"><span class="ico">🔤</span>Metin (String) Metotları</a>
+  <a href="#api"><span class="ico">📚</span>API Hızlı Başvuru</a>
+
+  <h3>Grafik &amp; Yapay Zeka</h3>
+  <a href="#gui"><span class="ico">📐</span>GUI — Pencere &amp; Canvas</a>
+  <a href="#gpu"><span class="ico">⚡</span>GPU &amp; Tensör Motoru <span class="badge-cuda-pill">CUDA</span></a>
+
+  <h3>Örnekler</h3>
+  <a href="#ornekler"><span class="ico">✨</span>Hazır Örnekler &amp; Projeler</a>
 </nav>
 
+<!-- MAIN CONTENT -->
 <main>
   <div class="no-results" id="noResults">
     <div class="big">🔍</div>
     <b>“<span id="nrQuery"></span>” için sonuç bulunamadı</b>
-    <p style="margin-top:8px;font-size:13px;">Farklı bir anahtar kelime deneyin.</p>
+    <p style="margin-top:8px;font-size:13px;">Farklı bir arama terimi deneyin veya sol menüden bölümlere göz atın.</p>
   </div>
 
+  <!-- HERO -->
   <div class="hero">
-    <span class="kicker">⚡ Modern · Dinamik · C Tabanlı</span>
+    <span class="kicker">⚡ Modern · Dinamik · Saf C11 · GPU Hızlandırmalı</span>
     <h2>CicekliScript <em>Dokümantasyonu</em></h2>
-    <p>Python'ın pratikliği ve yüksek seviyeli sözdizimi ile C dilinin gücünü, blok yapısını (<code class="inline">{}</code>) ve hızını birleştiren; her cümlenin sonuna <code class="inline">;</code> (noktalı virgül) koymanın zorunlu olduğu modern, dinamik ve C tabanlı bir programlama dili.</p>
+    <p>Python'ın pratikliği ve yüksek seviyeli esnekliği ile C dilinin gücünü, blok yapısını (<code class="inline">{}</code>) ve saf C11 hızını birleştiren; her cümlenin sonuna <code class="inline">;</code> (noktalı virgül) koymanın zorunlu olduğu modern, dinamik ve yerel NVIDIA CUDA tensör hesaplama motoruna sahip yeni nesil bir programlama dili.</p>
     <div class="actions">
       <a class="btn btn-primary" href="#compiler">⚡ Online Compiler (Dene)</a>
-      <a class="btn btn-ghost" href="#kurulum">🚀 Kurulum</a>
+      <a class="btn btn-ghost" href="#karsilastirma">⚖️ Python vs C vs CCL</a>
+      <a class="btn btn-ghost" href="#kurulum">🚀 Kurulum Rehberi</a>
+      <a class="btn btn-cuda" href="#gpu">⚡ GPU &amp; Tensör Motoru</a>
       <a class="btn btn-ghost" href="#api">📚 API Referansı</a>
-      <a class="btn btn-ghost" href="#ornekler">✨ Örnekler</a>
     </div>
     <div class="tags">
-      <span class="tag"><b>Saf C11</b> çekirdek</span>
-      <span class="tag"><b>Dinamik</b> tipler</span>
-      <span class="tag">Zorunlu <b>;</b></span>
-      <span class="tag"><b>REPL</b> kabuğu</span>
-      <span class="tag">Liste &amp; <b>Sözlük</b></span>
+      <span class="tag"><b>Saf C11</b> Yorumlayıcı</span>
+      <span class="tag"><b>Dinamik</b> Tip Sistemi</span>
+      <span class="tag">Zorunlu <b>;</b> Disiplini</span>
+      <span class="tag tag-cuda"><b>NVIDIA CUDA</b> &amp; Tensör Motoru</span>
+      <span class="tag"><b>Cairo &amp; X11</b> GUI</span>
+      <span class="tag"><b>VS Code</b> Eklentisi</span>
     </div>
   </div>
 
-  <!-- ONLINE COMPILER SECTION -->
+  <!-- 00. ONLINE COMPILER -->
   <section id="compiler">
     <h2><span class="num">00</span> Online Compiler (Web IDE)</h2>
-    <p>CicekliScript kodlarınızı bilgisayarınıza bir şey kurmadan doğrudan tarayıcınızda yazıp anında çalıştırabilirsiniz. Kodlarınız arka plandaki saf C11 CicekliScript derleyicisi ve yorumlayıcısı tarafından derlenip çalıştırılır.</p>
+    <p>CicekliScript kodlarınızı bilgisayarınıza hiçbir şey kurmadan doğrudan tarayıcınızda yazıp anında çalıştırabilirsiniz. Kodlarınız arka plandaki saf C11 derleyicisi/yorumlayıcısı tarafından işlenir; konsol çıktıları ve <code class="inline">cicekli.window()</code> grafik pencereleri tarayıcınızda canlı olarak görüntülenir.</p>
 
-    <div class="compiler-wrapper">
+    <div class="compiler-wrapper" id="compilerWrapper">
       <div class="compiler-toolbar">
         <div class="compiler-left">
           <label for="exampleSelector" class="compiler-label">Örnek Şablon:</label>
           <select id="exampleSelector" class="compiler-select">
-            <option value="merhaba">01 — Merhaba Dünya</option>
-            <option value="fonksiyonlar">02 — Fonksiyonlar & Matematik</option>
-            <option value="fibonacci">03 — Fibonacci & Rekürsiyon</option>
-            <option value="donguler">04 — Döngüler & Aralıklar (range)</option>
-            <option value="listeler">05 — Listeler & Sözlükler</option>
+            <option value="merhaba">01 — Merhaba Dünya &amp; Değişkenler</option>
+            <option value="fonksiyonlar">02 — Fonksiyonlar &amp; Matematik</option>
+            <option value="fibonacci">03 — Fibonacci &amp; Rekürsiyon</option>
+            <option value="donguler">04 — Döngüler (for..in, C-tarzı, while)</option>
+            <option value="listeler">05 — Listeler &amp; Sözlükler</option>
             <option value="hesap">06 — Hesap Makinesi</option>
             <option value="girdi">07 — Kullanıcıdan Girdi (input)</option>
-            <option value="guipencere">08 — GUI: Pencere ve Şekiller</option>
-            <option value="guigelismis">09 — GUI: Gelişmiş Tasarım</option>
+            <option value="matematik">08 — Matematik Modülü (math.*)</option>
+            <option value="dosyalar">09 — Dosya &amp; Belge İşlemleri (doc.*)</option>
+            <option value="metinliste">10 — Gelişmiş Metin &amp; Liste Metotları</option>
+            <option value="gputensor">11 — 🚀 GPU &amp; Tensör Matris Çarpımı (CUDA)</option>
+            <option value="guipencere">12 — 📐 GUI: Pencere ve Şekiller</option>
+            <option value="guigelismis">13 — 🎨 GUI: Geometrik Dashboard</option>
+            <option value="algoritmalar">14 — 🧮 Algoritma: İkili Arama &amp; İstatistik</option>
+            <option value="chatbot">15 — 🤖 CicekliBot İnteraktif Chatbot</option>
           </select>
         </div>
         <div class="compiler-right">
@@ -771,6 +893,11 @@
           </button>
           <button id="clearCodeBtn" class="btn btn-ghost" title="Editörü Temizle">🗑️ Temizle</button>
           <button id="resetCodeBtn" class="btn btn-ghost" title="Seçili Şablonu Yeniden Yükle">↺ Sıfırla</button>
+          <button id="downloadCodeBtn" class="btn btn-ghost" title="Kodu main.ccl olarak indir">💾 İndir</button>
+          <label class="btn btn-ghost" title="Bilgisayarınızdan .ccl dosyası açın" style="cursor:pointer;margin:0;">
+            📂 Yükle <input type="file" id="fileUploadInput" accept=".ccl,.ms,.txt" style="display:none;">
+          </label>
+          <button id="fullscreenBtn" class="btn btn-ghost" title="Tam Ekran Aç/Kapat">⛶</button>
         </div>
       </div>
 
@@ -780,7 +907,11 @@
           <div class="pane-header">
             <div class="dots"><i></i><i></i><i></i></div>
             <span class="pane-title">main.ccl — Kod Editörü</span>
-            <span style="font-size:11.5px;color:var(--text-faint);font-family:var(--mono);">CicekliScript v1.0.0</span>
+            <div class="pane-tools">
+              <button class="pane-tool-btn" id="fontDecBtn" title="Yazıyı Küçült">A-</button>
+              <button class="pane-tool-btn" id="fontIncBtn" title="Yazıyı Büyüt">A+</button>
+              <span style="font-size:11px;color:var(--text-faint);font-family:var(--mono);margin-left:6px;">CicekliScript v1.0.0</span>
+            </div>
           </div>
           <div class="editor-body">
             <div class="line-numbers" id="lineNumbers">1</div>
@@ -810,352 +941,839 @@
     </div>
   </section>
 
+  <!-- 01. GİRİŞ -->
   <section id="giris">
-    <h2><span class="num">01</span> Giriş</h2>
-    <p>CicekliScript, yorumlayıcısı sıfırdan saf C (C11) ile yazılmış son derece hafif ve hızlı bir dildir. Dinamik tipler, listeler, sözlükler, dilimleme ve negatif indeksleme gibi Python benzeri özellikler sunarken; blok yapısı ve noktalı virgül zorunluluğu ile C disiplini taşır.</p>
-    <div class="callout">
+    <h2><span class="num">01</span> Giriş &amp; Felsefe</h2>
+    <p>CicekliScript; Python'ın okunabilir, esnek ve dinamik programlama tarzı ile C dilinin blok yapısını (<code class="inline">{}</code>), disiplinini ve saf C11 derleyicisi üzerindeki hızını buluşturan modern bir programlama dilidir.</p>
+    
+    <div class="grid-cards">
+      <div class="card-feature">
+        <div class="card-ico">⚡</div>
+        <h4>Saf C11 Yorumlayıcı</h4>
+        <p>Ağır harici bağımlılıklar olmadan, sıfırdan saf C ile geliştirilmiş son derece hafif, kararlı ve hızlı çalışma motoru.</p>
+      </div>
+      <div class="card-feature">
+        <div class="card-ico">;</div>
+        <h4>Zorunlu Noktalı Virgül</h4>
+        <p>Her cümlenin ve fonksiyon/blok gövdesinin sonuna <code class="inline">;</code> koyulur. Bu kural, kod yapısını açık ve belirgin kılar.</p>
+      </div>
+      <div class="card-feature">
+        <div class="card-ico">🚀</div>
+        <h4>NVIDIA CUDA &amp; Tensör Motoru</h4>
+        <p>Doğrudan GPU üzerinde matris çarpımı, derin öğrenme aktivasyonları (ReLU, Sigmoid) ve tensör hesaplamaları.</p>
+      </div>
+      <div class="card-feature">
+        <div class="card-ico">📐</div>
+        <h4>Çift Arabellekli GUI</h4>
+        <p>Cairo ve X11 tabanlı donanım hızlandırmalı pencereleme; aynı zamanda web üzerinde HTML5 Canvas önizlemesi.</p>
+      </div>
+    </div>
+
+    <div class="callout success">
       <span class="ci">💡</span>
-      <div><p>CicekliScript'te her ifadenin sonuna <code class="inline">;</code> konulması <b>zorunludur</b>. Unutulursa derleyici hata verir.</p></div>
-    </div>
-    <h3>Örnek: İlk Program</h3>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cicekli.println("Merhaba Dünya!");
-a = 10;
-b = 20;
-cicekli.println("Toplam:", a + b);</code></pre>
+      <div>
+        <b>Temel Kural: Noktalı Virgül (;) Zorunluluğu</b>
+        <p>CicekliScript'te değişken atamaları, fonksiyon çağrıları ve fonksiyon gövdelerinin sonuna <code class="inline">;</code> koymak zorunludur. Döngü ve <code class="inline">if</code> bloklarının sonunda da noktalı virgül kullanılması tavsiye edilir.</p>
+      </div>
     </div>
   </section>
 
+  <!-- 02. KARŞILAŞTIRMA (CHEAT SHEET) -->
+  <section id="karsilastirma">
+    <h2><span class="num">02</span> Hızlı Karşılaştırma (CicekliScript vs Python vs C)</h2>
+    <p>CicekliScript'in diğer popüler dillerle olan yapısal ve sözdizimsel farklarını aşağıdaki karşılaştırma tablosunda inceleyebilirsiniz:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Özellik</th>
+            <th>CicekliScript (.ccl)</th>
+            <th>Python (.py)</th>
+            <th>C (.c)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>Cümle Sonu</b></td>
+            <td><code class="inline">;</code> (Noktalı virgül zorunlu)</td>
+            <td>Satır sonu (Yeni satır)</td>
+            <td><code class="inline">;</code> (Noktalı virgül zorunlu)</td>
+          </tr>
+          <tr>
+            <td><b>Kod Blokları</b></td>
+            <td><code class="inline">{ ... }</code> Süslü Parantezler</td>
+            <td>Girintileme (Indentation)</td>
+            <td><code class="inline">{ ... }</code> Süslü Parantezler</td>
+          </tr>
+          <tr>
+            <td><b>Tip Sistemi</b></td>
+            <td>Dinamik (Otomatik tip çıkarımı)</td>
+            <td>Dinamik (Duck typing)</td>
+            <td>Statik &amp; Güçlü (Manuel türler)</td>
+          </tr>
+          <tr>
+            <td><b>Fonksiyonlar</b></td>
+            <td><code class="inline">def f(x) { ... };</code> veya <code class="inline">cicekli.deffunction</code></td>
+            <td><code class="inline">def f(x):</code></td>
+            <td><code class="inline">int f(int x) { ... }</code></td>
+          </tr>
+          <tr>
+            <td><b>Listeler &amp; Sözlükler</b></td>
+            <td>Yerleşik dinamik <code class="inline">[]</code> ve <code class="inline">{}</code></td>
+            <td>Yerleşik <code class="inline">list</code> ve <code class="inline">dict</code></td>
+            <td>Manuel dizi / struct / pointer</td>
+          </tr>
+          <tr>
+            <td><b>GPU Tensör Desteği</b></td>
+            <td>Yerleşik <code class="inline">cicekli.cuda</code> &amp; <code class="inline">tensor</code></td>
+            <td>PyTorch / TensorFlow gerektirir</td>
+            <td>CUDA C / cuBLAS yazımı gerekir</td>
+          </tr>
+          <tr>
+            <td><b>Grafiksel GUI</b></td>
+            <td>Yerleşik <code class="inline">cicekli.window</code></td>
+            <td>Tkinter / PyQt / Pygame</td>
+            <td>X11 / Win32 / SDL / OpenGL</td>
+          </tr>
+          <tr>
+            <td><b>Yürütme Modeli</b></td>
+            <td>Saf C11 Yorumlayıcı / REPL</td>
+            <td>CPython Bytecode VM</td>
+            <td>Doğrudan Makine Koduna Derleme</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 03. KURULUM -->
   <section id="kurulum">
-    <h2><span class="num">02</span> Kurulum</h2>
-    <p>CicekliScript, GCC ve Make ile tek komutla derlenir:</p>
-    <div class="codeblock" data-lang="bash">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cd /home/admin/cicekliscript
-make</code></pre>
-    </div>
-    <p>Derlenen ikili <code class="inline">bin/cicekliscript</code> altında ve <code class="inline">~/.local/bin/cicekliscript</code> yolunda bulunur. Sistem geneli kurulum için:</p>
-    <div class="codeblock" data-lang="bash">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>make install   # /usr/local/bin/cicekliscript</code></pre>
+    <h2><span class="num">03</span> Kurulum Rehberi</h2>
+    <p>CicekliScript; Linux, Windows (WSL 2 veya MSYS2) ve macOS ortamlarında kolayca derlenip çalıştırılabilir. İşletim sisteminizi seçerek adımları takip edebilirsiniz:</p>
+
+    <div class="tab-group" id="installTabs">
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="tab-linux">🐧 Linux (Ubuntu / Debian)</button>
+        <button class="tab-btn" data-tab="tab-wsl">🪟 Windows (WSL 2 — Önerilen)</button>
+        <button class="tab-btn" data-tab="tab-msys">⚙️ Windows (MSYS2)</button>
+        <button class="tab-btn" data-tab="tab-macos">🍎 macOS</button>
+      </div>
+
+      <!-- Linux Tab -->
+      <div class="tab-pane active" id="tab-linux">
+        <h4>Ubuntu, Debian veya Linux Mint Üzerinde Kurulum</h4>
+        <p>Gerekli derleyici ve grafik kütüphanelerini yükleyin:</p>
+        <div class="codeblock" data-lang="bash">
+          <div class="bar">
+            <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div>
+            <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
+          </div>
+          <pre><code># 1. Gerekli paketleri kurun
+sudo apt update
+sudo apt install -y build-essential libcairo2-dev libx11-dev git python3
+
+# 2. Projeyi indirin ve derleyin
+git clone https://github.com/drkkahraman/CicekliScript.git
+cd CicekliScript
+make
+sudo make install
+
+# 3. Kurulumu test edin
+ccl --version</code></pre>
+        </div>
+      </div>
+
+      <!-- Windows WSL 2 Tab -->
+      <div class="tab-pane" id="tab-wsl">
+        <h4>Windows 10 &amp; 11 Üzerinde WSL 2 (WSLg) Kurulumu</h4>
+        <p>WSL 2, Windows üzerinde yerleşik grafik desteği (**WSLg**) ile gelir. Bu sayede açtığınız GUI pencereleri doğrudan Windows masaüstünüzde bağımsız pencere olarak görüntülenir.</p>
+        <div class="codeblock" data-lang="powershell">
+          <div class="bar">
+            <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">powershell</span></div>
+            <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
+          </div>
+          <pre><code># Windows PowerShell'i Yönetici Olarak Açın ve çalıştırın:
+wsl --install
+
+# Bilgisayarı yeniden başlattıktan sonra açılan Ubuntu konsolunda:
+sudo apt update && sudo apt install -y build-essential libcairo2-dev libx11-dev git python3
+git clone https://github.com/drkkahraman/CicekliScript.git
+cd CicekliScript
+make
+sudo make install
+
+# Artık hem konsol hem GUI betikleri çalıştırabilirsiniz:
+ccl examples/01_merhaba.ccl
+ccl examples/07_gui_pencere.ccl</code></pre>
+        </div>
+      </div>
+
+      <!-- MSYS2 Tab -->
+      <div class="tab-pane" id="tab-msys">
+        <h4>Windows Üzerinde MSYS2 ile Kurulum (WSL İstemeyenler İçin)</h4>
+        <p><a href="https://www.msys2.org/" target="_blank" rel="noopener">msys2.org</a> adresinden kurulum yapın, ardından <b>MSYS2 UCRT64</b> terminalinde:</p>
+        <div class="codeblock" data-lang="bash">
+          <div class="bar">
+            <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div>
+            <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
+          </div>
+          <pre><code>pacman -Syu
+pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cairo mingw-w64-ucrt-x86_64-make pkg-config git
+git clone https://github.com/drkkahraman/CicekliScript.git
+cd CicekliScript
+mingw32-make</code></pre>
+        </div>
+      </div>
+
+      <!-- macOS Tab -->
+      <div class="tab-pane" id="tab-macos">
+        <h4>macOS (Apple Silicon / Intel) Kurulumu</h4>
+        <p>Homebrew paket yöneticisi ile Cairo kütüphanesini yükleyin:</p>
+        <div class="codeblock" data-lang="bash">
+          <div class="bar">
+            <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div>
+            <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
+          </div>
+          <pre><code>brew install cairo pkg-config
+git clone https://github.com/drkkahraman/CicekliScript.git
+cd CicekliScript
+make
+sudo make install</code></pre>
+        </div>
+      </div>
     </div>
   </section>
 
+  <!-- 04. VS CODE EKLENTİSİ -->
+  <section id="vscode">
+    <h2><span class="num">04</span> VS Code Eklentisi &amp; Dahili Derleyici (.vsix)</h2>
+    <p>CicekliScript dosyalarını (<code class="inline">.ccl</code>) Visual Studio Code içinde sıfır kurulumla geliştirebilirsiniz. Resmi VS Code eklentisi <b>CicekliScript derleyicisini kendi içinde gömülü olarak taşır</b>; böylece bilgisayarınıza GCC, Make veya kütüphane kurmadan sadece eklentiyi yükleyerek dili doğrudan çalıştırabilirsiniz!</p>
+
+    <div class="callout success">
+      <span class="ci">🚀</span>
+      <div>
+        <b>Dahili Yerleşik Derleyici (Zero-Setup):</b>
+        <p>Eklenti kurulduğunda CicekliScript derleyicisi eklenti paketinden otomatik çalışır. Ayrıca editörde sağ tıklayıp <b>"CicekliScript: Dili Sisteme Kur (~/.local/bin/ccl)"</b> diyerek derleyiciyi tek tıkla sisteminize kurabilir ve dış terminallerde de kullanabilirsiniz.</p>
+      </div>
+    </div>
+
+    <div class="codeblock" data-lang="bash">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div>
+        <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code># VS Code komut satırından eklentiyi tek komutla kurun:
+code --install-extension vscode-extension/cicekliscript-1.1.0.vsix</code></pre>
+    </div>
+
+    <h4>Görsel Arayüzden Kurulum ve Kullanım:</h4>
+    <ol>
+      <li>VS Code sol kenar çubuğundaki <b>Eklentiler (Extensions — Ctrl+Shift+X)</b> sekmesini açın.</li>
+      <li>Sağ üstteki <b>`...` (üç nokta)</b> simgesine tıklayıp <b>"Install from VSIX..."</b> seçeneğini seçin.</li>
+      <li>Proje içerisindeki <code class="inline">vscode-extension/cicekliscript-1.1.0.vsix</code> dosyasını belirleyin.</li>
+      <li>Herhangi bir <code class="inline">.ccl</code> dosyası açıp sağ üstteki <b>"▶" (Çalıştır)</b> butonuna basın; kodunuz yerleşik derleyici ile hemen çalışır!</li>
+      <li>İsterseniz sağ tıklayıp <b>"CicekliScript: Dili Sisteme Kur (~/.local/bin/ccl)"</b> komutunu çalıştırarak dili tüm sisteminizde aktif hale getirin.</li>
+    </ol>
+  </section>
+
+  <!-- 05. KULLANIM & REPL -->
   <section id="kullanim">
-    <h2><span class="num">03</span> Kullanım</h2>
-    <h3>1. Etkileşimli REPL Kabuğu</h3>
-    <div class="codeblock" data-lang="bash">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cicekliscript</code></pre>
-    </div>
-    <div class="codeblock" data-lang="repl">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">repl</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>╔═══════════════════════════════════════════════════╗
-║            CicekliScript v1.0.0 REPL                 ║
-║  Python kolaylığı + C gücü + Zorunlu ';'         ║
-║  Çıkmak için: exit() veya cicekli.exit();            ║
-╚═══════════════════════════════════════════════════╝
+    <h2><span class="num">05</span> Kullanım &amp; REPL Kabuğu</h2>
+    <p>CicekliScript'i hem doğrudan betik dosyalarını çalıştırmak için, hem de etkileşimli bir REPL (Read-Eval-Print Loop) kabuğu olarak kullanabilirsiniz:</p>
 
-mete&gt;&gt;&gt; cicekli.println("Merhaba Dünya!");
-Merhaba Dünya!
-mete&gt;&gt;&gt; a = 10; b = 20;
-mete&gt;&gt;&gt; cicekli.println("Toplam:", a + b);
-Toplam: 30
-mete&gt;&gt;&gt; exit();</code></pre>
-    </div>
-    <h3>2. Dosyadan Betik Çalıştırma</h3>
     <div class="codeblock" data-lang="bash">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cicekliscript script.ccl</code></pre>
-    </div>
-    <h3>3. Tek Satır Komut (<code class="inline">-c</code>)</h3>
-    <div class="codeblock" data-lang="bash">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cicekliscript -c 'cicekli.println("Hello World");'</code></pre>
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div>
+        <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code># 1. Betik dosyasını çalıştırma:
+cicekliscript dosya.ccl
+# veya kısa takma adıyla:
+ccl dosya.ccl
+
+# 2. Argüman aktarma:
+ccl script.ccl arg1 arg2 100
+
+# 3. REPL (Etkileşimli Kabuk) başlatma:
+ccl
+# REPL çıktısı:
+# CicekliScript 1.0 (Interactive REPL)
+# Çıkmak için 'exit();' yazın.
+ccl> cicekli.println("Merhaba Dünya!");
+# Merhaba Dünya!
+ccl> 15 + 25;
+# 40
+ccl> exit();</code></pre>
     </div>
   </section>
 
+  <!-- 06. DEĞİŞKENLER & TİPLER -->
   <section id="degiskenler">
-    <h2><span class="num">04</span> Değişkenler &amp; Veri Tipleri</h2>
-    <p>CicekliScript dinamik tiplidir; değişken tanımlarken tip belirtmenize gerek yoktur.</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Tip</th><th>Örnek</th><th>Açıklama</th></tr></thead>
-      <tbody>
-      <tr><td>Sayı</td><td><code>10</code>, <code>3.14</code>, <code>-42</code></td><td>Tamsayı ve ondalık</td></tr>
-      <tr><td>Metin</td><td><code>"Merhaba"</code>, <code>'Mete'</code></td><td><code>\n</code>, <code>\t</code> kaçış dizileri, <code>+</code> ile birleştirme</td></tr>
-      <tr><td>Mantıksal</td><td><code>true</code>, <code>false</code>, <code>True</code>, <code>False</code></td><td>İkisi de geçerlidir</td></tr>
-      <tr><td>Boş değer</td><td><code>null</code>, <code>None</code>, <code>nil</code></td><td>Üçü de aynı anlama gelir</td></tr>
-      <tr><td>Liste</td><td><code>[1, 2, "üç", [4, 5]]</code></td><td>Dinamik, iç içe geçebilir</td></tr>
-      <tr><td>Sözlük</td><td><code>{"ad": "Mete", "yas": 25}</code></td><td>Anahtar-değer haritası</td></tr>
-      </tbody>
-    </table></div>
+    <h2><span class="num">06</span> Değişkenler, Tipler &amp; Operatörler</h2>
+    <p>CicekliScript dinamik tiplidir; değişken tanımlarken herhangi bir tür anahtar kelimesi (<code class="inline">var</code>, <code class="inline">int</code> vb.) kullanmanız gerekmez. Değişken adı yazıp değer atamanız yeterlidir. Cümle sonundaki <code class="inline">;</code> zorunludur.</p>
+
     <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>sayi = 42;
-ondalik = 3.14;
-metin = "Merhaba" + " " + "Dünya";
-mantik = true;
-bos = null;
-liste = [1, 2, 3];
-sozluk = {"ad": "Mete", "yas": 25};</code></pre>
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>// Temel Tipler
+sayi = 42;             // Sayı (Number - integer veya double)
+oran = 3.14159;        // Kayan noktalı sayı
+metin = "CicekliScript"; // Metin (String)
+aktif = true;          // Mantıksal (Boolean: true / false)
+bos_deger = null;      // Boş / tanımsız değer
+
+// Listeler ve Sözlükler
+liste = [10, 20, "elma", true];
+sozluk = { "ad": "Mete", "puan": 100 };
+
+// Aritmetik ve Mantıksal İşlemler
+toplam = sayi + 8;
+kombinasyon = (aktif && (oran > 3.0));
+
+cicekli.println("Tip kontrolü:", type(sayi), type(metin), type(liste));
+cicekli.println("Sonuç:", toplam, "| Mantık:", kombinasyon);</code></pre>
     </div>
   </section>
 
+  <!-- 07. GİRDİ / ÇIKTI & SİSTEM -->
   <section id="io">
-    <h2><span class="num">05</span> Girdi / Çıktı</h2>
+    <h2><span class="num">07</span> Girdi / Çıktı &amp; Sistem Fonksiyonları</h2>
+    <p>Konsol çıktısı almak, kullanıcıdan satır okumak ve sistem zamanını ölçmek için yerleşik standart fonksiyonlar:</p>
+
     <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>// Ekrana satır sonlu yazdırma
-cicekli.println("Hello World");
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>// Ekrana yazdırma (Satır sonlu / satır sonsuz)
+cicekli.print("İşlem başlatılıyor... ");
+cicekli.println("Tamamlandı!");
 
-// Ekrana satır sonu OLMADAN yazdırma
-cicekli.print("Satır sonu yok: ");
-cicekli.println("devamı bu.");
+// Zaman ölçümü (time() Unix epoch saniye döndürür)
+basla = time();
+sleep(0.1); // 100 ms duraklat
+bitir = time();
+cicekli.println("Geçen süre:", bitir - basla, "saniye");
 
-// Kullanıcıdan girdi alma
-a = cicekli.input("Cümle giriniz: ");
-cicekli.println("Girdiğiniz cümle:", a);</code></pre>
-    </div>
-    <div class="callout warn">
-      <span class="ci">⚠️</span>
-      <div><b>Dikkat</b><p><code class="inline">cicekli.print</code> satır sonu eklemez; <code class="inline">cicekli.println</code> ekler.</p></div>
+// Kullanıcıdan konsol girdisi alma
+isim = cicekli.input("Lütfen adınızı giriniz: ");
+cicekli.println("Hoş geldin,", isim);</code></pre>
     </div>
   </section>
 
-  <section id="fonksiyonlar">
-    <h2><span class="num">06</span> Fonksiyonlar</h2>
-    <p>Fonksiyonlar <code class="inline">cicekli.deffunction</code> ile tanımlanır. İsimli, anonim (değişkene atanan) veya doğrudan çalıştırılan üç kullanım biçimi vardır.</p>
-    <h3>İsimli Fonksiyon</h3>
+  <!-- 08. KOŞULLAR -->
+  <section id="kosullar">
+    <h2><span class="num">08</span> Koşul Blokları (if / elif / else)</h2>
+    <p>Koşullar parantez içine yazılır, gövdeler <code class="inline">{}</code> ile sarılır. Python'daki <code class="inline">elif</code> yapısı desteklenir.</p>
+
     <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cicekli.deffunction topla(a, b) {
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>notu = 88;
+
+if (notu >= 90) {
+    cicekli.println("Harf Notu: AA (Mükemmel)");
+} elif (notu >= 80) {
+    cicekli.println("Harf Notu: BA (Çok İyi)");
+} elif (notu >= 70) {
+    cicekli.println("Harf Notu: BB (Başarılı)");
+} else {
+    cicekli.println("Dersi Tekrar Almalısınız!");
+};</code></pre>
+    </div>
+  </section>
+
+  <!-- 09. DÖNGÜLER -->
+  <section id="donguler">
+    <h2><span class="num">09</span> Döngüler (for..in, for(;;), while)</h2>
+    <p>CicekliScript hem Python tarzı koleksiyon gezinimini (<code class="inline">for in</code>), hem C tarzı sayaçlı döngüleri (<code class="inline">for (i=0; i&lt;n; i=i+1)</code>), hem de <code class="inline">while</code> döngüsünü destekler:</p>
+
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>// 1. Python Tarzı for..in ve range()
+cicekli.println("--- 0'dan 4'e Sayılar ---");
+for (i in range(5)) {
+    cicekli.println("Sayı:", i);
+};
+
+// 2. Liste Elemanları Üzerinde Gezinme
+diller = ["C", "Python", "CicekliScript"];
+for (dil in diller) {
+    cicekli.println("Öğrenilen dil:", dil);
+};
+
+// 3. C Tarzı Sayaçlı for Döngüsü
+toplam = 0;
+for (k = 1; k <= 10; k = k + 1) {
+    toplam = toplam + k;
+};
+cicekli.println("1'den 10'a toplam:", toplam);
+
+// 4. While Döngüsü & break
+n = 3;
+while (n > 0) {
+    cicekli.println("Geri sayım:", n);
+    n = n - 1;
+};</code></pre>
+    </div>
+  </section>
+
+  <!-- 10. FONKSİYONLAR -->
+  <section id="fonksiyonlar">
+    <h2><span class="num">10</span> Fonksiyonlar &amp; Kapsam</h2>
+    <p>Fonksiyonlar hem klasik <code class="inline">def</code> sözdizimiyle hem de anonim/birinci sınıf değer olarak <code class="inline">cicekli.deffunction</code> ile tanımlanabilir:</p>
+
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>// Standart İsimli Fonksiyon
+def topla(a, b) {
     return a + b;
 };
 
-sonuc = topla(15, 25);
-cicekli.println("Sonuç:", sonuc);</code></pre>
-    </div>
-    <h3>Anonim Fonksiyon (Değişkene Atama)</h3>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>kare = cicekli.deffunction(x) {
+// Değişkene Atanabilen Anonim Fonksiyon
+kare = cicekli.deffunction(x) {
     return x * x;
 };
 
-cicekli.println("5'in karesi:", kare(5));</code></pre>
-    </div>
-    <h3>Anonim Olarak Doğrudan Çalıştırma</h3>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cicekli.deffunction() {
-    cicekli.println("Bu blok hemen çalışır!");
-}();</code></pre>
-    </div>
-  </section>
-
-  <section id="kosullar">
-    <h2><span class="num">07</span> Koşul İfadeleri</h2>
-    <p><code class="inline">if</code>, <code class="inline">elif</code> ve <code class="inline">else</code> blokları kullanılır. Tüm blok yapısının sonuna <code class="inline">;</code> konur.</p>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>puan = 85;
-
-if (puan >= 90) {
-    cicekli.println("Harf notu: AA");
-} elif (puan >= 70) {
-    cicekli.println("Harf notu: BB");
-} else {
-    cicekli.println("Harf notu: CC");
-};</code></pre>
-    </div>
-  </section>
-
-  <section id="donguler">
-    <h2><span class="num">08</span> Döngüler</h2>
-    <h3>Python Tarzı <code class="inline">for..in</code></h3>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>meyveler = ["Elma", "Armut", "Muz"];
-for (m in meyveler) {
-    cicekli.println("Meyve:", m);
+// Özyinelemeli (Recursive) Fonksiyon
+def faktoriyel(n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * faktoriyel(n - 1);
 };
 
-// range() ile kullanım:
-for (i in cicekli.range(5)) {
-    cicekli.println("İndeks:", i);
-};</code></pre>
+cicekli.println("5 + 7 =", topla(5, 7));
+cicekli.println("6'nın karesi =", kare(6));
+cicekli.println("5! =", faktoriyel(5));</code></pre>
     </div>
-    <h3>C Tarzı <code class="inline">for(init; cond; step)</code></h3>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>for (i = 0; i < 5; i = i + 1) {
-    cicekli.println("Adım:", i);
-};</code></pre>
-    </div>
-    <h3><code class="inline">while</code> Döngüsü</h3>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>sayac = 0;
-while (sayac < 5) {
-    sayac += 1;
-    if (sayac == 2) {
-        continue;
-    };
-    cicekli.println("Sayaç:", sayac);
-};</code></pre>
-    </div>
-    <p>Döngülerde <code class="inline">break;</code> (döngüyü sonlandır) ve <code class="inline">continue;</code> (sonraki adıma geç) kullanılır.</p>
   </section>
 
+  <!-- 11. LİSTELER -->
   <section id="listeler">
-    <h2><span class="num">09</span> Listeler</h2>
-    <p>Listeler dinamik boyutlu, iç içe geçebilir dizilerdir.</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>İşlem</th><th>Sözdizimi</th></tr></thead>
-      <tbody>
-      <tr><td>Eleman ekleme</td><td><code>cicekli.append(liste, eleman);</code></td></tr>
-      <tr><td>Son elemanı çıkarma</td><td><code>cicekli.pop(liste);</code></td></tr>
-      <tr><td>Uzunluk</td><td><code>cicekli.len(liste);</code></td></tr>
-      <tr><td>Eleman erişimi</td><td><code>liste[0]</code>, <code>liste[-1]</code> (negatif indeks)</td></tr>
-      </tbody>
-    </table></div>
+    <h2><span class="num">11</span> Dinamik Listeler &amp; Dilimleme</h2>
+    <p>Listeler heterojen elemanları tutar. Python benzeri negatif indeksleme (<code class="inline">[-1]</code> son eleman) ve dilimleme metotları mevcuttur:</p>
+
     <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>sayilar = [10, 20, 30];
-cicekli.append(sayilar, 40);
-cicekli.println("Uzunluk:", cicekli.len(sayilar));
-cicekli.println("Son eleman:", sayilar[-1]);
-son = cicekli.pop(sayilar);
-cicekli.println("Çıkarılan:", son);</code></pre>
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>sayilar = [10, 20, 30, 40, 50];
+
+// Negatif İndeksleme
+cicekli.println("İlk eleman :", sayilar[0]);
+cicekli.println("Son eleman :", sayilar[-1]);
+cicekli.println("Sondan bir önceki:", sayilar[-2]);
+
+// Liste Metotları
+sayilar.append(60);
+cicekli.println("Eklenmiş liste:", sayilar);
+
+cikarilan = sayilar.pop();
+cicekli.println("Çıkarılan eleman:", cikarilan);
+cicekli.println("Uzunluk:", sayilar.len());
+
+// Sıralama ve Ters Çevirme
+karisik = [5, 2, 9, 1, 7];
+karisik.sort();
+cicekli.println("Sıralı liste:", karisik);
+karisik.reverse();
+cicekli.println("Ters liste  :", karisik);</code></pre>
     </div>
   </section>
 
+  <!-- 12. SÖZLÜKLER -->
   <section id="sozlukler">
-    <h2><span class="num">10</span> Sözlükler (Maps)</h2>
-    <p>Sözlükler anahtar-değer çiftlerinden oluşur. Hem nokta hem de indeks ile erişilebilir.</p>
+    <h2><span class="num">12</span> Sözlükler (Maps / Key-Value)</h2>
+    <p>Anahtar-değer eşlemeleri saklar. Değerlere hem nokta notasyonu (<code class="inline">sozluk.anahtar</code>) hem de köşeli parantez (<code class="inline">sozluk["anahtar"]</code>) ile erişilebilir:</p>
+
     <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>kullanici = {"ad": "Mete", "yas": 25};
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>ogrenci = {
+    "isim": "Doruk",
+    "bolum": "Bilgisayar Mühendisliği",
+    "gpa": 3.85,
+    "aktif": true
+};
 
-// Nokta erişimi
-cicekli.println(kullanici.ad);
-
-// İndeks erişimi
-cicekli.println(kullanici["yas"]);
-
-// Yeni anahtar ekleme
-kullanici.sehir = "İzmir";
-cicekli.println(kullanici.sehir);</code></pre>
+cicekli.println("Öğrenci Adı :", ogrenci.isim);
+cicekli.println("Bölümü       :", ogrenci["bolum"]);
+cicekli.println("Tüm Anahtarlar:", ogrenci.keys());
+cicekli.println("Tüm Değerler  :", ogrenci.values());
+cicekli.println("Var mı (gpa)  :", ogrenci.has_key("gpa"));</code></pre>
     </div>
   </section>
 
-  <section id="yorumlar">
-    <h2><span class="num">11</span> Yorumlar</h2>
-    <p>CicekliScript üç yorum biçimini de destekler:</p>
-    <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code># Python tarzı yorum
-// C tarzı tek satır yorum
-/* C tarzı
-   çok satırlı yorum */
+  <!-- 13. MATEMATİK MODÜLÜ -->
+  <section id="matematik">
+    <h2><span class="num">13</span> Matematik Modülü (math.*)</h2>
+    <p>Gelişmiş bilimsel ve aritmetik hesaplamalar için yerleşik matematik fonksiyonları:</p>
 
-cicekli.println("Yorumlar çalışmaz, bu çalışır!");</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Fonksiyon</th><th>Açıklama</th><th>Örnek</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>math.sqrt(x)</code></td><td>Karekök alma</td><td><code>math.sqrt(25)</code> → <code>5.0</code></td></tr>
+          <tr><td><code>math.pow(taban, us)</code></td><td>Üs alma ($taban^{us}$)</td><td><code>math.pow(2, 8)</code> → <code>256.0</code></td></tr>
+          <tr><td><code>math.abs(x)</code></td><td>Mutlak değer</td><td><code>math.abs(-42)</code> → <code>42</code></td></tr>
+          <tr><td><code>math.round(x)</code></td><td>En yakın tamsayıya yuvarlama</td><td><code>math.round(4.6)</code> → <code>5</code></td></tr>
+          <tr><td><code>math.floor(x)</code></td><td>Aşağı yuvarlama</td><td><code>math.floor(4.9)</code> → <code>4</code></td></tr>
+          <tr><td><code>math.ceil(x)</code></td><td>Yukarı yuvarlama</td><td><code>math.ceil(4.1)</code> → <code>5</code></td></tr>
+          <tr><td><code>math.sin(r), cos, tan</code></td><td>Trigonometrik fonksiyonlar (radyan)</td><td><code>math.sin(3.14159 / 2)</code> → <code>1.0</code></td></tr>
+          <tr><td><code>math.log(x)</code></td><td>Doğal logaritma (ln)</td><td><code>math.log(2.71828)</code> → <code>1.0</code></td></tr>
+          <tr><td><code>math.min(...) / max(...)</code></td><td>En küçük / en büyük değeri bulma</td><td><code>math.max(10, 50, 20)</code> → <code>50</code></td></tr>
+          <tr><td><code>math.random(min, max)</code></td><td>Rastgele sayı üretir</td><td><code>math.random(1, 100)</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>// Hipotenüs Hesaplama: c = sqrt(a^2 + b^2)
+def hipotenus(a, b) {
+    return math.sqrt(math.pow(a, 2) + math.pow(b, 2));
+};
+
+cicekli.println("3-4-5 Üçgeni Hipotenüsü =", hipotenus(3, 4));
+cicekli.println("Pi Sayısı Yaklaşımı      =", 4 * math.sin(3.14159 / 2));
+cicekli.println("Rastgele Sayı (1-50)     =", math.round(math.random(1, 50)));</code></pre>
     </div>
   </section>
 
+  <!-- 14. DOSYA & BELGE İŞLEMLERİ -->
+  <section id="dosyalar">
+    <h2><span class="num">14</span> Dosya &amp; Belge İşlemleri (doc.* &amp; file.*)</h2>
+    <p>CicekliScript; diskteki dosyaları okumak, yazmak, ekleme yapmak ve silmek için çoklu değişken desteği ve <code class="inline">\n</code> kaçış dizilerini doğrudan destekleyen pratik <code class="inline">doc.*</code> modülü sunar:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Fonksiyon</th><th>Açıklama</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>doc.write(path, ...icerik)</code></td><td>Dosyayı oluşturur ve argümanları sırayla yazar (varsa üzerine yazar)</td></tr>
+          <tr><td><code>doc.add(path, ...icerik)</code></td><td>Dosyanın sonuna yeni veri ekler (append)</td></tr>
+          <tr><td><code>doc.read(path)</code></td><td>Dosya içeriğini metin (string) olarak okur</td></tr>
+          <tr><td><code>doc.delete(path)</code></td><td>Belirtilen dosyayı diskten siler (başarılıysa true)</td></tr>
+          <tr><td><code>doc.exists(path)</code></td><td>Dosyanın var olup olmadığını kontrol eder (true / false)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>dosya_adi = "rapor.txt";
+kullanici = "Doruk";
+skor = 99.4;
+
+// 1. Dosya Yazma (Çoklu argüman ve satır sonu \n desteği)
+doc.write(dosya_adi, "=== Sistem Raporu ===\n", "Kullanıcı: ", kullanici, "\nSkor: ", skor, "\n");
+
+// 2. Dosyanın Sonuna Satır Ekleme
+doc.add(dosya_adi, "Durum: Başarılı\n", "Tarih: 2026\n");
+
+// 3. Dosyayı Okuma
+icerik = doc.read(dosya_adi);
+cicekli.println("Okunan Belge İçeriği:\n" + icerik);
+
+// 4. Dosya Varlık Kontrolü ve Temizleme
+if (doc.exists(dosya_adi)) {
+    cicekli.println("✓ Dosya mevcut!");
+    doc.delete(dosya_adi);
+    cicekli.println("✓ Dosya temizlendi.");
+};</code></pre>
+    </div>
+  </section>
+
+  <!-- 15. METİN METOTLARI -->
+  <section id="metin">
+    <h2><span class="num">15</span> Metin (String) Metotları</h2>
+    <p>Metin nesneleri üzerinde doğrudan zincirlenebilir zengin metotlar:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Metot</th><th>Açıklama</th><th>Örnek</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>s.len()</code></td><td>Karakter uzunluğu</td><td><code>"Ccl".len()</code> → <code>3</code></td></tr>
+          <tr><td><code>s.split(ayrac)</code></td><td>Ayraç ile metni parçalar</td><td><code>"a,b".split(",")</code> → <code>["a", "b"]</code></td></tr>
+          <tr><td><code>s.trim()</code></td><td>Baş ve sondaki boşlukları siler</td><td><code>" test ".trim()</code> → <code>"test"</code></td></tr>
+          <tr><td><code>s.replace(eski, yeni)</code></td><td>Alt metinleri değiştirir</td><td><code>"elma".replace("e","a")</code> → <code>"alma"</code></td></tr>
+          <tr><td><code>s.contains(sub)</code></td><td>Alt metin var mı kontrol eder</td><td><code>"kodlama".contains("kod")</code> → <code>true</code></td></tr>
+          <tr><td><code>s.to_upper() / upper()</code></td><td>Büyük harfe dönüştürür</td><td><code>"merhaba".to_upper()</code> → <code>"MERHABA"</code></td></tr>
+          <tr><td><code>s.to_lower() / lower()</code></td><td>Küçük harfe dönüştürür</td><td><code>"CCL".to_lower()</code> → <code>"ccl"</code></td></tr>
+          <tr><td><code>s.starts_with(on)</code></td><td>Belirtilen ön ekle başlıyor mu</td><td><code>"ccl_dosya".starts_with("ccl")</code> → <code>true</code></td></tr>
+          <tr><td><code>s.slice(basla, bitir)</code></td><td>Alt metin dilimi alır</td><td><code>"merhaba".slice(0, 3)</code> → <code>"mer"</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>cumle = "  CicekliScript, Saf C11 Yorumlayıcısıdır!  ";
+
+temiz = cumle.trim();
+cicekli.println("Temiz Metin :", temiz);
+cicekli.println("Büyük Harf  :", temiz.to_upper());
+cicekli.println("Kelime Sayısı:", temiz.split(" ").len());
+cicekli.println("İçeriyor mu :", temiz.contains("Saf C11"));</code></pre>
+    </div>
+  </section>
+
+  <!-- 16. GRAFİKSEL ARAYÜZ (GUI) -->
   <section id="gui">
-    <h2><span class="num">📐</span> GUI — Pencere ve Grafik</h2>
-    <p>CicekliScript ile X11 + Cairo tabanlı GUI pencereleri açabilir, metin, dikdörtgen, daire ve çizgi çizebilirsiniz. <b>Online Compiler'da</b> GUI kodlarının çizimleri terminalin altında canvas önizlemesi olarak gösterilir; masaüstü ortamında (X11) ise gerçek bir pencere açılır.</p>
-    <div class="callout">
-      <span class="ci">💡</span>
-      <div><p><code class="inline">cicekli.window(genislik, yukseklik, "başlık")</code> bir pencere nesnesi döndürür. Tüm çizimler kalıcıdır; <code class="inline">window.mainloop()</code> pencereyi kapatana kadar olay döngüsünü çalıştırır (web önizlemesinde bu adım atlanır).</p></div>
-    </div>
-    <h3>Metotlar</h3>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Metot</th><th>Açıklama</th></tr></thead>
-      <tbody>
-        <tr><td><code>window.color(renk)</code></td><td>Arka planı boyar (boş = beyaz; <code>"red"</code>, <code>"#1e1e2e"</code>, <code>[r,g,b]</code>)</td></tr>
-        <tr><td><code>window.text(metin, renk, boyut, x, y)</code></td><td>Kalın Sans yazısı ekler</td></tr>
-        <tr><td><code>window.rect(x, y, g, y, renk)</code></td><td>Dikdörtgen çizer</td></tr>
-        <tr><td><code>window.circle(x, y, r, renk)</code></td><td>Daire çizer</td></tr>
-        <tr><td><code>window.line(x1, y1, x2, y2, renk, k)</code></td><td>Çizgi çizer (k = kalınlık)</td></tr>
-        <tr><td><code>window.clear(renk)</code></td><td>Tüm çizimleri siler (renk ile)</td></tr>
-        <tr><td><code>window.update()</code> / <code>show()</code></td><td>Çizimleri ekrana basar</td></tr>
-        <tr><td><code>window.sleep(ms)</code></td><td>Bir kare bekler (~60 FPS: 16 ms)</td></tr>
-        <tr><td><code>window.mainloop()</code> / <code>run()</code></td><td>Olay döngüsünü çalıştırır</td></tr>
-        <tr><td><code>window.is_open()</code></td><td>Pencere açıksa <code>true</code></td></tr>
-        <tr><td><code>window.close()</code></td><td>Pencereyi kapatır</td></tr>
-        <tr><td><code>window.get_mouse_x() / get_mouse_y()</code></td><td>İmleç konumunu döndürür</td></tr>
-        <tr><td><code>window.is_mouse_down()</code></td><td>Sol tuş basılı mı?</td></tr>
-        <tr><td><code>window.width / height</code></td><td>Pencere boyutları</td></tr>
-      </tbody>
-    </table></div>
-    <h3>Örnek</h3>
+    <h2><span class="num">16</span> GUI — Pencere ve Grafik Çizimi</h2>
+    <p>CicekliScript yerleşik olarak donanım destekli, çift arabellekli (double buffering) ve Cairo vektör çizim motoruna sahip pencereler sunar. Kodunuzu web IDE üzerinde çalıştırdığınızda çizimler otomatik olarak tarayıcıdaki canvas panelinde render edilir; masaüstünde ise bağımsız yerel bir X11 penceresi açılır.</p>
+
     <div class="codeblock" data-lang="cicekliscript">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">cicekliscript</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>window = cicekli.window(100, 100);
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>// 1. Pencere Oluşturma (Genişlik, Yükseklik, Başlık)
+win = cicekli.window(400, 300, "CicekliScript Grafik Çizimi");
 
-window.color();
-window.text("Mete", "red", 16, 20, 35);
-window.rect(10, 50, 40, 20, "blue");
-window.circle(70, 60, 15, "green");
+// 2. Arka Planı Boya
+win.color("#1e1e2e");
 
-window.mainloop();</code></pre>
+// 3. Yazı Yazma: text(metin, renk, boyut, x, y)
+win.text("CicekliScript GUI", "#89b4fa", 20, 80, 30);
+
+// 4. Şekiller Çizme
+// Dikdörtgen: rect(x, y, w, h, renk)
+win.rect(40, 80, 140, 80, "#313244");
+win.text("Kutu A", "#cdd6f4", 14, 80, 115);
+
+// Daire: circle(x, y, yaricap, renk)
+win.circle(270, 120, 35, "#f38ba8");
+
+// Çizgi: line(x1, y1, x2, y2, renk, kalinlik)
+win.line(40, 200, 360, 200, "#a6e3a1", 3);
+
+// 5. Olay Döngüsünü Başlat
+cicekli.println("Grafik penceresi hazır!");
+win.mainloop();</code></pre>
     </div>
   </section>
 
+  <!-- 17. GPU & TENSÖR HESAPLAMA MOTORU -->
+  <section id="gpu">
+    <h2><span class="num">17</span> GPU &amp; Tensör Hesaplama Motoru (CUDA) ⚡</h2>
+    <p>CicekliScript, doğrudan NVIDIA GPU donanım hızlandırmalı (CUDA) ve CPU destekli yerel bir <b>Tensör Hesaplama Motoruna</b> sahiptir. Derin öğrenme, bilimsel hesaplama ve matris işlemlerini ultra yüksek performansla gerçekleştirebilirsiniz.</p>
+
+    <div class="callout cuda">
+      <span class="ci">🚀</span>
+      <div>
+        <b>NVIDIA CUDA Donanım Hızlandırması</b>
+        <p>Sisteminizde aktif bir NVIDIA GPU (örneğin RTX 5090) tespit edildiğinde, tensör işlemleri GPU çekirdeklerine devredilir ve 1 milyon elemanlı matris çarpımları 1 milisaniyenin altında tamamlanır.</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Metot / Özellik</th><th>Açıklama</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cicekli.cuda.is_available()</code></td><td>Sistemde aktif CUDA GPU var mı kontrol eder (true / false)</td></tr>
+          <tr><td><code>cicekli.cuda.device_name()</code></td><td>GPU model adını döndürür (Örn: "NVIDIA GeForce RTX 5090")</td></tr>
+          <tr><td><code>cicekli.cuda.memory_info()</code></td><td>Kullanılabilir ve toplam VRAM miktarını MB olarak verir</td></tr>
+          <tr><td><code>cicekli.tensor(liste, [cihaz])</code></td><td>İç içe listeden tensör oluşturur (cihaz: "cuda" veya "cpu")</td></tr>
+          <tr><td><code>t.matmul(diger) / mm(diger)</code></td><td>GPU üzerinde yüksek hızlı matris çarpımı ($A \times B$)</td></tr>
+          <tr><td><code>t1 + t2, t1 - t2, t1 * t2</code></td><td>Eleman düzeyinde toplama, çıkarma ve çarpma</td></tr>
+          <tr><td><code>t.relu(), t.sigmoid()</code></td><td>Derin öğrenme aktivasyon fonksiyonları</td></tr>
+          <tr><td><code>t.sum(), t.mean()</code></td><td>Tensör elemanlarının toplamı ve aritmetik ortalaması</td></tr>
+          <tr><td><code>t.to("cuda") / t.to("cpu")</code></td><td>Tensörü GPU ve CPU belleği arasında taşır</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>cicekli.println("=== CicekliScript CUDA Motoru ===");
+
+if (cicekli.cuda.is_available()) {
+    cicekli.println("✓ GPU Modeli :", cicekli.cuda.device_name());
+    mem = cicekli.cuda.memory_info();
+    cicekli.println("✓ Boş VRAM   :", mem.free_mb, "MB / Toplam:", mem.total_mb, "MB");
+};
+
+cihaz = "cpu";
+if (cicekli.cuda.is_available()) {
+    cihaz = "cuda";
+};
+
+// 2x2 Tensör Tanımlama
+A = cicekli.tensor([
+    [1.0, 2.0],
+    [3.0, 4.0]
+], cihaz);
+
+B = cicekli.tensor([
+    [5.0, 6.0],
+    [7.0, 8.0]
+], cihaz);
+
+// Matris Çarpımı (A x B)
+C = A.matmul(B);
+cicekli.println("Matris Çarpımı Sonucu (A x B):");
+cicekli.println(C);
+
+// ReLU Aktivasyonu ve İstatistikler
+akt = C.relu();
+cicekli.println("Toplam :", C.sum());
+cicekli.println("Ortalama:", C.mean());</code></pre>
+    </div>
+  </section>
+
+  <!-- 18. YORUMLAR & KURALLAR -->
+  <section id="yorumlar">
+    <h2><span class="num">18</span> Yorumlar, Kurallar &amp; ';' Disiplini</h2>
+    <p>CicekliScript hem C tarzı hem de betik tarzı yorumları destekler. Kodunuzun sorunsuz derlenmesi için aşağıdaki kurallara dikkat ediniz:</p>
+
+    <ul>
+      <li><b>Tek Satır Yorum:</b> <code class="inline">// Açıklama</code> veya <code class="inline"># Açıklama</code></li>
+      <li><b>Çok Satırlı Yorum:</b> <code class="inline">/* Blok açıklama */</code></li>
+      <li><b>Noktalı Virgül (;) Zorunluluğu:</b> Değişken atamaları, fonksiyon çağrıları ve fonksiyon gövdelerinin sonuna <code class="inline">;</code> konulmalıdır.</li>
+      <li><b>Blok Yapısı:</b> <code class="inline">if</code>, <code class="inline">for</code>, <code class="inline">while</code> ve fonksiyonlar mutlaka <code class="inline">{}</code> parantezleri ile sarılmalıdır.</li>
+    </ul>
+
+    <div class="codeblock" data-lang="cicekliscript">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">ccl</span></div>
+        <div class="code-actions"><button class="try-btn">⚡ Editörde Dene</button><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code>// Bu bir tek satır yorumdur
+# Bu da geçerli bir tek satır yorumdur
+
+/*
+   Bu bir çok satırlı blok yorumdur.
+   CicekliScript saf C disiplini ile yorumlanır.
+*/
+
+x = 100; // ';' koymayı unutmayın!
+cicekli.println("x değeri:", x);</code></pre>
+    </div>
+  </section>
+
+  <!-- 19. STANDART API REFERANSI -->
   <section id="api">
-    <h2><span class="num">12</span> cicekli API'si (ve mete)</h2>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Fonksiyon</th><th>Açıklama</th></tr></thead>
-      <tbody>
-      <tr><td><code>cicekli.println(...)</code></td><td>Argümanları ekrana satır sonlu yazdırır</td></tr>
-      <tr><td><code>cicekli.print(...)</code></td><td>Argümanları ekrana satır sonu olmadan yazdırır</td></tr>
-      <tr><td><code>cicekli.input(prompt)</code></td><td>Kullanıcıdan metin girdisi alır</td></tr>
-      <tr><td><code>cicekli.deffunction</code></td><td>Fonksiyon tanımlar (isimli / anonim)</td></tr>
-      <tr><td><code>cicekli.range(n)</code></td><td><code>0..n-1</code> aralığı üretir (for..in ile)</td></tr>
-      <tr><td><code>cicekli.append(liste, x)</code></td><td>Listeye eleman ekler</td></tr>
-      <tr><td><code>cicekli.pop(liste)</code></td><td>Listeden son elemanı çıkarır</td></tr>
-      <tr><td><code>cicekli.len(liste)</code></td><td>Liste uzunluğunu döndürür</td></tr>
-      <tr><td><code>cicekli.exit()</code></td><td>REPL'den / betikten çıkar</td></tr>
-      </tbody>
-    </table></div>
+    <h2><span class="num">19</span> Standart API Hızlı Başvuru</h2>
+    <p>CicekliScript'in yerleşik genel fonksiyonları ve <code class="inline">cicekli.*</code> isim alanı metotları:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Fonksiyon</th><th>Açıklama</th><th>Dönüş</th></tr></thead>
+        <tbody>
+          <tr><td><code>cicekli.println(...) / println(...)</code></td><td>Argümanları boşlukla ayırıp satır sonu ekleyerek yazdırır</td><td>null</td></tr>
+          <tr><td><code>cicekli.print(...) / print(...)</code></td><td>Argümanları satır sonu eklemeden ekrana yazdırır</td><td>null</td></tr>
+          <tr><td><code>cicekli.input(prompt) / input(prompt)</code></td><td>Konsoldan bir satır metin girdisi alır</td><td>string</td></tr>
+          <tr><td><code>cicekli.len(obj) / len(obj) / obj.len()</code></td><td>Metin, liste veya sözlüğün eleman/karakter sayısını verir</td><td>number</td></tr>
+          <tr><td><code>cicekli.range(n) veya range(basla, bitir, adim)</code></td><td>Döngüler için sayı aralığı üretir</td><td>list</td></tr>
+          <tr><td><code>type(val)</code></td><td>Değerin tipini metin olarak döndürür ("number", "string", "list", ...)</td><td>string</td></tr>
+          <tr><td><code>str(val), int(val), float(val), bool(val)</code></td><td>Tip dönüşüm fonksiyonları</td><td>dönüşen tip</td></tr>
+          <tr><td><code>time()</code></td><td>Geçerli Unix zamanını saniye olarak döndürür</td><td>number</td></tr>
+          <tr><td><code>sleep(saniye)</code></td><td>Programı belirtilen saniye kadar duraklatır</td><td>null</td></tr>
+          <tr><td><code>exit([kod])</code></td><td>Programı sonlandırır (varsayılan kod: 0)</td><td>-</td></tr>
+          <tr><td><code>cicekli.window(w, h, [baslik])</code></td><td>Grafiksel pencere nesnesi başlatır</td><td>window</td></tr>
+          <tr><td><code>cicekli.cuda.is_available()</code></td><td>NVIDIA CUDA hızlandırıcısının durumunu bildirir</td><td>bool</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
+  <!-- 20. ÖRNEKLER -->
   <section id="ornekler">
-    <h2><span class="num">13</span> Örnek Dosyalar</h2>
-    <p>Tüm örnekler <code class="inline">examples/</code> klasöründe yer alır:</p>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Dosya</th><th>İçerik</th></tr></thead>
-      <tbody>
-      <tr><td><code>01_merhaba.ccl</code></td><td>Girdi/çıktı ve değişkenler</td></tr>
-      <tr><td><code>02_fonksiyonlar.ccl</code></td><td><code>cicekli.deffunction</code> varyasyonları</td></tr>
-      <tr><td><code>03_donguler.ccl</code></td><td><code>for in</code>, <code>for(;;)</code> ve <code>while</code> döngüleri</td></tr>
-      <tr><td><code>04_fibonacci.ccl</code></td><td>Özyinelemeli algoritma ve zaman ölçümü</td></tr>
-      <tr><td><code>05_listeler_ve_sozlukler.ccl</code></td><td>Dinamik listeler ve haritalar</td></tr>
-      <tr><td><code>06_hesap_makinesi.ccl</code></td><td>Fonksiyonel hesap makinesi</td></tr>
-      </tbody>
-    </table></div>
-    <div class="codeblock" data-lang="bash">
-      <div class="bar"><div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div><button class="copy-btn">Kopyala</button></div>
-      <pre><code>cicekliscript examples/04_fibonacci.ccl</code></pre>
+    <h2><span class="num">20</span> Hazır Örnekler &amp; Projeler</h2>
+    <p>CicekliScript deposunda yer alan tüm örnekleri <code class="inline">examples/</code> dizininde bulabilir veya Online Compiler üzerinde deneyebilirsiniz:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dosya</th><th>İçerik Açıklaması</th><th>Çalıştırma Komutu</th></tr></thead>
+        <tbody>
+          <tr><td><code>examples/01_merhaba.ccl</code></td><td>Girdi/çıktı, değişkenler ve temel operatörler</td><td><code>ccl examples/01_merhaba.ccl</code></td></tr>
+          <tr><td><code>examples/02_fonksiyonlar.ccl</code></td><td>İsimli, anonim ve matematiksel fonksiyonlar</td><td><code>ccl examples/02_fonksiyonlar.ccl</code></td></tr>
+          <tr><td><code>examples/03_donguler.ccl</code></td><td>for..in, C tarzı for ve while döngüleri</td><td><code>ccl examples/03_donguler.ccl</code></td></tr>
+          <tr><td><code>examples/04_fibonacci.ccl</code></td><td>Özyinelemeli Fibonacci ve zaman ölçümü</td><td><code>ccl examples/04_fibonacci.ccl</code></td></tr>
+          <tr><td><code>examples/05_listeler_ve_sozlukler.ccl</code></td><td>Dinamik listeler, negatif indeksler ve haritalar</td><td><code>ccl examples/05_listeler_ve_sozlukler.ccl</code></td></tr>
+          <tr><td><code>examples/06_hesap_makinesi.ccl</code></td><td>Fonksiyonel ve mantıksal hesap makinesi</td><td><code>ccl examples/06_hesap_makinesi.ccl</code></td></tr>
+          <tr><td><code>examples/07_gui_pencere.ccl</code></td><td>Cairo &amp; X11 ile masaüstü grafik penceresi</td><td><code>ccl examples/07_gui_pencere.ccl</code></td></tr>
+          <tr><td><code>examples/08_gui_gelismis.ccl</code></td><td>Gelişmiş dashboard arayüzü ve geometrik çizimler</td><td><code>ccl examples/08_gui_gelismis.ccl</code></td></tr>
+          <tr><td><code>examples/09_gpu_tensor.ccl</code></td><td>CUDA &amp; Tensör matris çarpımı ve hız testi</td><td><code>ccl examples/09_gpu_tensor.ccl</code></td></tr>
+          <tr><td><code>testcodes/test.ccl</code></td><td>İnteraktif akıllı chatbot uygulaması (CicekliBot)</td><td><code>ccl testcodes/test.ccl</code></td></tr>
+        </tbody>
+      </table>
     </div>
+
     <div class="callout success">
-      <span class="ci">✅</span>
-      <div><b>İpucu</b><p>REPL içinde <code class="inline">exit();</code> yazarak çıkabilirsiniz. Tüm örnekler <code class="inline">examples/</code> altında çalıştırılabilir.</p></div>
+      <span class="ci">✨</span>
+      <div>
+        <b>Online Web IDE ile Deneyin!</b>
+        <p>Herhangi bir kod bloğunun üzerindeki <b>"⚡ Editörde Dene"</b> butonuna basarak kodu doğrudan sayfanın başındaki derleyiciye aktarabilir ve tek tıkla çalıştırabilirsiniz.</p>
+      </div>
     </div>
   </section>
 </main>
 </div>
 
+<!-- FOOTER -->
 <footer>
-  <span>CicekliScript v1.0.0</span> · <span>Saf C11 yorumlayıcı</span> ·
-  <span>Bu dokümantasyon <code class="inline">docs/index.html</code> üzerinden servis edilmektedir</span>
+  <span>CicekliScript v1.0.0</span> ·
+  <span>Saf C11 Çekirdek &amp; NVIDIA CUDA Motoru</span> ·
+  <span>Dokümantasyon &amp; Online Compiler</span> ·
+  <span>Geliştirici: <b>Doruk Kahraman</b></span>
   <span class="heart">♥</span>
 </footer>
 
+<!-- BAŞA DÖN BUTONU -->
 <button id="toTop" title="Başa dön">↑</button>
+
+<!-- KLAVYE KISAYOLLARI MODAL -->
+<div class="modal-overlay" id="shortcutsModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>⚡ Klavye Kısayolları</h3>
+      <button class="modal-close" id="modalCloseBtn">✕</button>
+    </div>
+    <ul class="modal-list">
+      <li><span>Kodu Çalıştır</span> <kbd class="kbd">Ctrl + Enter</kbd></li>
+      <li><span>Dokümantasyonda Ara</span> <kbd class="kbd">Ctrl + K</kbd> / <kbd class="kbd">/</kbd></li>
+      <li><span>Editörde Girintile (Indent)</span> <kbd class="kbd">Tab (4 Boşluk)</kbd></li>
+      <li><span>Aramayı / Modalı Kapat</span> <kbd class="kbd">Escape</kbd></li>
+      <li><span>Başa Dön</span> <kbd class="kbd">Home</kbd></li>
+    </ul>
+  </div>
+</div>
 
 <script>
 /* ============ TEMA YÖNETİMİ ============ */
@@ -1163,47 +1781,88 @@ const root = document.documentElement;
 const themeBtn = document.getElementById('themeBtn');
 const mq = window.matchMedia('(prefers-color-scheme: light)');
 const ORDER = ['auto', 'dark', 'light'];
-let current = localStorage.getItem('mete-theme') || 'auto';
+let currentTheme = localStorage.getItem('ccl-theme') || 'auto';
 
 function applyTheme(t) {
-  current = t;
+  currentTheme = t;
   root.setAttribute('data-theme', t);
-  localStorage.setItem('mete-theme', t);
+  localStorage.setItem('ccl-theme', t);
 }
-applyTheme(current);
+applyTheme(currentTheme);
 
-// Cihaz teması değişince (auto moddaysa) anında uyum sağla
 mq.addEventListener('change', () => {
-  if (current === 'auto') applyTheme('auto');
+  if (currentTheme === 'auto') applyTheme('auto');
 });
 
 themeBtn.addEventListener('click', () => {
-  const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
+  const next = ORDER[(ORDER.indexOf(currentTheme) + 1) % ORDER.length];
   applyTheme(next);
+});
+
+/* ============ MOBİL SIDEBAR YÖNETİMİ ============ */
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const sidebar = document.getElementById('sidebar');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+function toggleSidebar(open) {
+  sidebar.classList.toggle('open', open);
+  sidebarBackdrop.classList.toggle('open', open);
+}
+
+if (mobileMenuBtn) {
+  mobileMenuBtn.addEventListener('click', () => toggleSidebar(true));
+}
+if (sidebarBackdrop) {
+  sidebarBackdrop.addEventListener('click', () => toggleSidebar(false));
+}
+document.querySelectorAll('nav.sidebar a').forEach(a => {
+  a.addEventListener('click', () => {
+    if (window.innerWidth <= 960) toggleSidebar(false);
+  });
+});
+
+/* ============ KURULUM SEKMELERİ (TABS) ============ */
+document.querySelectorAll('.tab-group').forEach(group => {
+  const btns = group.querySelectorAll('.tab-btn');
+  const panes = group.querySelectorAll('.tab-pane');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      panes.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const target = group.querySelector('#' + btn.dataset.tab);
+      if (target) target.classList.add('active');
+    });
+  });
 });
 
 /* ============ SÖZDİZİMİ VURGULAMA ============ */
 function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+
 function highlight(code, lang) {
   let out = '';
-  const isMs = (lang === 'cicekliscript');
+  const isCcl = (lang === 'cicekliscript' || lang === 'ccl');
   for (const line of code.split('\n')) {
     let l = escapeHtml(line);
-    if (isMs) {
+    if (isCcl) {
       if (/^\s*#/.test(line) || /^\s*\/\//.test(line) || /^\s*\/\*/.test(line)) {
         out += '<span class="tok-cm">' + l + '</span>\n';
         continue;
       }
       l = l.replace(/(#[^\n]*|\/\/[^\n]*)/g, '<span class="tok-cm">$1</span>');
       l = l.replace(/(&quot;[^&]*?&quot;|'[^']*?')/g, '<span class="tok-str">$1</span>');
-      l = l.replace(/\b(if|elif|else|for|while|in|return|break|continue|true|false|True|False|null|None|nil)\b/g, '<span class="tok-kw">$1</span>');
+      l = l.replace(/\b(if|elif|else|for|while|in|return|break|continue|true|false|True|False|null|None|nil|def)\b/g, '<span class="tok-kw">$1</span>');
       l = l.replace(/\b(\d+\.?\d*)\b/g, '<span class="tok-num">$1</span>');
-      l = l.replace(/\b(cicekli\.|mete\.)(println|print|input|deffunction|range|append|pop|len|exit)\b/g,
-                    '<span class="tok-fn">$1</span><span class="tok-fn">$2</span>');
-      l = l.replace(/\b(deffunction)\b/g, '<span class="tok-kw">$1</span>');
-    } else if (lang === 'bash') {
+      l = l.replace(/\b(cicekli\.|mete\.)(println|print|input|deffunction|range|append|pop|len|exit|window|tensor|cuda|randn|zeros|ones)\b/g,
+                    '<span class="tok-fn">$1$2</span>');
+      l = l.replace(/\b(math\.)(sqrt|pow|abs|round|floor|ceil|sin|cos|tan|log|min|max|random)\b/g,
+                    '<span class="tok-fn">$1$2</span>');
+      l = l.replace(/\b(doc\.|file\.)(write|add|read|delete|exists)\b/g,
+                    '<span class="tok-fn">$1$2</span>');
+      l = l.replace(/\b(time|sleep|exit|type|str|int|float|bool)\b(?=\()/g, '<span class="tok-fn">$1</span>');
+    } else if (lang === 'bash' || lang === 'powershell') {
       l = l.replace(/(#[^\n]*)/g, '<span class="tok-cm">$1</span>');
       l = l.replace(/^(\s*)(\w+)(\s)/, '$1<span class="tok-fn">$2</span>$3');
     }
@@ -1211,21 +1870,35 @@ function highlight(code, lang) {
   }
   return out.replace(/\n$/,'');
 }
+
 document.querySelectorAll('.codeblock').forEach(block => {
   const code = block.querySelector('code');
+  if (!code) return;
   const raw = code.textContent;
   code.innerHTML = highlight(raw, block.dataset.lang || 'text');
-  const btn = block.querySelector('.copy-btn');
-  if (btn) btn.addEventListener('click', () => {
-    navigator.clipboard.writeText(raw).then(() => {
-      btn.textContent = 'Kopyalandı ✓';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Kopyala'; btn.classList.remove('copied'); }, 1500);
+
+  // Kopyalama Butonu
+  const copyBtn = block.querySelector('.copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(raw).then(() => {
+        copyBtn.textContent = 'Kopyalandı ✓';
+        copyBtn.classList.add('copied');
+        setTimeout(() => { copyBtn.textContent = 'Kopyala'; copyBtn.classList.remove('copied'); }, 1500);
+      });
     });
-  });
+  }
+
+  // Editörde Dene Butonu
+  const tryBtn = block.querySelector('.try-btn');
+  if (tryBtn) {
+    tryBtn.addEventListener('click', () => {
+      loadIntoEditor(raw);
+    });
+  }
 });
 
-/* ============ AKTİF MENÜ ============ */
+/* ============ AKTİF MENÜ TAKİBİ ============ */
 const links = [...document.querySelectorAll('nav.sidebar a')];
 const sections = links.map(a => document.querySelector(a.getAttribute('href')));
 const obs = new IntersectionObserver(entries => {
@@ -1237,12 +1910,15 @@ const obs = new IntersectionObserver(entries => {
 }, { rootMargin: '-15% 0px -75% 0px' });
 sections.forEach(s => s && obs.observe(s));
 
-/* ============ ARAMA ============ */
+/* ============ GELİŞMİŞ ARAMA ============ */
 const search = document.getElementById('search');
+const searchClear = document.getElementById('searchClear');
 const noResults = document.getElementById('noResults');
 const nrQuery = document.getElementById('nrQuery');
-search.addEventListener('input', () => {
+
+function handleSearch() {
   const q = search.value.trim().toLowerCase();
+  searchClear.classList.toggle('show', q.length > 0);
   let any = false;
   document.querySelectorAll('main section').forEach(sec => {
     if (!q) { sec.style.display = ''; return; }
@@ -1252,7 +1928,54 @@ search.addEventListener('input', () => {
   });
   noResults.style.display = (q && !any) ? 'block' : 'none';
   nrQuery.textContent = search.value.trim();
+}
+
+if (search) {
+  search.addEventListener('input', handleSearch);
+}
+if (searchClear) {
+  searchClear.addEventListener('click', () => {
+    search.value = '';
+    handleSearch();
+    search.focus();
+  });
+}
+
+// Kısayollar (Ctrl+K, / ve Esc)
+window.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    search.focus();
+    search.select();
+  } else if (e.key === '/' && document.activeElement !== search && document.activeElement !== document.getElementById('codeEditor') && document.activeElement !== document.getElementById('terminalInput')) {
+    e.preventDefault();
+    search.focus();
+  } else if (e.key === 'Escape') {
+    if (search.value) {
+      search.value = '';
+      handleSearch();
+    }
+    const modal = document.getElementById('shortcutsModal');
+    if (modal) modal.classList.remove('open');
+  }
 });
+
+/* ============ KLAVYE KISAYOLLARI MODAL ============ */
+const shortcutsBtn = document.getElementById('shortcutsBtn');
+const shortcutsModal = document.getElementById('shortcutsModal');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+if (shortcutsBtn && shortcutsModal) {
+  shortcutsBtn.addEventListener('click', () => shortcutsModal.classList.add('open'));
+}
+if (modalCloseBtn && shortcutsModal) {
+  modalCloseBtn.addEventListener('click', () => shortcutsModal.classList.remove('open'));
+}
+if (shortcutsModal) {
+  shortcutsModal.addEventListener('click', (e) => {
+    if (e.target === shortcutsModal) shortcutsModal.classList.remove('open');
+  });
+}
 
 /* ============ SCROLL İLERLEMESİ + BAŞA DÖN ============ */
 const progress = document.getElementById('progress');
@@ -1265,19 +1988,23 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-/* ============ ONLINE COMPILER (WEB IDE) SCRIPT ============ */
+/* ============ ONLINE COMPILER (WEB IDE) HAZIR ŞABLONLAR ============ */
 const SAMPLES = {
   merhaba: `# CicekliScript 1.0 - Merhaba Dünya
-cicekli.println("══════════════════════════════════");
-cicekli.println("⚡ CicekliScript Dünyasına Hoş Geldiniz!");
-cicekli.println("══════════════════════════════════");
+cicekli.println("══════════════════════════════════════════════");
+cicekli.println("🌸 CicekliScript Dünyasına Hoş Geldiniz!");
+cicekli.println("══════════════════════════════════════════════");
 
 ad = "Gezgin";
 surum = 1.0;
-cicekli.println("Kullanıcı:", ad, "| Dil Sürümü:", surum);
+hiz_motoru = "Saf C11 + NVIDIA CUDA";
 
-// Unutmayın: CicekliScript'te her ifadenin sonuna ';' zorunludur!
-cicekli.println("CicekliScript: C Hızı + Python Sözdizimi!");
+cicekli.println("Kullanıcı :", ad);
+cicekli.println("Dil Sürümü:", surum);
+cicekli.println("Çekirdek  :", hiz_motoru);
+
+// Unutmayın: CicekliScript'te her cümlenin sonuna ';' zorunludur!
+cicekli.println("\nCicekliScript: C Hızı + Python Sözdizimi + ; Disiplini!");
 `,
   fonksiyonlar: `// 1. İsimli Fonksiyon Tanımlama
 def topla(a, b) {
@@ -1289,9 +2016,6 @@ carp = cicekli.deffunction(x, y) {
     return x * y;
 };
 
-cicekli.println("Toplama (3 + 5) =", topla(3, 5));
-cicekli.println("Çarpma  (4 * 6) =", carp(4, 6));
-
 // 3. Mantıksal Fonksiyon
 def mutlak_deger(n) {
     if (n < 0) {
@@ -1300,9 +2024,11 @@ def mutlak_deger(n) {
     return n;
 };
 
-cicekli.println("Mutlak Değer |-42| =", mutlak_deger(-42));
+cicekli.println("Toplama (15 + 27)    =", topla(15, 27));
+cicekli.println("Çarpma  (8 * 9)      =", carp(8, 9));
+cicekli.println("Mutlak Değer |-99|   =", mutlak_deger(-99));
 `,
-  fibonacci: `// Fibonacci Dizisi (Özyinelemeli / Recursive)
+  fibonacci: `// Fibonacci Dizisi (Özyinelemeli / Recursive Hesaplama)
 def fib(n) {
     if (n <= 1) {
         return n;
@@ -1310,50 +2036,54 @@ def fib(n) {
     return fib(n - 1) + fib(n - 2);
 };
 
-cicekli.println("--- İlk 10 Fibonacci Sayısı ---");
-for (i in range(10)) {
+cicekli.println("--- İlk 12 Fibonacci Sayısı ---");
+basla = time();
+for (i in range(12)) {
     cicekli.println("fib(" + str(i) + ") =", fib(i));
-}
+};
+gecen = time() - basla;
+cicekli.println("\nHesaplama tamamlandı (" + str(math.round(gecen * 1000)) + " ms)");
 `,
   donguler: `cicekli.println("--- 1. Python Tarzı for..in Döngüsü ---");
-for (sayi in [10, 20, 30, 40]) {
-    cicekli.println("Liste elemanı:", sayi);
-}
+for (renk in ["Kırmızı", "Mavi", "Yeşil", "Mor"]) {
+    cicekli.println("Renk:", renk);
+};
 
-cicekli.println("\\n--- 2. C Tarzı for(init; cond; step) Döngüsü ---");
+cicekli.println("\n--- 2. C Tarzı Sayaçlı for(;;) Döngüsü ---");
 toplam = 0;
-for (i = 1; i <= 5; i = i + 1) {
+for (i = 1; i <= 10; i = i + 1) {
     toplam = toplam + i;
-}
-cicekli.println("1'den 5'e sayıların toplamı:", toplam);
+};
+cicekli.println("1'den 10'a sayıların toplamı:", toplam);
 
-cicekli.println("\\n--- 3. While Döngüsü ---");
+cicekli.println("\n--- 3. While Döngüsü İle Geri Sayım ---");
 sayac = 3;
 while (sayac > 0) {
     cicekli.println("Geri sayım:", sayac);
     sayac = sayac - 1;
-}
+};
 cicekli.println("Roket fırlatıldı! 🚀");
 `,
   listeler: `// Listeler (Dinamik Dizi)
-meyveler = ["Elma", "Muz", "Çilek"];
-cicekli.append(meyveler, "Portakal");
-cicekli.println("Meyve Listesi:", meyveler);
-cicekli.println("Liste Boyutu:", cicekli.len(meyveler));
-cicekli.println("Son Eleman (negatif indeks):", meyveler[-1]);
+diller = ["C", "Python", "Rust"];
+diller.append("CicekliScript");
+cicekli.println("Diller Listesi:", diller);
+cicekli.println("Liste Boyutu  :", diller.len());
+cicekli.println("Son Eleman    :", diller[-1]);
 
 // Sözlükler (Key-Value)
 gelistirici = {
-    "ad": "Mete",
+    "ad": "Doruk",
     "dil": "CicekliScript",
-    "hiz": "C11",
+    "cekirdek": "C11",
     "puan": 100
 };
 
-cicekli.println("\\nGeliştirici Bilgileri:");
-cicekli.println("Geliştirici:", gelistirici["ad"]);
-cicekli.println("Dil:", gelistirici["dil"], "| Çekirdek:", gelistirici["hiz"]);
-cicekli.println("Puan:", gelistirici["puan"]);
+cicekli.println("\nGeliştirici Bilgileri:");
+cicekli.println("Ad       :", gelistirici.ad);
+cicekli.println("Dil      :", gelistirici["dil"]);
+cicekli.println("Çekirdek :", gelistirici.cekirdek);
+cicekli.println("Puan     :", gelistirici.puan);
 `,
   hesap: `def hesapla(a, b, islem) {
     if (islem == "+") {
@@ -1368,81 +2098,268 @@ cicekli.println("Puan:", gelistirici["puan"]);
         }
         return a / b;
     } else {
-        return "Geçersiz işlem türü!";
+        return "Geçersiz işlem!";
     }
 };
 
-cicekli.println("15 + 25 =", hesapla(15, 25, "+"));
-cicekli.println("100 - 37 =", hesapla(100, 37, "-"));
-cicekli.println("8 * 9    =", hesapla(8, 9, "*"));
-cicekli.println("48 / 6   =", hesapla(48, 6, "/"));
+cicekli.println("25 + 75 =", hesapla(25, 75, "+"));
+cicekli.println("100 - 45 =", hesapla(100, 45, "-"));
+cicekli.println("12 * 12  =", hesapla(12, 12, "*"));
+cicekli.println("144 / 12 =", hesapla(144, 12, "/"));
 cicekli.println("50 / 0   =", hesapla(50, 0, "/"));
 `,
-  girdi: `// Kullanıcıdan Girdi Örneği
-// Çalıştırınca terminalde adınızı ❯ satırına yazıp Enter'a basın.
+  girdi: `// Kullanıcıdan Girdi (input) Alma Örneği
+// Çalıştırınca aşağıdaki terminalde ❯ satırına adınızı yazıp Enter'a basın.
 cicekli.println("Lütfen adınızı giriniz:");
 isim = cicekli.input();
 
-if (cicekli.len(isim) == 0) {
+if (isim.len() == 0) {
     isim = "Misafir";
-}
+};
 
-cicekli.println("CicekliScript'e hoş geldin,", isim + "!");
-cicekli.println("Harika kodlar yazmaya hazır mısın?");
+cicekli.println("\n🌸 CicekliScript'e hoş geldin,", isim + "!");
+cicekli.println("Python esnekliği ve C11 hızında kodlamaya hazırsınız.");
 `,
-  guipencere: `// GUI Pencere Örneği
-// Web'de pencere önizlemesi, çıktı terminalinin altında canvas olarak çizilir.
-// Masaüstü (X11) ortamında ise gerçek bir pencere açılır.
+  matematik: `// Matematik Modülü (math.*) Örnekleri
+cicekli.println("=== Matematik Modülü ===");
 
-window = cicekli.window(100, 100);
+cicekli.println("Karekök sqrt(144)      =", math.sqrt(144));
+cicekli.println("Üs alma pow(2, 10)     =", math.pow(2, 10));
+cicekli.println("Mutlak değer abs(-55)  =", math.abs(-55));
+cicekli.println("Yuvarlama round(3.7)   =", math.round(3.7));
+cicekli.println("Aşağı yuvarla floor(3.9)=", math.floor(3.9));
+cicekli.println("Yukarı yuvarla ceil(3.1)=", math.ceil(3.1));
+cicekli.println("Sinüs sin(pi/2)        =", math.sin(3.14159 / 2));
+cicekli.println("En büyük max(12, 85, 4)=", math.max(12, 85, 4));
+cicekli.println("Rastgele Sayı (1-100)  =", math.round(math.random(1, 100)));
+`,
+  dosyalar: `// Belge ve Dosya İşlemleri (doc.*)
+dosya = "deneme_rapor.txt";
 
-window.color();
-window.text("Mete", "red", 16, 20, 35);
-window.rect(10, 50, 40, 20, "blue");
-window.circle(70, 60, 15, "green");
+cicekli.println("1. Dosya oluşturuluyor ve yazılıyor...");
+doc.write(dosya, "=== CicekliScript Raporu ===\n", "Yazar: Doruk\n", "Durum: Başarılı\n");
 
-cicekli.println("Pencere oluşturuldu!");
+cicekli.println("2. Dosyaya yeni satırlar ekleniyor...");
+doc.add(dosya, "Versiyon: 1.0.0\n", "CUDA: Aktif\n");
+
+cicekli.println("3. Dosya okunuyor:");
+icerik = doc.read(dosya);
+cicekli.println(icerik);
+
+cicekli.println("4. Dosya varlık kontrolü ve temizlik:");
+if (doc.exists(dosya)) {
+    doc.delete(dosya);
+    cicekli.println("✓ Dosya başarıyla temizlendi.");
+};
+`,
+  metinliste: `// Gelişmiş Metin ve Liste Metotları
+metin = "  CicekliScript, C11 Hızı, Python Kolaylığı  ";
+temiz = metin.trim();
+
+cicekli.println("Orijinal Metin:", metin);
+cicekli.println("Trim Edilmiş  :", temiz);
+cicekli.println("Büyük Harf    :", temiz.to_upper());
+cicekli.println("Küçük Harf    :", temiz.to_lower());
+
+kelimeler = temiz.split(",");
+cicekli.println("\nParçalanmış Liste:", kelimeler);
+
+sayilar = [45, 12, 89, 3, 27];
+cicekli.println("Orijinal Liste :", sayilar);
+sayilar.sort();
+cicekli.println("Küçükten Büyüğe:", sayilar);
+sayilar.reverse();
+cicekli.println("Büyükten Küçüğe:", sayilar);
+cicekli.println("Birleştirilmiş :", sayilar.join(" -> "));
+`,
+  gputensor: `// ⚡ CicekliScript GPU Hızlandırması & Tensör Modülü (CUDA)
+cicekli.println("══════════════════════════════════════════════");
+cicekli.println("🚀 CicekliScript CUDA & Tensör Hesaplama Motoru");
+cicekli.println("══════════════════════════════════════════════");
+
+if (cicekli.cuda.is_available()) {
+    cicekli.println("✓ CUDA Durumu       : Aktif (GPU Kullanılabilir)");
+    cicekli.println("✓ Grafik Kartı      :", cicekli.cuda.device_name());
+    mem = cicekli.cuda.memory_info();
+    cicekli.println("✓ Boş VRAM          :", mem.free_mb, "MB / Toplam:", mem.total_mb, "MB\n");
+} else {
+    cicekli.println("ℹ️ CUDA GPU bulunamadı, CPU hesaplama modu devrede.\n");
+};
+
+cihaz = "cpu";
+if (cicekli.cuda.is_available()) {
+    cihaz = "cuda";
+};
+
+// 2x2 Tensörler Tanımlanıyor
+cicekli.println("[1] 2x2 Tensörler Tanımlanıyor (Cihaz: " + cihaz + ")...");
+A = cicekli.tensor([
+    [1.0, 2.0],
+    [3.0, 4.0]
+], cihaz);
+
+B = cicekli.tensor([
+    [5.0, 6.0],
+    [7.0, 8.0]
+], cihaz);
+
+cicekli.println("\nTensör A:");
+cicekli.println(A);
+cicekli.println("Tensör B:");
+cicekli.println(B);
+
+// Matris Çarpımı (A x B)
+cicekli.println("\n[2] Matris Çarpımı (A x B) Hesaplanıyor...");
+C = A.matmul(B);
+cicekli.println(C);
+
+// İstatistikler
+cicekli.println("\n[3] İstatistiksel Çıktılar:");
+cicekli.println("  • C Toplamı   :", C.sum());
+cicekli.println("  • C Ortalaması:", C.mean());
+`,
+  guipencere: `// GUI Pencere ve Temel Şekiller Örneği
+// Web ortamında pencere canvas olarak çıktı terminalinin altında açılır.
+
+window = cicekli.window(380, 260, "Temel Çizimler");
+
+window.color("#0f172a");
+
+window.text("CicekliScript GUI", "#38bdf8", 20, 90, 30);
+window.rect(30, 80, 140, 70, "#3b82f6");
+window.text("Dikdörtgen", "#ffffff", 14, 60, 115);
+
+window.circle(260, 115, 35, "#ec4899");
+window.line(30, 200, 350, 200, "#10b981", 3);
+
+cicekli.println("Pencere başarıyla çizildi!");
 window.mainloop();
 `,
-  guigelismis: `// GUI: Gelişmiş Tasarım
-window = cicekli.window(450, 350, "CicekliScript GUI Uygulaması");
+  guigelismis: `// GUI: Gelişmiş Geometrik Tasarım
+window = cicekli.window(450, 350, "CicekliScript GUI Dashboard");
 
-window.color("#1e1e2e");
+window.color("#181825");
 
-window.text("CicekliScript GUI Demo", "#89b4fa", 24, 80, 30);
-window.text("Python Kolaylığı + C Gücü + ;", "#cdd6f4", 14, 110, 75);
+window.text("CicekliScript UI Demo", "#89b4fa", 22, 100, 30);
+window.text("Python Kolaylığı + C11 Gücü", "#cdd6f4", 13, 130, 70);
 
-// Dikdörtgen: window.rect(x, y, genislik, yukseklik, renk);
-window.rect(40, 120, 160, 90, "#313244");
-window.text("Kutu 1", "#a6adc8", 14, 90, 155);
+// Kutular
+window.rect(40, 110, 160, 90, "#313244");
+window.text("Modül 1 (Aktif)", "#a6adc8", 13, 70, 150);
 
-window.rect(240, 120, 160, 90, "#45475a");
-window.text("Kutu 2", "#a6adc8", 14, 290, 155);
+window.rect(240, 110, 160, 90, "#45475a");
+window.text("Modül 2 (Hazır)", "#a6adc8", 13, 270, 150);
 
-// Daireler: window.circle(x, y, yaricap, renk);
-window.circle(100, 270, 30, "#f38ba8");
-window.circle(225, 270, 30, "#a6e3a1");
-window.circle(350, 270, 30, "#f9e2af");
+// Renkli Daireler
+window.circle(100, 260, 26, "#f38ba8");
+window.circle(225, 260, 26, "#a6e3a1");
+window.circle(350, 260, 26, "#f9e2af");
 
-// Çizgiler: window.line(x1, y1, x2, y2, renk, kalinlik);
-window.line(40, 320, 410, 320, "#585b70", 2);
+// Alt Ayrıcı Çizgi
+window.line(40, 315, 410, 315, "#585b70", 2);
 
-cicekli.println("GUI penceresi hazır!");
+cicekli.println("Gelişmiş GUI penceresi hazır!");
 window.mainloop();
+`,
+  algoritmalar: `// İkili Arama (Binary Search) & Dizi Algoritması
+def ikili_arama(dizi, hedef) {
+    sol = 0;
+    sag = dizi.len() - 1;
+    
+    while (sol <= sag) {
+        orta = math.floor((sol + sag) / 2);
+        deger = dizi[orta];
+        
+        if (deger == hedef) {
+            return orta;
+        } elif (deger < hedef) {
+            sol = orta + 1;
+        } else {
+            sag = orta - 1;
+        }
+    };
+    return -1;
+};
+
+sayilar = [3, 8, 14, 25, 33, 42, 58, 77, 91, 105];
+aranan = 42;
+
+cicekli.println("Sıralı Dizi:", sayilar);
+cicekli.println("Aranan Sayı:", aranan);
+
+indeks = ikili_arama(sayilar, aranan);
+if (indeks != -1) {
+    cicekli.println("✓ Bulundu! Sayı", indeks, ". indekste yer alıyor.");
+} else {
+    cicekli.println("✕ Aranan sayı bulunamadı.");
+};
+`,
+  chatbot: `// 🌸 CicekliBot — İnteraktif Akıllı Chatbot Asistanı
+cicekli.println("╔═══════════════════════════════════════════════════════╗");
+cicekli.println("║          🌸 CicekliBot Chatbot Asistanı               ║");
+cicekli.println("║   Python kolaylığı + C gücüyle çalışan sohbet botu    ║");
+cicekli.println("║   (Çıkmak için: 'çık', 'exit' veya 'q' yazabilirsiniz)║");
+cicekli.println("╚═══════════════════════════════════════════════════════╝");
+cicekli.println("");
+cicekli.println("🤖 CicekliBot: Merhaba! Ben CicekliScript sohbet botuyum.");
+cicekli.println("🤖 CicekliBot: 'selam', 'nasılsın', 'cicekli nedir', 'şaka yap' veya 'çık' yazabilirsiniz.\n");
+
+aktif = true;
+mesaj_sayisi = 0;
+baslangic = time();
+
+while (aktif) {
+    girdi = cicekli.input("👤 Siz: ");
+    metin = girdi.trim();
+    if (metin.len() == 0) {
+        continue;
+    };
+    
+    kucuk = metin.to_lower();
+    mesaj_sayisi = mesaj_sayisi + 1;
+
+    if (kucuk == "çık" || kucuk == "exit" || kucuk == "q" || kucuk == "çıkış") {
+        gecen = math.round(time() - baslangic);
+        cicekli.println("\n🤖 CicekliBot: Sohbet için teşekkürler! (" + mesaj_sayisi + " mesaj, " + gecen + " sn)");
+        cicekli.println("🤖 CicekliBot: İyi kodlamalar dilerim! 🌸👋\n");
+        aktif = false;
+    } elif (kucuk.contains("merhaba") || kucuk.contains("selam") || kucuk == "hey") {
+        cicekli.println("🤖 CicekliBot: Merhaba dostum! Bugün hangi CicekliScript kodunu yazıyoruz?");
+    } elif (kucuk.contains("nasılsın") || kucuk.contains("naber")) {
+        cicekli.println("🤖 CicekliBot: Harikayım! C11 hızında çalışıyorum ve belleğim tertemiz. Sen nasılsın?");
+    } elif (kucuk.contains("cicekli") || kucuk.contains("ccl")) {
+        cicekli.println("🤖 CicekliBot: CicekliScript; Python esnekliği ile C gücünü ({}) ve ';' disiplinini birleştiren yerel CUDA destekli modern bir dildir!");
+    } elif (kucuk.contains("şaka") || kucuk.contains("fıkra")) {
+        cicekli.println("🤖 CicekliBot: Neden C programcıları gözlük takar? Çünkü C# göremezler! 😄");
+    } else {
+        cicekli.println("🤖 CicekliBot: '" + metin + "' dediniz. Çok ilginç! Başka bir soru sormak ister misiniz?");
+    }
+};
 `
 };
 
+/* ============ EDITÖR VE ÇALIŞTIRICI ============ */
 const editor = document.getElementById('codeEditor');
 const lineNumbers = document.getElementById('lineNumbers');
 const runBtn = document.getElementById('runBtn');
 const clearCodeBtn = document.getElementById('clearCodeBtn');
 const resetCodeBtn = document.getElementById('resetCodeBtn');
+const downloadCodeBtn = document.getElementById('downloadCodeBtn');
+const fileUploadInput = document.getElementById('fileUploadInput');
+const fullscreenBtn = document.getElementById('fullscreenBtn');
+const compilerWrapper = document.getElementById('compilerWrapper');
+const fontIncBtn = document.getElementById('fontIncBtn');
+const fontDecBtn = document.getElementById('fontDecBtn');
 const exampleSelector = document.getElementById('exampleSelector');
 const terminalOutput = document.getElementById('terminalOutput');
 const execPill = document.getElementById('execPill');
 const copyOutputBtn = document.getElementById('copyOutputBtn');
 const clearOutputBtn = document.getElementById('clearOutputBtn');
 const guiPane = document.getElementById('guiPane');
+const terminalInputRow = document.getElementById('terminalInputRow');
+const terminalInput = document.getElementById('terminalInput');
+
+let editorFontSize = 13.5;
 
 function updateLineNumbers() {
   if (!editor || !lineNumbers) return;
@@ -1482,6 +2399,17 @@ function loadSample(key) {
   }
 }
 
+function loadIntoEditor(code) {
+  if (!editor) return;
+  editor.value = code.trim() + '\n';
+  updateLineNumbers();
+  const target = document.getElementById('compiler');
+  if (target) target.scrollIntoView({ behavior: 'smooth' });
+  editor.focus();
+  editor.classList.add('flash-highlight');
+  setTimeout(() => editor.classList.remove('flash-highlight'), 1000);
+}
+
 if (exampleSelector) {
   exampleSelector.addEventListener('change', () => {
     loadSample(exampleSelector.value);
@@ -1502,14 +2430,65 @@ if (resetCodeBtn && exampleSelector) {
   });
 }
 
-let lastRawOutput = '';
+// Kodu İndirme
+if (downloadCodeBtn && editor) {
+  downloadCodeBtn.addEventListener('click', () => {
+    const blob = new Blob([editor.value], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'program.ccl';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
 
-const terminalInputRow = document.getElementById('terminalInputRow');
-const terminalInput = document.getElementById('terminalInput');
+// Dosya Yükleme
+if (fileUploadInput && editor) {
+  fileUploadInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      editor.value = ev.target.result;
+      updateLineNumbers();
+      editor.focus();
+    };
+    reader.readAsText(file);
+  });
+}
 
+// Tam Ekran
+if (fullscreenBtn && compilerWrapper) {
+  fullscreenBtn.addEventListener('click', () => {
+    compilerWrapper.classList.toggle('fullscreen');
+    fullscreenBtn.textContent = compilerWrapper.classList.contains('fullscreen') ? '✕ Kapat' : '⛶';
+  });
+}
+
+// Font Boyutu
+if (fontIncBtn && fontDecBtn && editor) {
+  fontIncBtn.addEventListener('click', () => {
+    if (editorFontSize < 20) {
+      editorFontSize += 1.5;
+      editor.style.fontSize = editorFontSize + 'px';
+      lineNumbers.style.fontSize = editorFontSize + 'px';
+    }
+  });
+  fontDecBtn.addEventListener('click', () => {
+    if (editorFontSize > 11) {
+      editorFontSize -= 1.5;
+      editor.style.fontSize = editorFontSize + 'px';
+      lineNumbers.style.fontSize = editorFontSize + 'px';
+    }
+  });
+}
+
+/* ============ RUNNER & INTERACTIVE SESSION ============ */
 let activeSession = null;
 let pollTimer = null;
 let runStartedAt = 0;
+let lastRawOutput = '';
 
 function appendTerm(text, cls) {
   const span = document.createElement('span');
@@ -1520,7 +2499,7 @@ function appendTerm(text, cls) {
   terminalOutput.scrollTop = terminalOutput.scrollHeight;
 }
 
-// --- GUI önizleme (headless cicekli.window çıktısı) ---
+// --- GUI Önizleme (cicekli.window() çıktısı) ---
 let guiSourceBuf = '';
 let guiSeen = 0;
 let feedBuffer = '';
@@ -1530,7 +2509,7 @@ function parseGuiData() {
   let m, idx = 0;
   while ((m = re.exec(guiSourceBuf)) !== null) {
     if (idx >= guiSeen) {
-      try { renderGuiWindow(JSON.parse(m[1])); } catch (e) { /* bozuk veriyi yoksay */ }
+      try { renderGuiWindow(JSON.parse(m[1])); } catch (e) { }
       guiSeen++;
     }
     idx++;
@@ -1586,7 +2565,6 @@ function renderGuiWindow(d) {
   guiPane.appendChild(wrap);
 }
 
-// Çıktı akışı: GUI veri satırlarını terminalden gizler
 function feedStdout(text) {
   guiSourceBuf += text;
   parseGuiData();
@@ -1595,10 +2573,10 @@ function feedStdout(text) {
   while ((nl = feedBuffer.indexOf('\n')) >= 0) {
     const line = feedBuffer.slice(0, nl + 1);
     feedBuffer = feedBuffer.slice(nl + 1);
-    if (/^(?:CICEKLI_GUI|METE_GUI) /.test(line)) continue; // GUI verisi terminal metninde gösterilmez
+    if (/^(?:CICEKLI_GUI|METE_GUI) /.test(line)) continue;
     appendTerm(line, 'term-stdout');
   }
-  if (feedBuffer.startsWith('CICEKLI_GUI ') || feedBuffer.startsWith('METE_GUI ')) return; // tamamlanmamış GUI satırı beklesin
+  if (feedBuffer.startsWith('CICEKLI_GUI ') || feedBuffer.startsWith('METE_GUI ')) return;
   if (feedBuffer) {
     appendTerm(feedBuffer, 'term-stdout');
     feedBuffer = '';
@@ -1679,7 +2657,7 @@ async function stopRun() {
   const id = activeSession;
   activeSession = null;
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-  try { await fetch('/api/interactive/' + id + '/stop', { method: 'POST' }); } catch (e) { /* yoksay */ }
+  try { await fetch('/api/interactive/' + id + '/stop', { method: 'POST' }); } catch (e) { }
   setInputActive(false);
   appendTerm('\n[Program durduruldu]\n', 'term-stderr');
   setPill('error', 'Durduruldu');
@@ -1777,6 +2755,7 @@ if (copyOutputBtn) {
   });
 }
 
+// Başlangıç şablonunu yükle
 loadSample('merhaba');
 </script>
 </body>

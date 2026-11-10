@@ -38,7 +38,7 @@ SRCS = $(SRC_DIR)/main.c \
 
 OBJS = $(SRCS:.c=.o) $(CUDA_OBJS)
 
-.PHONY: all clean install test
+.PHONY: all clean install test vsix
 
 all: $(TARGET)
 
@@ -72,3 +72,11 @@ install: $(TARGET)
 		ln -sf $(HOME)/.local/bin/cicekliscript $(HOME)/.gemini/antigravity/bin/cicekliscript; \
 	fi
 	@echo "CicekliScript ~/.local/bin/cicekliscript ve 'ccl' kısayolu başarıyla yüklendi."
+
+vsix: $(TARGET)
+	@mkdir -p vscode-extension/bin
+	@cp $(TARGET) vscode-extension/bin/cicekliscript
+	@strip -s vscode-extension/bin/cicekliscript
+	@ln -sf cicekliscript vscode-extension/bin/ccl
+	@python3 vscode-extension/build_vsix.py
+	@echo "✓ VS Code eklentisi yerleşik derleyici ile başarıyla paketlendi."

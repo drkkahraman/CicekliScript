@@ -4,8 +4,16 @@ const path = require('path');
 const os = require('os');
 
 let runStatusBarItem;
+let extensionContext = null;
 
+/**
+ * CicekliScript çalıştırılabilir dosyasını (binary) çözümler:
+ * 1. Kullanıcı özel ayarı (cicekliscript.executablePath)
+ * 2. Eklenti içindeki yerleşik derleyici (extension/bin/cicekliscript)
+ * 3. Sistem dizinleri (~/.local/bin, /usr/local/bin, PATH)
+ */
 function resolveExecutable() {
+    // 1. Kullanıcı özel ayarı
     const config = vscode.workspace.getConfiguration('cicekliscript');
     let customPath = config.get('executablePath');
     if (!customPath) {
@@ -16,6 +24,41 @@ function resolveExecutable() {
         return customPath.trim();
     }
 
+    // 2. Eklenti içine gömülü yerel derleyici (Bundled Binary)
+    const extDir = (extensionContext && extensionContext.extensionPath) ? extensionContext.extensionPath : __dirname;
+    const isWin = process.platform === 'win32';
+    const binName = isWin ? 'cicekliscript.exe' : 'cicekliscript';
+    const binAlt = isWin ? 'ccl.exe' : 'ccl';
+
+    const bundledCandidates = [
+        path.join(extDir, 'bin', binName),
+        path.join(extDir, 'bin', binAlt),
+        path.join(__dirname, 'bin', binName),
+        path.join(__dirname, 'bin', binAlt)
+    ];
+
+    for (const bp of bundledCandidates) {
+        try {
+            if (fs.existsSync(bp)) {
+                // Unix sistemlerde çalıştırma iznini garanti et (+x)
+                if (!isWin) {
+                    try {
+                        const stat = fs.statSync(bp);
+                        if ((stat.mode & 0o111) === 0) {
+                            fs.chmodSync(bp, 0o755);
+                        }
+                    } catch (e) {
+                        // yetki hatası olursa yoksay
+                    }
+                }
+                return bp;
+            }
+        } catch (e) {
+            // yoksay
+        }
+    }
+
+    // 3. Sistem dizinlerini ara (~/.local/bin, /usr/local/bin, /usr/bin)
     const homeDir = os.homedir();
     const candidatePaths = [
         path.join(homeDir, '.local', 'bin', 'ccl'),
@@ -39,6 +82,7 @@ function resolveExecutable() {
             // yoksay
         }
     }
+
     return 'cicekliscript';
 }
 
@@ -49,6 +93,67 @@ function getTerminal() {
         term = vscode.window.createTerminal(termName);
     }
     return term;
+}
+
+/**
+ * Eklenti içindeki derleyiciyi doğrudan sisteme (~/.local/bin) kurar.
+ */
+async function installToSystem() {
+    const extDir = (extensionContext && extensionContext.extensionPath) ? extensionContext.extensionPath : __dirname;
+    const isWin = process.platform === 'win32';
+    const binName = isWin ? 'cicekliscript.exe' : 'cicekliscript';
+
+    const sourceBin = path.join(extDir, 'bin', binName);
+    if (!fs.existsSync(sourceBin)) {
+        vscode.window.showErrorMessage(`CicekliScript: Eklenti içindeki derleyici ikili dosyası bulunamadı (${sourceBin})!`);
+        return;
+    }
+
+    const homeDir = os.homedir();
+    const targetDir = isWin ? path.join(homeDir, '.cicekliscript', 'bin') : path.join(homeDir, '.local', 'bin');
+
+    try {
+        if (!fs.existsSync(targetDir)) {
+            fs.mkdirSync(targetDir, { recursive: true });
+        }
+
+        const targetBin = path.join(targetDir, binName);
+        fs.copyFileSync(sourceBin, targetBin);
+
+        if (!isWin) {
+            fs.chmodSync(targetBin, 0o755);
+            // ccl ve cicekli sembolik linklerini oluştur
+            const symlinks = ['ccl', 'cicekli', 'metescript'];
+            for (const sym of symlinks) {
+                const symPath = path.join(targetDir, sym);
+                try {
+                    if (fs.existsSync(symPath) || fs.lstatSync(symPath).isSymbolicLink()) {
+                        fs.unlinkSync(symPath);
+                    }
+                } catch (e) {}
+                try {
+                    fs.symlinkSync(targetBin, symPath);
+                } catch (e) {}
+            }
+        }
+
+        const pathEnv = process.env.PATH || '';
+        const inPath = pathEnv.split(path.delimiter).some(p => path.resolve(p) === path.resolve(targetDir));
+
+        let msg = `✓ CicekliScript eklenti içinden "${targetDir}" dizinine başarıyla kuruldu!`;
+        if (!inPath && !isWin) {
+            msg += `\nNot: Bu dizini PATH değişkeninize eklemek için terminalde şunu çalıştırabilirsiniz: export PATH="$HOME/.local/bin:$PATH"`;
+        }
+
+        const choice = await vscode.window.showInformationMessage(msg, 'Terminalde Test Et', 'Tamam');
+        if (choice === 'Terminalde Test Et') {
+            const term = getTerminal();
+            term.show(true);
+            term.sendText(`"${targetBin}" --version`);
+        }
+    } catch (err) {
+        vscode.window.showErrorMessage(`CicekliScript kurulurken bir hata oluştu: ${err.message}`);
+    }
 }
 
 async function runCicekliScriptFile(uri) {
@@ -86,7 +191,6 @@ async function runCicekliScriptFile(uri) {
 
     const config = vscode.workspace.getConfiguration('cicekliscript');
     if (config.get('clearTerminalBeforeRun', true)) {
-        // Platforma göre terminal temizleme
         term.sendText(process.platform === 'win32' ? 'cls' : 'clear');
     }
 
@@ -111,6 +215,13 @@ async function runSelection() {
     term.sendText(`"${exe}" -c "${escaped}"`);
 }
 
+function openRepl() {
+    const exe = resolveExecutable();
+    const term = getTerminal();
+    term.show(true);
+    term.sendText(`"${exe}"`);
+}
+
 function updateStatusBarItem() {
     const editor = vscode.window.activeTextEditor;
     if (editor && (editor.document.languageId === 'cicekliscript' || editor.document.languageId === 'metescript' || editor.document.fileName.endsWith('.ccl') || editor.document.fileName.endsWith('.cicekli') || editor.document.fileName.endsWith('.ms'))) {
@@ -121,6 +232,8 @@ function updateStatusBarItem() {
 }
 
 function activate(context) {
+    extensionContext = context;
+
     // 1. Çalıştırma Komutları
     const runCmd = vscode.commands.registerCommand('cicekliscript.run', (uri) => {
         return runCicekliScriptFile(uri);
@@ -143,6 +256,14 @@ function activate(context) {
         return runSelection();
     });
 
+    const replCmd = vscode.commands.registerCommand('cicekliscript.openRepl', () => {
+        return openRepl();
+    });
+
+    const installCmd = vscode.commands.registerCommand('cicekliscript.installToSystem', () => {
+        return installToSystem();
+    });
+
     const openDocsCmd = vscode.commands.registerCommand('cicekliscript.openDocs', () => {
         vscode.env.openExternal(vscode.Uri.parse('http://localhost:6000'));
     });
@@ -163,6 +284,8 @@ function activate(context) {
         runTerminalCmdOld,
         runSelectionCmd,
         runSelectionCmdOld,
+        replCmd,
+        installCmd,
         openDocsCmd,
         openDocsCmdOld,
         runStatusBarItem,

@@ -86,7 +86,7 @@ class CicekliScriptHandler(SimpleHTTPRequestHandler):
             start_time = time.time()
             temp_filename = ""
             try:
-                with tempfile.NamedTemporaryFile("w", suffix=".ms", delete=False) as tf:
+                with tempfile.NamedTemporaryFile("w", suffix=".ccl", delete=False) as tf:
                     tf.write(code)
                     temp_filename = tf.name
 
@@ -308,7 +308,7 @@ def _session_reaper():
 
 
 def _spawn_interactive(code, initial_stdin=""):
-    tf = tempfile.NamedTemporaryFile("w", suffix=".ms", delete=False)
+    tf = tempfile.NamedTemporaryFile("w", suffix=".ccl", delete=False)
     tf.write(code)
     tf.close()
     proc = subprocess.Popen(
