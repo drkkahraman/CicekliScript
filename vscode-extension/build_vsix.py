@@ -38,11 +38,11 @@ VSIX_MANIFEST = """<?xml version="1.0" encoding="utf-8"?>
       <Property Id="Microsoft.VisualStudio.Code.LocalizedLanguages" Value="" />
       <Property Id="Microsoft.VisualStudio.Code.EnabledApiProposals" Value="" />
       <Property Id="Microsoft.VisualStudio.Code.ExecutesCode" Value="true" />
-      <Property Id="Microsoft.VisualStudio.Services.Links.Source" Value="https://github.com/cicekliscript/cicekliscript.git" />
-      <Property Id="Microsoft.VisualStudio.Services.Links.Getstarted" Value="https://github.com/cicekliscript/cicekliscript.git" />
-      <Property Id="Microsoft.VisualStudio.Services.Links.GitHub" Value="https://github.com/cicekliscript/cicekliscript.git" />
-      <Property Id="Microsoft.VisualStudio.Services.Links.Support" Value="https://github.com/cicekliscript/cicekliscript/issues" />
-      <Property Id="Microsoft.VisualStudio.Services.Links.Learn" Value="https://github.com/cicekliscript/cicekliscript#readme" />
+      <Property Id="Microsoft.VisualStudio.Services.Links.Source" Value="https://github.com/drkkahraman/CicekliScript.git" />
+      <Property Id="Microsoft.VisualStudio.Services.Links.Getstarted" Value="https://drkkahraman.github.io/CicekliScript/" />
+      <Property Id="Microsoft.VisualStudio.Services.Links.GitHub" Value="https://github.com/drkkahraman/CicekliScript.git" />
+      <Property Id="Microsoft.VisualStudio.Services.Links.Support" Value="https://github.com/drkkahraman/CicekliScript/issues" />
+      <Property Id="Microsoft.VisualStudio.Services.Links.Learn" Value="https://drkkahraman.github.io/CicekliScript/" />
       <Property Id="Microsoft.VisualStudio.Services.GitHubFlavoredMarkdown" Value="true" />
       <Property Id="Microsoft.VisualStudio.Services.Content.Pricing" Value="Free"/>
     </Properties>

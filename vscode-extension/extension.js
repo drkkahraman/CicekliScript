@@ -265,10 +265,10 @@ function activate(context) {
     });
 
     const openDocsCmd = vscode.commands.registerCommand('cicekliscript.openDocs', () => {
-        vscode.env.openExternal(vscode.Uri.parse('http://localhost:6000'));
+        vscode.env.openExternal(vscode.Uri.parse('https://drkkahraman.github.io/CicekliScript/'));
     });
     const openDocsCmdOld = vscode.commands.registerCommand('metescript.openDocs', () => {
-        vscode.env.openExternal(vscode.Uri.parse('http://localhost:6000'));
+        vscode.env.openExternal(vscode.Uri.parse('https://drkkahraman.github.io/CicekliScript/'));
     });
 
     // 2. Status Bar Butonu (▶ CicekliScript Çalıştır)

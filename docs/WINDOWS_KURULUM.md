@@ -94,14 +94,16 @@ Artık `.ccl` uzantılı dosyalarınızda tam sözdizimi renklendirmesi, dosya i
 
 ---
 
-## 🌐 Web Tabanlı Canlı Playground & IDE
+## 🌐 Web Tabanlı Canlı Dokümantasyon & IDE
 
-CicekliScript ile birlikte gelen web arayüzünü çalıştırmak için:
+CicekliScript resmi dokümantasyonuna ve Web IDE'sine doğrudan genel web üzerinden erişebilirsiniz:
+👉 **[https://drkkahraman.github.io/CicekliScript/](https://drkkahraman.github.io/CicekliScript/)**
 
+Eğer yerel bilgisayarınızda çevrimdışı web derleyicisi sunucusunu çalıştırmak isterseniz:
 ```bash
 python3 server.py
 ```
-Komut çalıştıktan sonra tarayıcınızda [http://localhost:8080](http://localhost:8080) adresini açarak kod yazabilir, interaktif olarak çalıştırabilir ve grafik çizimlerini web tarayıcınızda canlı olarak görebilirsiniz.
+Komut çalıştıktan sonra yerel tarayıcınızda [http://localhost:6000](http://localhost:6000) adresini açarak kod yazabilir ve çalıştırabilirsiniz.
 
 ---
 

@@ -2638,10 +2638,12 @@ function finishRun(data) {
   setRunBtn(false);
 }
 
+let currentApiBase = '';
+
 async function pollSession() {
   if (!activeSession) return;
   try {
-    const res = await fetch('/api/interactive/' + activeSession + '/poll');
+    const res = await fetch((currentApiBase || '') + '/api/interactive/' + activeSession + '/poll');
     const data = await res.json();
     if (data.stdout) feedStdout(data.stdout);
     if (data.stderr) appendTerm(data.stderr, 'term-stderr');
@@ -2657,7 +2659,7 @@ async function stopRun() {
   const id = activeSession;
   activeSession = null;
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-  try { await fetch('/api/interactive/' + id + '/stop', { method: 'POST' }); } catch (e) { }
+  try { await fetch((currentApiBase || '') + '/api/interactive/' + id + '/stop', { method: 'POST' }); } catch (e) { }
   setInputActive(false);
   appendTerm('\n[Program durduruldu]\n', 'term-stderr');
   setPill('error', 'Durduruldu');
@@ -2693,12 +2695,33 @@ async function runCode() {
   if (guiPane) guiPane.innerHTML = '';
   runStartedAt = Date.now();
 
+  let apiBase = '';
+  if (window.location.hostname.includes('github.io')) {
+    apiBase = 'http://localhost:6000';
+  }
+
   try {
-    const res = await fetch('/api/interactive/start', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code })
-    });
+    let res;
+    try {
+      res = await fetch((apiBase || '') + '/api/interactive/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+      currentApiBase = apiBase;
+    } catch (netErr) {
+      if (apiBase) {
+        // İkinci deneme göreli yoldan
+        res = await fetch('/api/interactive/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        currentApiBase = '';
+      } else {
+        throw netErr;
+      }
+    }
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.status + ' ' + res.statusText);
 
@@ -2707,9 +2730,23 @@ async function runCode() {
     pollTimer = setInterval(pollSession, 120);
     setRunBtn(true);
   } catch (err) {
-    terminalOutput.innerHTML = '<span class="term-stderr">Hata: ' + escapeHtml(err.message) + '</span>';
+    if (window.location.hostname.includes('github.io')) {
+      terminalOutput.innerHTML = '<span class="term-stdout" style="color:#67e8f9;">🌐 <b>GitHub Pages Statik Web Sürümü</b></span>\n\n' +
+        '<span class="term-placeholder">Bu dokümantasyon sayfası GitHub Pages üzerinde statik olarak barındırılmaktadır.\n' +
+        'Kodları kendi makinenizde derleyip çalıştırmak için 3 kolay yol vardır:\n\n' +
+        '1. <b>VS Code Eklentisi (Önerilen - Sıfır Kurulum):</b>\n' +
+        '   Projedeki <code style="color:#a5b4fc;">vscode-extension/cicekliscript-1.1.0.vsix</code> eklentisini kurun.\n' +
+        '   Derleyici eklenti içine gömülüdür, sağ üstteki ▶ butonuna basarak anında çalıştırabilirsiniz!\n\n' +
+        '2. <b>Yerel Web IDE Sunucusu:</b>\n' +
+        '   Terminalde <code style="color:#a5b4fc;">python3 server.py</code> çalıştırarak bu arayüzü tam etkileşimli yerel modda kullanabilirsiniz.\n\n' +
+        '3. <b>Doğrudan Terminal:</b>\n' +
+        '   <code style="color:#a5b4fc;">ccl dosya.ccl</code> veya <code style="color:#a5b4fc;">cicekliscript dosya.ccl</code> komutuyla çalıştırın.</span>';
+      setPill('error', 'Yerel Sunucu Gerekli');
+    } else {
+      terminalOutput.innerHTML = '<span class="term-stderr">Hata: ' + escapeHtml(err.message) + '</span>';
+      setPill('error', 'Bağlantı Hatası');
+    }
     lastRawOutput = err.message;
-    setPill('error', 'Bağlantı Hatası');
     setRunBtn(false);
   }
 }
@@ -2723,7 +2760,7 @@ if (terminalInput) {
       if (!activeSession) return;
       const val = terminalInput.value;
       terminalInput.value = '';
-      fetch('/api/interactive/' + activeSession + '/input', {
+      fetch((currentApiBase || '') + '/api/interactive/' + activeSession + '/input', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input: val + '\n' })

@@ -6,8 +6,9 @@
   "publisher": "cicekliscript",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cicekliscript/cicekliscript"
+    "url": "https://github.com/drkkahraman/CicekliScript"
   },
+  "homepage": "https://drkkahraman.github.io/CicekliScript/",
   "engines": {
     "vscode": "^1.70.0"
   },

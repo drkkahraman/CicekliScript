@@ -26,7 +26,7 @@
 
 ## 📚 Documentation & Guides
 
-- 🌐 **[Interactive Web Documentation & Online Playground](http://localhost:6000)**: Full interactive web IDE, live runner, and searchable docs.
+- 🌐 **[Official Online Documentation & Web IDE](https://drkkahraman.github.io/CicekliScript/)**: Complete documentation, live interactive IDE, and searchable API index.
 - 🪟 **[Windows Installation Guide (docs/WINDOWS_KURULUM.md)](docs/WINDOWS_KURULUM.md)**: Step-by-step setup for Windows (WSL 2 / WSLg / MSYS2).
 - 📖 **[Language & Syntax Guide (docs/DIL_REHBERI.md)](docs/DIL_REHBERI.md)**: Detailed syntax rules, data structures, and examples.
 - 📚 **[API & Standard Library Reference (docs/API_REFERANSI.md)](docs/API_REFERANSI.md)**: Complete reference of all built-in modules (`math`, `doc`, `cicekli`, `cuda`) and methods.
@@ -408,10 +408,16 @@ code --install-extension vscode-extension/cicekliscript-1.1.0.vsix
 
 Run the built-in documentation server and live playground locally:
 
+## 🌐 Web Documentation & Local Playground
+
+The official documentation is available globally at **[https://drkkahraman.github.io/CicekliScript/](https://drkkahraman.github.io/CicekliScript/)**.
+
+To run the local documentation server and compiler playground on your own machine:
+
 ```bash
 python3 server.py
 ```
-Open **[http://localhost:6000](http://localhost:6000)** in your browser to access the full documentation, searchable API index, and interactive Web IDE with 15 templates and live GUI canvas preview.
+Then visit **[http://localhost:6000](http://localhost:6000)** in your browser.
 
 ---
 
