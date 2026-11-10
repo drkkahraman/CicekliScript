@@ -5,7 +5,7 @@
 <h1 align="center">CicekliScript 🚀</h1>
 
 <p align="center">
-  <strong>Python Simplicity + C Performance + Mandatory Semicolon (<code>;</code>)</strong>
+  <strong>Python Simplicity + C Performance</strong>
 </p>
 
 <p align="center">
