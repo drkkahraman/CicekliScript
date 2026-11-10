@@ -154,6 +154,37 @@ cicekliscript script.ccl
 ccl -c 'cicekli.println("Square root of 144 is", math.sqrt(144));'
 ```
 
+### 4. Interactive CLI Debugger (`--debug`, `-d`)
+Start the interactive English step debugger directly in your terminal:
+```bash
+ccl --debug script.ccl
+# or
+cicekliscript -d script.ccl
+```
+
+#### Debugger Commands:
+| Command | Alias | Description |
+| :--- | :--- | :--- |
+| `step` | `s` | Step into the next statement |
+| `next` | `n` | Step over to the next statement |
+| `finish` | `out` | Step out of the current function |
+| `continue` | `c` | Resume execution until next breakpoint |
+| `break <line>` | `b <line>` | Set breakpoint at line (e.g. `b 15` or `b test.ccl:15`) |
+| `delete <id>` | `del <id>` | Remove breakpoint by ID |
+| `breakpoints` | `info b` | List all active breakpoints and hit counts |
+| `print <expr>` | `p <expr>` | Evaluate and print expression in current scope |
+| `locals` | `info locals` | Inspect all local variables with types and values |
+| `backtrace` | `bt`, `stack`| Display call stack frames |
+| `list [n]` | `l` | Show source code around current line |
+| `help` | `h` | Show help commands |
+| `quit` | `q`, `exit` | Terminate debugging session |
+
+### 5. VS Code Native Debugging (`F5` & DAP)
+With the CicekliScript extension installed:
+- Press **F5** in VS Code to launch the debugger with red-dot breakpoints in the gutter.
+- Inspect variables in the sidebar, view call stack, hover to inspect values, and use the step controls toolbar (**F10** Step Over, **F11** Step Into, **Shift+F11** Step Out).
+- Or click the **$(debug-alt) Debug** icon in the editor title bar to open the CLI debugger in the terminal!
+
 ---
 
 ## 📖 Syntax Guide
@@ -399,7 +430,7 @@ The repository includes a ready-to-use, feature-packed VS Code extension:
 
 ### Quick Install:
 ```bash
-code --install-extension vscode-extension/cicekliscript-1.1.0.vsix
+code --install-extension vscode-extension/cicekliscript-1.2.0.vsix
 ```
 
 ---

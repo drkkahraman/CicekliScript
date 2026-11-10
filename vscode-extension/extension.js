@@ -236,6 +236,43 @@ async function runCicekliScriptFile(uri) {
     term.sendText(formatRunCommand(exe, [filePath]));
 }
 
+async function debugCicekliScriptFile(uri) {
+    let filePath;
+
+    if (uri && uri.fsPath) {
+        filePath = uri.fsPath;
+    } else {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showWarningMessage('CicekliScript: Debug edilecek aktif bir dosya bulunamadı!');
+            return;
+        }
+        if (editor.document.isDirty) {
+            await editor.document.save();
+        }
+        filePath = editor.document.uri.fsPath;
+    }
+
+    const exe = resolveExecutable();
+    const term = getTerminal();
+    term.show(true);
+
+    const config = vscode.workspace.getConfiguration('cicekliscript');
+    if (config.get('clearTerminalBeforeRun', true)) {
+        term.sendText(process.platform === 'win32' ? 'cls' : 'clear');
+    }
+
+    // CLI Debugger'ı başlat (--debug)
+    term.sendText(formatRunCommand(exe, ['--debug', filePath]));
+}
+
+class CicekliDebugAdapterDescriptorFactory {
+    createDebugAdapterDescriptor(session) {
+        const exe = resolveExecutable();
+        return new vscode.DebugAdapterExecutable(exe, ['--dap']);
+    }
+}
+
 async function runSelection() {
     const editor = vscode.window.activeTextEditor;
     if (!editor) return;
@@ -573,7 +610,15 @@ function activate(context) {
         return runGuiPreview(uri);
     });
 
-    // 2. Status Bar Butonu (▶ CicekliScript Çalıştır)
+    const debugCmd = vscode.commands.registerCommand('cicekliscript.debug', (uri) => {
+        return debugCicekliScriptFile(uri);
+    });
+
+    // 2. VS Code Native Debugger Adapter (F5)
+    const debugFactory = new CicekliDebugAdapterDescriptorFactory();
+    const debugProvider = vscode.debug.registerDebugAdapterDescriptorFactory('cicekliscript', debugFactory);
+
+    // 3. Status Bar Butonu (▶ CicekliScript Çalıştır)
     runStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     runStatusBarItem.command = 'cicekliscript.run';
     runStatusBarItem.text = '$(play) CicekliScript';
@@ -591,6 +636,8 @@ function activate(context) {
         openDocsCmd,
         openDocsCmdOld,
         runGuiPreviewCmd,
+        debugCmd,
+        debugProvider,
         runStatusBarItem,
         vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem),
         vscode.workspace.onDidOpenTextDocument(updateStatusBarItem)

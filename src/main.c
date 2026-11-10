@@ -5,8 +5,9 @@
 #include "gui.h"
 #include "parser.h"
 #include "eval.h"
+#include "debug.h"
 
-#define CICEKLISCRIPT_VERSION "1.0.0"
+#define CICEKLISCRIPT_VERSION "1.1.0"
 
 static char* read_file(const char* path) {
     FILE* file = fopen(path, "rb");
@@ -137,15 +138,27 @@ static void run_repl(Environment* env) {
 }
 
 static void print_help(const char* prog) {
-    printf("Kullanım:\n");
-    printf("  %s                   REPL etkileşimli kabuğunu başlatır\n", prog);
-    printf("  %s <dosya.ccl>       CicekliScript dosyasını çalıştırır\n", prog);
-    printf("  %s -c \"<kod>\"        Tek satır CicekliScript kodunu çalıştırır\n", prog);
-    printf("  %s --version, -v     CicekliScript sürümünü gösterir\n", prog);
-    printf("  %s --help, -h        Bu yardım menüsünü gösterir\n", prog);
+    printf("Usage:\n");
+    printf("  %s                         Start interactive REPL\n", prog);
+    printf("  %s <file.ccl>             Run CicekliScript file\n", prog);
+    printf("  %s -c \"<code>\"            Execute inline CicekliScript code\n", prog);
+    printf("  %s --debug, -d <file.ccl> Start interactive CLI debugger\n", prog);
+    printf("  %s --dap                   Start Debug Adapter Protocol (for VS Code)\n", prog);
+    printf("  %s --version, -v           Show CicekliScript version\n", prog);
+    printf("  %s --help, -h              Show this help menu\n", prog);
 }
 
 int main(int argc, char** argv) {
+    if (argc >= 2 && strcmp(argv[1], "--dap") == 0) {
+        gc_init();
+        ast_init();
+        int ret = debugger_run_dap();
+        ast_free_all();
+        gc_free_all();
+        gui_cleanup();
+        return ret;
+    }
+
     gc_init();
     ast_init();
     Environment* global_env = init_global_environment();
@@ -159,6 +172,30 @@ int main(int argc, char** argv) {
         } else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0) {
             printf("CicekliScript v%s\n", CICEKLISCRIPT_VERSION);
             return 0;
+        } else if (strcmp(argv[1], "--debug") == 0 || strcmp(argv[1], "-d") == 0) {
+            if (argc < 3) {
+                fprintf(stderr, "Error: Missing source file to debug. Usage: %s --debug <file.ccl>\n", argv[0]);
+                return 1;
+            }
+            const char* filename = argv[2];
+            eval_set_args(global_env, argc, argv, 2);
+            char* source = read_file(filename);
+            if (!source) return 1;
+
+            debugger_init(false);
+            debugger_set_source(filename, source);
+            debugger_push_frame("<script>", filename, 1, global_env);
+
+            printf("\n\033[1;35m=== CicekliScript Debugger v%s ===\033[0m\n", CICEKLISCRIPT_VERSION);
+            printf("Type 'help' or 'h' for commands, 's'/'n' to step, 'c' to run.\n");
+
+            int ret = run_source(source, global_env);
+            debugger_cleanup();
+            free(source);
+            ast_free_all();
+            gc_free_all();
+            gui_cleanup();
+            return ret;
         } else if (strcmp(argv[1], "-c") == 0) {
             if (argc < 3) {
                 print_help(argv[0]);

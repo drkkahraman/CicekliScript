@@ -34,6 +34,7 @@ SRCS = $(SRC_DIR)/main.c \
        $(SRC_DIR)/gc.c \
        $(SRC_DIR)/eval.c \
        $(SRC_DIR)/gui.c \
+       $(SRC_DIR)/debug.c \
        $(SRC_DIR)/tensor.c
 
 OBJS = $(SRCS:.c=.o) $(CUDA_OBJS)

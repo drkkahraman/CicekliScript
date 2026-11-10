@@ -2,7 +2,7 @@
   "name": "cicekliscript",
   "displayName": "CicekliScript",
   "description": "CicekliScript dili (.ccl) — Dahili yerleşik C11 derleyicisi, sözdizimi renklendirme, snippet'lar ve tek tıkla çalıştırma.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "publisher": "dorukkdev",
   "repository": {
     "type": "git",
@@ -82,11 +82,59 @@
         "path": "./icons/icon-theme.json"
       }
     ],
+    "breakpoints": [
+      {
+        "language": "cicekliscript"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "cicekliscript",
+        "label": "CicekliScript Debugger",
+        "languages": [
+          "cicekliscript",
+          "metescript"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Path to the .ccl file to debug",
+                "default": "${file}"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Automatically stop after launch at the first statement",
+                "default": true
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "cicekliscript",
+            "name": "Debug CicekliScript File",
+            "request": "launch",
+            "program": "${file}",
+            "stopOnEntry": true
+          }
+        ]
+      }
+    ],
     "commands": [
       {
         "command": "cicekliscript.run",
         "title": "CicekliScript: Dosyayı Çalıştır",
         "icon": "$(play)"
+      },
+      {
+        "command": "cicekliscript.debug",
+        "title": "CicekliScript: Debugger ile Çalıştır (CLI)",
+        "icon": "$(debug-alt)"
       },
       {
         "command": "cicekliscript.runInTerminal",
@@ -127,14 +175,19 @@
           "group": "navigation@1"
         },
         {
-          "command": "cicekliscript.runGuiPreview",
+          "command": "cicekliscript.debug",
           "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
           "group": "navigation@2"
         },
         {
-          "command": "cicekliscript.openRepl",
+          "command": "cicekliscript.runGuiPreview",
           "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
           "group": "navigation@3"
+        },
+        {
+          "command": "cicekliscript.openRepl",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
+          "group": "navigation@4"
         }
       ],
       "editor/context": [

@@ -3,6 +3,7 @@
 #include "gui.h"
 #include "tensor.h"
 #include "parser.h"
+#include "debug.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1504,7 +1505,13 @@ Value eval_expression(Expr* expr, Environment* env, bool* had_error) {
                     for (size_t i = 0; i < argc; i++) {
                         env_define(fn_env, fn->params[i], args[i]);
                     }
+                    if (debugger_is_active()) {
+                        debugger_push_frame(fn->name, NULL, expr->line, fn_env);
+                    }
                     EvalResult res = eval_statement(fn->body, fn_env);
+                    if (debugger_is_active()) {
+                        debugger_pop_frame();
+                    }
                     if (res.type == RES_RETURN) {
                         result = res.value;
                     } else if (res.type == RES_ERROR) {
@@ -1821,6 +1828,10 @@ EvalResult eval_statement(Stmt* stmt, Environment* env) {
     res.value = make_null();
 
     if (!stmt) return res;
+
+    if (debugger_is_active()) {
+        debugger_on_statement(stmt, env);
+    }
 
     switch (stmt->type) {
         case STMT_EXPR: {
