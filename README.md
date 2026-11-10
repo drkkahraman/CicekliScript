@@ -5,14 +5,23 @@
 <h1 align="center">CicekliScript 🚀</h1>
 
 <p align="center">
-  <strong>Python Simplicity + C Performance</strong>
+  <strong>Python Simplicity + C Performance</strong><br>
+  <em>Modern, Dynamic, Hardware-Accelerated Programming Language with Mandatory <code>;</code></em>
 </p>
 
 <p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript"><img src="https://img.shields.io/visual-studio-marketplace/v/dorukkdev.cicekliscript?label=VS%20Code%20Marketplace&logo=visual-studio-code&color=blue" alt="VS Code Marketplace Version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript"><img src="https://img.shields.io/visual-studio-marketplace/i/dorukkdev.cicekliscript?logo=visual-studio-code&color=green" alt="VS Code Installs"></a>
+  <a href="https://drkkahraman.github.io/CicekliScript/"><img src="https://img.shields.io/badge/Docs%20%26%20IDE-Online-indigo" alt="Online Documentation & IDE"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/drkkahraman/CicekliScript" alt="License"></a>
+  <a href="https://github.com/drkkahraman/CicekliScript"><img src="https://img.shields.io/github/stars/drkkahraman/CicekliScript?style=social" alt="GitHub Stars"></a>
+</p>
+
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript"><strong>🛍️ Install from VS Code Marketplace</strong></a> •
   <a href="#-key-features">Features</a> •
   <a href="#-quick-start--installation">Installation</a> •
-  <a href="#-usage">Usage</a> •
-  <a href="#-syntax-guide">Syntax Guide</a> •
+  <a href="#-interactive-cli-debugger---debug--d">Debugger</a> •
   <a href="#-gpu--tensor-engine-cuda">CUDA & GPU</a> •
   <a href="#-vs-code-extension">VS Code Extension</a> •
   <a href="#-interactive-web-docs--online-ide">Web IDE</a>
@@ -418,20 +427,29 @@ win.mainloop();
 
 ---
 
-## 🎨 Official VS Code Extension (Zero-Setup!)
+## 🎨 Official VS Code Extension (Visual Studio Marketplace)
 
-The repository includes a ready-to-use, feature-packed VS Code extension:
+[![Install in VS Code](https://img.shields.io/badge/VS_Code_Marketplace-dorukkdev.cicekliscript-blue?logo=visual-studio-code&style=for-the-badge)](https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript)
 
-- **Bundled Compiler**: The extension carries the compiled CicekliScript binary directly inside! You can install the extension and immediately write and run `.ccl` files with zero external setup.
-- **Syntax Highlighting**: Comprehensive grammar for keywords, built-in modules (`math`, `doc`, `cicekli`, `cuda`), functions, and mandatory `;`.
-- **Custom File Icons**: Sleek branded icons for `.ccl` and `.cicekli` files.
-- **One-Click Run & REPL**: Run button in the editor title bar, `Ctrl + F5` shortcut, and integrated REPL terminal.
-- **Install to System Command**: Right-click anywhere in the editor and choose **"CicekliScript: Install Language to System (~/.local/bin/ccl)"** to install the binary to your system PATH with a single click.
+The official **CicekliScript Extension** is published on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript) with zero-setup cross-platform support:
 
-### Quick Install:
-```bash
-code --install-extension vscode-extension/cicekliscript-1.2.0.vsix
-```
+- **Bundled Compilers**: Carries native 64-bit Linux (`ccl`) and Windows (`ccl.exe`) compilers directly inside the package—no GCC or Make setup required.
+- **Native GUI Support**: Native Win32 GDI windows on Windows and X11/Cairo on Linux, plus a side-by-side **GUI Webview Canvas Preview** button.
+- **Native VS Code Debugger (`F5`)**: Full Debug Adapter Protocol (DAP) integration with gutter breakpoints, local variable inspector, watch expressions, and call stack!
+- **One-Click Run & REPL**: `Ctrl+F5` shortcut, run buttons in editor title bar, and integrated REPL terminal.
+- **Install to System**: Easily install `ccl` to `~/.local/bin/ccl` (Linux/macOS) or `%USERPROFILE%\.cicekliscript\bin\ccl.exe` (Windows) with a single command.
+
+### 📥 Installation Methods:
+1. **Via VS Code Quick Open (`Ctrl+P`):**
+   ```bash
+   ext install dorukkdev.cicekliscript
+   ```
+2. **Via Visual Studio Marketplace Web Page:**
+   Install directly with one click from [marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript](https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript).
+3. **Via VSIX File:**
+   ```bash
+   code --install-extension vscode-extension/cicekliscript-1.2.0.vsix
+   ```
 
 ---
 

@@ -763,7 +763,8 @@
   <h1>CicekliScript <span>Dokümantasyon</span></h1>
   
   <div class="header-badges">
-    <span class="badge"><span class="dot"></span>v1.0.0</span>
+    <span class="badge"><span class="dot"></span>v1.2.0</span>
+    <a class="badge badge-cuda" href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript" target="_blank" rel="noopener" style="text-decoration:none;"><span class="dot"></span>VS Code Marketplace (dorukkdev)</a>
     <span class="badge badge-cuda"><span class="dot"></span>RTX 5090 CUDA Hızlandırılmış</span>
   </div>
 
@@ -803,7 +804,8 @@
   <a href="#giris"><span class="ico">📖</span>Giriş &amp; Felsefe</a>
   <a href="#karsilastirma"><span class="ico">⚖️</span>Hızlı Karşılaştırma</a>
   <a href="#kurulum"><span class="ico">⚙️</span>Kurulum (Tüm İşletim Sistemleri)</a>
-  <a href="#vscode"><span class="ico">💻</span>VS Code Eklentisi</a>
+  <a href="#vscode"><span class="ico">💻</span>VS Code Eklentisi <span class="badge-hot">Marketplace</span></a>
+  <a href="#debugger"><span class="ico">🐞</span>İngilizce Debugger &amp; DAP</a>
   <a href="#kullanim"><span class="ico">🚀</span>Kullanım &amp; REPL</a>
 
   <h3>Temel Dil Yapısı</h3>
@@ -845,8 +847,8 @@
     <p>Python'ın pratikliği ve yüksek seviyeli esnekliği ile C dilinin gücünü, blok yapısını (<code class="inline">{}</code>) ve saf C11 hızını birleştiren; her cümlenin sonuna <code class="inline">;</code> (noktalı virgül) koymanın zorunlu olduğu modern, dinamik ve yerel NVIDIA CUDA tensör hesaplama motoruna sahip yeni nesil bir programlama dili.</p>
     <div class="actions">
       <a class="btn btn-primary" href="#compiler">⚡ Online Compiler (Dene)</a>
-      <a class="btn btn-ghost" href="#karsilastirma">⚖️ Python vs C vs CCL</a>
-      <a class="btn btn-ghost" href="#kurulum">🚀 Kurulum Rehberi</a>
+      <a class="btn btn-ghost" href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript" target="_blank" rel="noopener">🛍️ VS Code Eklentisi (Marketplace)</a>
+      <a class="btn btn-ghost" href="#debugger">🐞 CLI &amp; DAP Debugger</a>
       <a class="btn btn-cuda" href="#gpu">⚡ GPU &amp; Tensör Motoru</a>
       <a class="btn btn-ghost" href="#api">📚 API Referansı</a>
     </div>
@@ -855,8 +857,9 @@
       <span class="tag"><b>Dinamik</b> Tip Sistemi</span>
       <span class="tag">Zorunlu <b>;</b> Disiplini</span>
       <span class="tag tag-cuda"><b>NVIDIA CUDA</b> &amp; Tensör Motoru</span>
-      <span class="tag"><b>Cairo &amp; X11</b> GUI</span>
-      <span class="tag"><b>VS Code</b> Eklentisi</span>
+      <span class="tag"><b>Win32 GDI &amp; X11</b> GUI</span>
+      <span class="tag"><b>İngilizce CLI &amp; DAP</b> Debugger</span>
+      <span class="tag"><b>VS Code</b> Marketplace (dorukkdev)</span>
     </div>
   </div>
 
@@ -1147,14 +1150,15 @@ sudo make install</code></pre>
 
   <!-- 04. VS CODE EKLENTİSİ -->
   <section id="vscode">
-    <h2><span class="num">04</span> VS Code Eklentisi &amp; Dahili Derleyici (.vsix)</h2>
-    <p>CicekliScript dosyalarını (<code class="inline">.ccl</code>) Visual Studio Code içinde sıfır kurulumla geliştirebilirsiniz. Resmi VS Code eklentisi <b>CicekliScript derleyicisini kendi içinde gömülü olarak taşır</b>; böylece bilgisayarınıza GCC, Make veya kütüphane kurmadan sadece eklentiyi yükleyerek dili doğrudan çalıştırabilirsiniz!</p>
+    <h2><span class="num">04</span> VS Code Eklentisi &amp; Visual Studio Marketplace</h2>
+    <p>CicekliScript dosyalarını (<code class="inline">.ccl</code>) Visual Studio Code içinde sıfır kurulumla geliştirebilirsiniz. Resmi eklenti <b>Visual Studio Marketplace</b> üzerinde yayınlanmıştır ve <b>hem Linux hem Windows (x64) derleyicilerini kendi içinde gömülü olarak taşır</b>!</p>
 
     <div class="callout success">
-      <span class="ci">🚀</span>
+      <span class="ci">🛍️</span>
       <div>
-        <b>Dahili Yerleşik Derleyici (Zero-Setup):</b>
-        <p>Eklenti kurulduğunda CicekliScript derleyicisi eklenti paketinden otomatik çalışır. Ayrıca editörde sağ tıklayıp <b>"CicekliScript: Dili Sisteme Kur (~/.local/bin/ccl)"</b> diyerek derleyiciyi tek tıkla sisteminize kurabilir ve dış terminallerde de kullanabilirsiniz.</p>
+        <b>Visual Studio Marketplace'ten Tek Tıkla Kurulum:</b>
+        <p>Eklentiyi doğrudan VS Code Eklentiler sekmesinden (<code>Ctrl+Shift+X</code>) <b>dorukkdev.cicekliscript</b> arayarak veya aşağıdaki bağlantıdan anında kurabilirsiniz:</p>
+        <p style="margin-top:6px;">👉 <a href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript" target="_blank" rel="noopener" style="font-weight:700;color:var(--accent);">marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript</a></p>
       </div>
     </div>
 
@@ -1163,18 +1167,65 @@ sudo make install</code></pre>
         <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div>
         <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
       </div>
-      <pre><code># VS Code komut satırından eklentiyi tek komutla kurun:
-code --install-extension vscode-extension/cicekliscript-1.1.0.vsix</code></pre>
+      <pre><code># VS Code Quick Open (Ctrl+P) üzerinden tek komutla kurun:
+ext install dorukkdev.cicekliscript
+
+# Veya komut satırından yerel VSIX ile:
+code --install-extension vscode-extension/cicekliscript-1.2.0.vsix</code></pre>
     </div>
 
-    <h4>Görsel Arayüzden Kurulum ve Kullanım:</h4>
-    <ol>
-      <li>VS Code sol kenar çubuğundaki <b>Eklentiler (Extensions — Ctrl+Shift+X)</b> sekmesini açın.</li>
-      <li>Sağ üstteki <b>`...` (üç nokta)</b> simgesine tıklayıp <b>"Install from VSIX..."</b> seçeneğini seçin.</li>
-      <li>Proje içerisindeki <code class="inline">vscode-extension/cicekliscript-1.1.0.vsix</code> dosyasını belirleyin.</li>
-      <li>Herhangi bir <code class="inline">.ccl</code> dosyası açıp sağ üstteki <b>"▶" (Çalıştır)</b> butonuna basın; kodunuz yerleşik derleyici ile hemen çalışır!</li>
-      <li>İsterseniz sağ tıklayıp <b>"CicekliScript: Dili Sisteme Kur (~/.local/bin/ccl)"</b> komutunu çalıştırarak dili tüm sisteminizde aktif hale getirin.</li>
-    </ol>
+    <h4>Eklentinin Öne Çıkan Özellikleri:</h4>
+    <ul>
+      <li><b>Yerleşik Çapraz Platform Derleyici:</b> Linux (x64) ve Windows (x64 .exe) ikilikleri eklentinin içindedir; GCC kurmadan kodlar doğrudan çalışır.</li>
+      <li><b>Yerel GUI Desteği:</b> Windows üzerinde yerel <b>Win32 GDI</b> pencereleri, Linux üzerinde <b>X11/Cairo</b> pencereleri açılır.</li>
+      <li><b>GUI Webview Önizleme:</b> Editörün sağ üstündeki <code>$(preview)</code> butonuna basarak GUI çizimlerini VS Code içinde canlı Webview Canvas sekmesinde izleyebilirsiniz.</li>
+      <li><b>VS Code Yerel Hata Ayıklama (F5 &amp; DAP):</b> Debug Adapter Protocol (DAP) sayesinde kod satırlarının yanına kırmızı breakpoint koyup <code>F5</code> ile adım adım hata ayıklayabilir, değişkenleri sol panelden inceleyebilirsiniz.</li>
+      <li><b>Sisteme Kur Komutu:</b> Editörde sağ tıklayıp <b>"CicekliScript: Dili Sisteme Kur"</b> diyerek <code>ccl</code> komutunu sisteminizin PATH değişkenine tek tıkla ekleyebilirsiniz.</li>
+    </ul>
+  </section>
+
+  <!-- 04.1 INGIILIZCE DEBUGGER -->
+  <section id="debugger">
+    <h2><span class="num">04.1</span> İnteraktif CLI Debugger &amp; DAP Desteği</h2>
+    <p>CicekliScript, doğrudan terminal üzerinden çalışan GDB/PDB tarzı interaktif bir hata ayıklayıcı (Step Debugger) ve VS Code ile konuşan <b>Debug Adapter Protocol (DAP)</b> motoru içerir. Tüm hata ayıklayıcı komutları ve çıktıları standart İngilizce olarak tasarlanmıştır.</p>
+
+    <div class="codeblock" data-lang="bash">
+      <div class="bar">
+        <div class="left"><span class="dots"><i></i><i></i><i></i></span><span class="lang-badge">bash</span></div>
+        <div class="code-actions"><button class="copy-btn">Kopyala</button></div>
+      </div>
+      <pre><code># İnteraktif CLI Debugger'ı başlatın:
+ccl --debug dosya.ccl
+# veya
+cicekliscript -d dosya.ccl</code></pre>
+    </div>
+
+    <h4>İngilizce Debugger Komut Referansı:</h4>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;">
+        <thead>
+          <tr style="background:var(--bg-hover);text-align:left;border-bottom:1px solid var(--border);">
+            <th style="padding:10px;">Komut</th>
+            <th style="padding:10px;">Kısaltma</th>
+            <th style="padding:10px;">Açıklama</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>step</code></td><td style="padding:8px;"><code>s</code></td><td style="padding:8px;">Sonraki satıra veya çağrılan fonksiyonun içine adım atar (Step Into).</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>next</code></td><td style="padding:8px;"><code>n</code></td><td style="padding:8px;">Fonksiyon çağrılarını tek adımda geçer (Step Over).</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>finish</code></td><td style="padding:8px;"><code>out</code></td><td style="padding:8px;">Mevcut fonksiyon tamamlanana kadar çalıştırıp dışarı çıkar (Step Out).</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>continue</code></td><td style="padding:8px;"><code>c</code></td><td style="padding:8px;">Sonraki breakpoint'e veya program sonuna kadar devam eder.</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>break &lt;satır&gt;</code></td><td style="padding:8px;"><code>b 15</code></td><td style="padding:8px;">Belirtilen satıra breakpoint (kesme noktası) koyar (örn: <code>b test.ccl:15</code>).</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>delete &lt;id&gt;</code></td><td style="padding:8px;"><code>del 1</code></td><td style="padding:8px;">Breakpoint'i siler. Parametresiz <code>del</code> tümünü siler.</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>breakpoints</code></td><td style="padding:8px;"><code>info b</code></td><td style="padding:8px;">Aktif tüm kesme noktalarını ve tetiklenme sayılarını listeler.</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>print &lt;ifade&gt;</code></td><td style="padding:8px;"><code>p x * 2</code></td><td style="padding:8px;">Mevcut kapsamdaki değişkeni veya herhangi bir CicekliScript ifadesini anında hesaplar.</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>locals</code></td><td style="padding:8px;"><code>locals</code></td><td style="padding:8px;">Mevcut fonksiyon ve kapsamdaki yerel değişkenleri tipleri ve değerleriyle gösterir.</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>backtrace</code></td><td style="padding:8px;"><code>bt</code>, <code>stack</code></td><td style="padding:8px;">Çağrı yığınını (hangi fonksiyon nereden çağrıldı) görüntüler.</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>list [sayı]</code></td><td style="padding:8px;"><code>l</code></td><td style="padding:8px;">Mevcut satırın çevresindeki kaynak kodları satır numaralarıyla gösterir.</td></tr>
+          <tr style="border-bottom:1px solid var(--border-soft);"><td style="padding:8px;"><code>quit</code></td><td style="padding:8px;"><code>q</code>, <code>exit</code></td><td style="padding:8px;">Debugger oturumunu derhal sonlandırır.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <!-- 05. KULLANIM & REPL -->
