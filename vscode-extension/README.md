@@ -4,51 +4,51 @@
   <img src="icons/ccl.png" width="128" height="128" alt="CicekliScript Logo" />
 </p>
 
-**CicekliScript** programlama dili için resmi Visual Studio Code eklentisi.
+Official Visual Studio Code extension for the **CicekliScript** programming language.
 
-Python'ın esnekliği, C dilinin saf C11 hızı ve zorunlu `;` disiplinini bir araya getiren CicekliScript için tam donanımlı geliştirme ortamı!
-
----
-
-## 🌟 Önemli Yenilik: Dahili Yerleşik Derleyici (Zero-Setup!)
-
-**Artık bilgisayarınıza harici olarak GCC, Make veya CicekliScript kurmanıza gerek yok!**
-
-Eklenti, **CicekliScript derleyicisini kendi içinde hazır ve derlenmiş olarak taşır.** Eklentiyi VS Code'a yüklediğiniz anda:
-1. `.ccl` dosyanızı açıp sağ üstteki **"▶"** (Çalıştır) butonuna bastığınızda kodunuz eklenti içindeki yerleşik derleyici ile **anında çalışır**.
-2. İsterseniz sağ tıklayıp **"CicekliScript: Dili Sisteme Kur (~/.local/bin/ccl)"** seçeneğini kullanarak eklenti içindeki derleyiciyi tek tıkla doğrudan işletim sisteminize kurabilir ve harici terminallerden de `ccl dosya.ccl` olarak kullanabilirsiniz!
+A complete development environment for CicekliScript, bringing together Python's ease of use, pure C11 performance, mandatory `;` discipline, and native NVIDIA CUDA tensor acceleration!
 
 ---
 
-## ✨ Özellikler
+## 🌟 Key Feature: Built-in Bundled Compiler (Zero-Setup!)
 
-- 📦 **Dahili C11 Derleyicisi:** Kurulum gerektirmeden doğrudan eklenti içinden çalıştırma.
-- 🎨 **Gelişmiş Sözdizimi Renklendirme:** 
-  - `cicekli.println`, `cicekli.print`, `cicekli.input`, `cicekli.deffunction`, `cicekli.window`, `cicekli.cuda`, `cicekli.tensor` tam desteği
-  - Kontrol akışı: `if`, `elif`, `else`, `while`, `for in`, `return`, `break`, `continue`, `def`
-  - Yerleşik matematik (`math.*`), dosya (`doc.*`) fonksiyonları
-  - Zorunlu noktalı virgül `;` vurgulaması
-- 🏷️ **Özel Dosya Logosu:** `.ccl`, `.cicekli` ve `.ms` uzantılı dosyalarınız dosya gezgininde özel modern logoyla gösterilir.
-- ▶️ **Tek Tıkla Çalıştırma:**
-  - Editör başlığındaki **"▶"** (Play) butonu
-  - `Ctrl + F5` kısayolu
-  - Sağ tık menüsü: **"CicekliScript: Dosyayı Çalıştır"**
-  - Seçili kodu çalıştırma (`cicekliscript.runSelection`)
-- 💻 **Entegre REPL:**
-  - Editör başlığındaki terminal simgesi ile tek tıkla etkileşimli kabuğu başlatma.
-- ⚡ **Zengin Kod Snippet'ları:**
+**No need to manually install GCC, Make, or compile CicekliScript on your machine!**
+
+This extension **bundles the compiled CicekliScript binary directly inside the package.** As soon as you install the extension in VS Code:
+1. Open any `.ccl` file and click the **"▶" (Run)** button in the top right—your code **runs immediately** using the extension's built-in compiler.
+2. Want to use `ccl` in external terminals too? Simply right-click anywhere in the editor and choose **"CicekliScript: Install Language to System (~/.local/bin/ccl)"** to install the binary to your system PATH with a single click!
+
+---
+
+## ✨ Features
+
+- 📦 **Bundled C11 Compiler:** Zero-configuration execution directly out of the extension box.
+- 🎨 **Advanced Syntax Highlighting:**
+  - Full support for `cicekli.println`, `cicekli.print`, `cicekli.input`, `cicekli.deffunction`, `cicekli.window`, `cicekli.cuda`, `cicekli.tensor`
+  - Control flow: `if`, `elif`, `else`, `while`, `for in`, `return`, `break`, `continue`, `def`
+  - Built-in `math.*` and `doc.*` / `file.*` modules
+  - Mandatory semicolon `;` visual feedback
+- 🏷️ **Custom File Icons:** Branded, sleek file icons for `.ccl`, `.cicekli`, and `.ms` files in the explorer.
+- ▶️ **One-Click Run:**
+  - **"▶"** (Play) button in the editor title bar
+  - `Ctrl + F5` (or `Cmd + F5` on macOS) keyboard shortcut
+  - Right-click context menu: **"CicekliScript: Run File"**
+  - Run selected code snippet directly (`cicekliscript.runSelection`)
+- 💻 **Integrated Interactive REPL:**
+  - Launch the CicekliScript REPL shell in the integrated terminal with one click.
+- ⚡ **Rich Code Snippets:**
   - `println` → `cicekli.println("Hello World");`
-  - `input` → `a = cicekli.input("Metin: ");`
-  - `deffunction` → `cicekli.deffunction fonk() { ... };`
-  - `window` → Eksiksiz GUI pencere şablonu
-  - `tensor` → CUDA tensör ve matris çarpımı şablonu
-- 📑 **Otomatik Girinti & Parantez Eşleme:** `{}` blokları ve string otomatik tamamlama.
+  - `input` → `a = cicekli.input("Prompt: ");`
+  - `deffunction` → `cicekli.deffunction fn() { ... };`
+  - `window` → Complete Cairo/X11 GUI window template
+  - `tensor` → CUDA tensor & matrix multiplication template
+- 📑 **Auto Indentation & Bracket Matching:** Auto-closing `{}` blocks, quotes, and smart formatting.
 
 ---
 
-## 🚀 Kurulum & Kullanım
+## 🚀 Installation & Usage
 
-1. VS Code'da **Extensions (Ctrl + Shift + X)** sekmesini açın.
-2. Sağ üstteki `...` (üç nokta) simgesine tıklayıp **"Install from VSIX..."** seçin.
-3. `cicekliscript-1.1.0.vsix` dosyasını seçin.
-4. Herhangi bir `.ccl` dosyası açıp sağ üstteki **"▶"** butonuna basın!
+1. In VS Code, open the **Extensions** panel (`Ctrl + Shift + X`).
+2. Click the `...` (three dots) menu in the top right and select **"Install from VSIX..."**.
+3. Select `cicekliscript-1.1.0.vsix`.
+4. Open any `.ccl` file and hit the **"▶"** button in the top right to run!

@@ -5,296 +5,432 @@
 <h1 align="center">CicekliScript 🚀</h1>
 
 <p align="center">
-  <strong>Python Kolaylığı + C Performansı + Zorunlu Noktalı Virgül (<code>;</code>)</strong>
+  <strong>Python Simplicity + C Performance + Mandatory Semicolon (<code>;</code>)</strong>
 </p>
 
-**CicekliScript**, Python'ın pratikliği ve yüksek seviyeli sözdizimi ile C dilinin gücünü, blok yapısını (`{}`) ve hızını birleştiren; her cümlenin sonuna **`;` (noktalı virgül)** koymanın zorunlu olduğu modern, dinamik ve C tabanlı bir programlama dilidir!
+<p align="center">
+  <a href="#-key-features">Features</a> •
+  <a href="#-quick-start--installation">Installation</a> •
+  <a href="#-usage">Usage</a> •
+  <a href="#-syntax-guide">Syntax Guide</a> •
+  <a href="#-gpu--tensor-engine-cuda">CUDA & GPU</a> •
+  <a href="#-vs-code-extension">VS Code Extension</a> •
+  <a href="#-interactive-web-docs--online-ide">Web IDE</a>
+</p>
 
 ---
 
-## 📚 Dokümantasyon Sayfaları
-
-- 🪟 **[Windows Kurulum Rehberi](docs/WINDOWS_KURULUM.md)**: Windows (WSL 2 / MSYS2) adım adım kurulum kılavuzu.
-- 📖 **[Dil ve Sözdizimi Kılavuzu](docs/DIL_REHBERI.md)**: Dil kuralları, veri yapıları ve kullanım detayları.
-- 📚 **[API & Standart Kütüphane Referansı](docs/API_REFERANSI.md)**: Tüm yerleşik fonksiyonlar, modüller (`math`, `file`, `cicekli`) ve nesne metotları.
-- 🌐 **[İnteraktif Web Dokümantasyonu](docs/index.html)**: Tarayıcı üzerinden zengin arayüzlü kılavuz.
+**CicekliScript** is a modern, dynamic, and hardware-accelerated programming language that combines Python's high-level syntax and developer friendliness with the raw performance, block structure (`{}`), and speed of C—where terminating every statement with a **`;` (semicolon)** is mandatory!
 
 ---
 
-## 🌟 Temel Özellikler
+## 📚 Documentation & Guides
 
-1. **C Tabanlı**: Yorumlayıcı tamamen sıfırdan saf C (C11) ile yazılmıştır, son derece hafif ve yüksek performanslıdır.
-2. **Python Kolaylığı**: Dinamik tipler, listeler `[1, 2, 3]`, sözlükler `{"anahtar": "deger"}`, dilimleme ve negatif indeksleme (`[-1]`).
-3. **Zorunlu Noktalı Virgül (`;`)**: Tıpkı C'de olduğu gibi tüm ifadelerin ve blokların sonuna `;` konulması zorunludur!
-4. **Zengin Çekirdek Kütüphane (`cicekli.*`)**:
-   - `cicekli.input("Mesaj");` ile kullanıcıdan girdi alma
-   - `cicekli.println(...)` ve `cicekli.print(...)` ile ekrana formatlı yazdırma
-   - `cicekli.deffunction` veya `def` ile fonksiyon ve anonim closure tanımlama
-5. **Dahili Matematik ve Dosya Modülleri**:
-   - `math.*` (`sqrt`, `pow`, `sin`, `cos`, `random`, `round`, vb.)
-   - `file.*` (`read`, `write`, `append`, `exists`, `delete`)
-6. **Donanım Hızlandırmalı GUI Motoru**:
-   - `cicekli.window(width, height, title)` ile Cairo ve X11 tabanlı çift arabellekli (double buffering) 2D grafik pencereleri ve fare/klavye olayları.
-7. **Esnek Döngü Desteği**:
-   - Python tarzı: `for (eleman in liste) { ... };`
-   - C tarzı: `for (i = 0; i < 10; i = i + 1) { ... };`
-   - While döngüsü: `while (kosul) { ... };`
-   - `break;` ve `continue;` kontrolleri
-8. **Çift Yorum Desteği**: `# Yorum`, `// Tek satır yorum` ve `/* Çok satırlı blok */`.
-9. **Etkileşimli Kabuk (REPL)**: Canlı denemeler için zengin terminal ortamı.
-10. **Resmi VS Code Eklentisi**: `.ccl` dosyaları için sözdizimi renklendirmesi, ikonlar ve tek tıkla çalıştırma.
-11. **CUDA & GPU Tensör Hesaplama Motoru**: NVIDIA GPU (CUDA) ve CPU tensör desteği. PyTorch tarzı `cicekli.tensor()`, `w1.matmul(w2)`, `.relu()`, `.to("cuda")` ve süper hızlı matris işlemleri.
+- 🌐 **[Interactive Web Documentation & Online Playground](http://localhost:6000)**: Full interactive web IDE, live runner, and searchable docs.
+- 🪟 **[Windows Installation Guide (docs/WINDOWS_KURULUM.md)](docs/WINDOWS_KURULUM.md)**: Step-by-step setup for Windows (WSL 2 / WSLg / MSYS2).
+- 📖 **[Language & Syntax Guide (docs/DIL_REHBERI.md)](docs/DIL_REHBERI.md)**: Detailed syntax rules, data structures, and examples.
+- 📚 **[API & Standard Library Reference (docs/API_REFERANSI.md)](docs/API_REFERANSI.md)**: Complete reference of all built-in modules (`math`, `doc`, `cicekli`, `cuda`) and methods.
 
 ---
 
-## 🛠️ Kurulum ve Derleme
+## 🌟 Key Features
+
+1. **Pure C11 Core**: Interpreter written from scratch in pure C11 without heavy dependencies—lightweight, rock-solid, and fast.
+2. **Pythonic Expressiveness**: Dynamic typing, native lists `[1, 2, 3]`, key-value maps `{"key": "value"}`, slicing, and negative indexing (`[-1]`).
+3. **Mandatory Semicolon (`;`)**: Clean and unambiguous syntax discipline just like in C and Java.
+4. **Rich Standard Library (`cicekli.*` / `ccl.*`)**:
+   - `cicekli.input("Prompt")`: Read lines from console
+   - `cicekli.println(...)` & `cicekli.print(...)`: Formatted printing
+   - `def` and `cicekli.deffunction`: Named functions, first-class values, and closures
+5. **Built-in Math & Document/File Modules**:
+   - `math.*`: `sqrt`, `pow`, `abs`, `round`, `floor`, `ceil`, `sin`, `cos`, `tan`, `log`, `min`, `max`, `random`
+   - `doc.*` & `file.*`: `doc.write`, `doc.add` (append), `doc.read`, `doc.exists`, `doc.delete` with multiple arguments and `\n` newline support
+6. **Hardware-Accelerated 2D GUI Engine**:
+   - `cicekli.window(width, height, title)` powered by Cairo and X11 with double buffering; live HTML5 Canvas preview on the web.
+7. **Flexible Loops**:
+   - Python-style: `for (item in list) { ... };`
+   - C-style: `for (i = 0; i < 10; i = i + 1) { ... };`
+   - While loop: `while (condition) { ... };`
+   - `break;` and `continue;` control flow
+8. **Multi-Style Comments**: `# Script comment`, `// C++ style single-line`, and `/* C block comment */`.
+9. **Interactive Shell (REPL)**: Live evaluation, multi-line blocks, and rich terminal feedback.
+10. **Official VS Code Extension (Zero-Setup!)**: Includes the compiled CicekliScript binary directly inside the extension for immediate zero-config coding and one-click system installation.
+11. **CUDA & GPU Tensor Acceleration Engine**: Native NVIDIA CUDA acceleration for tensors. PyTorch-like `cicekli.tensor()`, `A.matmul(B)`, `.relu()`, `.sigmoid()`, `.to("cuda")` delivering sub-millisecond execution on GPUs like RTX 5090.
+
+---
+
+## 🛠️ Quick Start & Installation
 
 ### 🐧 Linux (Ubuntu / Debian / Arch / Fedora)
 
-Gerekli derleyici ve grafik kütüphanelerini kurun:
+Install the required compiler and Cairo/X11 development libraries:
 
 ```bash
-# Ubuntu / Debian:
-sudo apt update && sudo apt install -y build-essential libcairo2-dev libx11-dev git
+# Ubuntu / Debian / Mint:
+sudo apt update && sudo apt install -y build-essential libcairo2-dev libx11-dev git python3
 
 # Arch Linux:
-sudo pacman -S base-devel cairo libx11 git
+sudo pacman -S base-devel cairo libx11 git python
 
 # Fedora:
-sudo dnf install gcc make cairo-devel libX11-devel git
+sudo dnf install gcc make cairo-devel libX11-devel git python3
 ```
 
-Projeyi klonlayıp derleyin:
+Clone the repository and build:
 
 ```bash
 git clone https://github.com/drkkahraman/CicekliScript.git
 cd CicekliScript
 make
-make install
+sudo make install
+```
+
+Verify installation:
+```bash
+ccl --version
+# Output: CicekliScript v1.0.0
 ```
 
 ---
 
-### 🪟 Windows (WSL 2 — Önerilen)
+### 🪟 Windows (WSL 2 — Recommended)
 
-Windows 10/11 kullanıcıları, Windows Terminal veya PowerShell'i **Yönetici olarak** açıp:
+On Windows 10/11, open Windows Terminal or PowerShell as **Administrator**:
 
 ```powershell
 wsl --install
 ```
 
-Ardından Ubuntu konsolunu açıp Linux adımlarını uygulayabilir. Windows 10/11'deki **WSLg** desteği sayesinde `cicekli.window()` ile açılan grafik pencereleri doğrudan Windows masaüstünüzde çalışır!
+After rebooting, open the Ubuntu terminal and follow the Linux instructions above. Thanks to **WSLg**, windows opened with `cicekli.window()` render directly on your native Windows desktop!
 
-> Detaylı Windows rehberi için: **[docs/WINDOWS_KURULUM.md](docs/WINDOWS_KURULUM.md)**
+> For full Windows details, see **[docs/WINDOWS_KURULUM.md](docs/WINDOWS_KURULUM.md)**.
 
 ---
 
-## 💻 Kullanım Şekilleri
+### 🍎 macOS (Homebrew)
 
-> 💡 **İpucu**: Artık uzun uzun `cicekliscript` yazmak zorunda değilsiniz! Hem **`ccl`** hem de **`cicekliscript`** komutunu her yerde kullanabilirsiniz.
+```bash
+brew install cairo pkg-config git
+git clone https://github.com/drkkahraman/CicekliScript.git
+cd CicekliScript
+make
+sudo make install
+```
 
-### 1. Etkileşimli REPL Kabuğu
+---
+
+## 💻 Usage
+
+> 💡 **Tip**: You can use either the concise **`ccl`** command or the full **`cicekliscript`** command everywhere!
+
+### 1. Interactive REPL Shell
 ```bash
 ccl
-# veya
-cicekliscript
 ```
-```
+```text
 ╔═══════════════════════════════════════════════════╗
 ║          CicekliScript v1.0.0 REPL                ║
-║  Python kolaylığı + C gücü + Zorunlu ';'         ║
-║  Çıkmak için: exit() veya cicekli.exit();        ║
+║  Python simplicity + C power + Mandatory ';'      ║
+║  To exit: exit(); or cicekli.exit();              ║
 ╚═══════════════════════════════════════════════════╝
 
-cicekli>>> ccl.println("Merhaba Dünya!");
-Merhaba Dünya!
-cicekli>>> a = 10; b = 20;
-cicekli>>> ccl.println("Toplam:", a + b);
-Toplam: 30
-cicekli>>> exit();
+ccl>>> cicekli.println("Hello World!");
+Hello World!
+ccl>>> a = 15; b = 25;
+ccl>>> cicekli.println("Sum:", a + b);
+Sum: 40
+ccl>>> exit();
 ```
 
-### 2. Dosyadan Betik Çalıştırma
+### 2. Running a Script File
 ```bash
 ccl script.ccl
-# veya
+# or
 cicekliscript script.ccl
 ```
 
-### 3. Tek Satır Komut Çalıştırma (`-c`)
+### 3. One-Liner Execution (`-c`)
 ```bash
-ccl -c 'ccl.println("Karekök 144 =", math.sqrt(144));'
+ccl -c 'cicekli.println("Square root of 144 is", math.sqrt(144));'
 ```
 
 ---
 
-## 📖 Sözdizimi Rehberi
+## 📖 Syntax Guide
 
-### 1. Giriş ve Çıkış (I/O)
+### 1. Variables & Types
+CicekliScript uses dynamic typing. Variable assignments must terminate with a semicolon (`;`):
 ```javascript
-// Ekrana yazdırma
-cicekli.println("Hello World");
+name = "Traveler";
+version = 1.0;
+isActive = true;
+nothing = null;
 
-// Kullanıcıdan girdi alma (input)
-a = cicekli.input("Cümle giriniz: ");
-cicekli.println("Girdiğiniz cümle:", a);
+cicekli.println("Name:", name, "| Version:", version, "| Active:", isActive);
 ```
 
-### 2. Fonksiyon Tanımlama (`def` / `cicekli.deffunction`)
-
-#### İsimli Fonksiyon:
+### 2. Input and Output (I/O)
 ```javascript
-def topla(a, b) {
+// Printing with / without newline
+cicekli.print("Loading... ");
+cicekli.println("Done!");
+
+// User input
+user = cicekli.input("Enter your name: ");
+cicekli.println("Welcome,", user + "!");
+```
+
+### 3. Functions (`def` / `cicekli.deffunction`)
+
+#### Named Function:
+```javascript
+def add(a, b) {
     return a + b;
 };
 
-sonuc = topla(15, 25);
-cicekli.println("Sonuç:", sonuc);
+result = add(15, 25);
+cicekli.println("15 + 25 =", result);
 ```
 
-#### Değişkene Atanan Anonim Fonksiyon & Closure:
+#### Anonymous Function / Closure:
 ```javascript
-kare = cicekli.deffunction(x) {
+square = cicekli.deffunction(x) {
     return x * x;
 };
 
-cicekli.println("5'in karesi:", kare(5));
+cicekli.println("Square of 6 =", square(6));
 ```
 
-### 3. Koşul İfadeleri (`if`, `elif`, `else`)
+#### Recursive Function:
 ```javascript
-puan = 85;
+def fib(n) {
+    if (n <= 1) {
+        return n;
+    }
+    return fib(n - 1) + fib(n - 2);
+};
 
-if (puan >= 90) {
-    cicekli.println("Harf notu: AA");
-} elif (puan >= 70) {
-    cicekli.println("Harf notu: BB");
+cicekli.println("fib(10) =", fib(10));
+```
+
+### 4. Conditional Statements (`if`, `elif`, `else`)
+```javascript
+score = 88;
+
+if (score >= 90) {
+    cicekli.println("Grade: A (Excellent)");
+} elif (score >= 80) {
+    cicekli.println("Grade: B (Good)");
+} elif (score >= 70) {
+    cicekli.println("Grade: C (Pass)");
 } else {
-    cicekli.println("Harf notu: CC");
+    cicekli.println("Retake required!");
 };
 ```
 
-### 4. Döngüler
+### 5. Loops
 
-#### Python Tarzı `for..in`:
+#### Python-Style `for..in`:
 ```javascript
-meyveler = ["Elma", "Armut", "Muz"];
-for (m in meyveler) {
-    cicekli.println("Meyve:", m);
+fruits = ["Apple", "Banana", "Cherry"];
+for (f in fruits) {
+    cicekli.println("Fruit:", f);
 };
 
-// range() ile kullanım:
-for (i in cicekli.range(5)) {
-    cicekli.println("İndeks:", i);
-};
-```
-
-#### C Tarzı `for (init; cond; step)`:
-```javascript
-for (i = 0; i < 5; i = i + 1) {
-    cicekli.println("Adım:", i);
+// Using range():
+for (i in range(5)) {
+    cicekli.println("Index:", i);
 };
 ```
 
-#### `while` Döngüsü:
+#### C-Style `for (init; cond; step)`:
 ```javascript
-sayac = 0;
-while (sayac < 5) {
-    sayac += 1;
-    if (sayac == 2) {
-        continue;
-    };
-    cicekli.println("Sayaç:", sayac);
+total = 0;
+for (i = 1; i <= 10; i = i + 1) {
+    total = total + i;
 };
+cicekli.println("Sum 1..10 =", total);
 ```
 
-### 5. Veri Tipleri ve Metotlar
-
-- **Listeler**: `[1, 2, "üç"]`
-  - Metotlar: `.append()`, `.pop()`, `.len()`, `.sort()`, `.reverse()`, `.join()`, `.contains()`, `.slice()`
-  - Negatif indeks: `liste[-1]`
-- **Sözlükler (Maps)**: `{"ad": "Çiçek", "yas": 25}`
-  - Metotlar: `.keys()`, `.values()`, `.has_key()`, `.len()`
-  - Erişim: `kullanici.ad` veya `kullanici["ad"]`
-- **Metinler (Strings)**:
-  - Metotlar: `.len()`, `.split()`, `.trim()`, `.replace()`, `.contains()`, `.to_upper()`, `.to_lower()`, `.starts_with()`, `.ends_with()`, `.slice()`
-
-### 6. Belge ve Dosya Modülü (`doc.*`)
+#### `while` Loop:
 ```javascript
-ad = "Doruk";
-yas = 25;
-
-// Dosyaya yazma (değişkenler ve \n ile alt satıra geçme):
-doc.write("bilgi.txt", "Kullanıcı: ", ad, "\nYaş: ", yas, "\n");
-
-// Dosyaya ekleme yapma (append):
-doc.add("bilgi.txt", "Durum: Aktif\n");
-
-// Dosya okuma ve silme:
-icerik = doc.read("bilgi.txt");
-ccl.println("İçerik:\n" + icerik);
-
-doc.delete("bilgi.txt");
+countdown = 3;
+while (countdown > 0) {
+    cicekli.println("T-minus:", countdown);
+    countdown = countdown - 1;
+};
+cicekli.println("Liftoff! 🚀");
 ```
 
-### 7. Grafiksel Arayüz (GUI) Motoru
+### 6. Lists, Dictionaries & Strings
+
+- **Lists (Arrays)**:
+  ```javascript
+  nums = [10, 20, 30, 40];
+  nums.append(50);
+  last = nums.pop();
+  cicekli.println("Length:", nums.len(), "| Last element:", nums[-1]);
+
+  nums.sort();
+  nums.reverse();
+  cicekli.println("Joined:", nums.join(" -> "));
+  ```
+
+- **Dictionaries (Maps)**:
+  ```javascript
+  dev = {
+      "name": "Doruk",
+      "lang": "CicekliScript",
+      "core": "C11"
+  };
+
+  cicekli.println("Dev:", dev.name, "| Language:", dev["lang"]);
+  cicekli.println("Keys:", dev.keys());
+  ```
+
+- **String Methods**:
+  ```javascript
+  s = "  CicekliScript Core  ";
+  clean = s.trim();
+  cicekli.println("Upper:", clean.to_upper());
+  cicekli.println("Lower:", clean.to_lower());
+  cicekli.println("Split:", clean.split(" "));
+  cicekli.println("Contains 'Core':", clean.contains("Core"));
+  ```
+
+### 7. Document & File I/O (`doc.*`)
+CicekliScript provides a clean file API supporting multiple variables and newline sequences:
 ```javascript
-// 400x300 boyutunda pencere aç:
-window = cicekli.window(400, 300, "Uygulama Penceresi");
+filename = "report.txt";
+author = "Doruk";
+score = 98.5;
 
-// Arka planı boya:
-window.color("#1e1e2e");
+// Write to file (multi-argument & \n formatting):
+doc.write(filename, "=== System Report ===\n", "Author: ", author, "\nScore: ", score, "\n");
 
-// Metin ekle: window.text(metin, renk, boyut, x, y);
-window.text("CicekliScript GUI", "white", 16, 20, 35);
+// Append new entries:
+doc.add(filename, "Status: Success\n", "Year: 2026\n");
 
-// Geometrik şekiller:
-window.rect(10, 50, 40, 20, "blue");
-window.circle(70, 60, 15, "green");
-window.line(10, 100, 200, 100, "yellow", 2);
+// Read and verify:
+content = doc.read(filename);
+cicekli.println("File content:\n" + content);
 
-// Pencereyi açık tutan olay döngüsü:
-window.mainloop();
+// Existence check & deletion:
+if (doc.exists(filename)) {
+    doc.delete(filename);
+    cicekli.println("File cleaned up.");
+};
 ```
 
 ---
 
-## 🎨 VS Code Eklentisi
+## ⚡ GPU & Tensor Engine (CUDA)
 
-CicekliScript için özel olarak geliştirilmiş resmi bir VS Code eklentisi mevcuttur:
+CicekliScript features a native **NVIDIA CUDA hardware-accelerated tensor engine**:
 
-- **Konum**: `vscode-extension/cicekliscript-1.0.0.vsix`
-- **Özellikler**:
-  - `.ccl` ve `.cicekli` dosyaları için zengin sözdizimi renklendirmesi
-  - Özel CicekliScript dosya ikonları
-  - Fonksiyon, döngü, GUI ve temel yapılar için hızlı snippet'lar
-  - Sağ üst köşede tek tıkla **Çalıştır (Run)** butonu
+```javascript
+cicekli.println("=== CicekliScript CUDA Engine ===");
 
-### Kurulum:
-VS Code içerisinden `Ctrl+Shift+X` (Eklentiler) -> Sağ üstteki `...` (Üç nokta) -> **Install from VSIX...** seçeneğini tıklayıp `vscode-extension/cicekliscript-1.0.0.vsix` dosyasını seçmeniz yeterlidir.
+if (cicekli.cuda.is_available()) {
+    cicekli.println("✓ GPU Device:", cicekli.cuda.device_name());
+    mem = cicekli.cuda.memory_info();
+    cicekli.println("✓ Free VRAM :", mem.free_mb, "MB / Total:", mem.total_mb, "MB");
+};
+
+device = cicekli.cuda.is_available() ? "cuda" : "cpu";
+
+// Create 2x2 tensors
+A = cicekli.tensor([
+    [1.0, 2.0],
+    [3.0, 4.0]
+], device);
+
+B = cicekli.tensor([
+    [5.0, 6.0],
+    [7.0, 8.0]
+], device);
+
+// Matrix multiplication (A x B)
+C = A.matmul(B);
+cicekli.println("Matrix Multiplication (A x B):");
+cicekli.println(C);
+
+// Deep Learning Activations and Statistics
+cicekli.println("Sum :", C.sum());
+cicekli.println("Mean:", C.mean());
+```
 
 ---
 
-## 🌐 Web Tabanlı Canlı Playground & Sunucu
+## 📐 2D Graphical User Interface (GUI)
 
-İnteraktif web geliştirme ortamını ve canlı grafik önizleme tuvalini yerelinizde çalıştırmak için:
+CicekliScript has native support for double-buffered 2D windows powered by Cairo and X11:
+
+```javascript
+// Open a 400x300 window:
+win = cicekli.window(400, 300, "CicekliScript GUI Demo");
+
+// Background color:
+win.color("#1e1e2e");
+
+// Draw text: win.text(text, color, size, x, y);
+win.text("CicekliScript GUI", "white", 18, 20, 35);
+
+// Geometric shapes:
+win.rect(20, 60, 160, 90, "#313244");
+win.circle(280, 105, 40, "#f38ba8");
+win.line(20, 200, 380, 200, "#a6e3a1", 3);
+
+// Non-blocking event loop:
+win.mainloop();
+```
+
+---
+
+## 🎨 Official VS Code Extension (Zero-Setup!)
+
+The repository includes a ready-to-use, feature-packed VS Code extension:
+
+- **Bundled Compiler**: The extension carries the compiled CicekliScript binary directly inside! You can install the extension and immediately write and run `.ccl` files with zero external setup.
+- **Syntax Highlighting**: Comprehensive grammar for keywords, built-in modules (`math`, `doc`, `cicekli`, `cuda`), functions, and mandatory `;`.
+- **Custom File Icons**: Sleek branded icons for `.ccl` and `.cicekli` files.
+- **One-Click Run & REPL**: Run button in the editor title bar, `Ctrl + F5` shortcut, and integrated REPL terminal.
+- **Install to System Command**: Right-click anywhere in the editor and choose **"CicekliScript: Install Language to System (~/.local/bin/ccl)"** to install the binary to your system PATH with a single click.
+
+### Quick Install:
+```bash
+code --install-extension vscode-extension/cicekliscript-1.1.0.vsix
+```
+
+---
+
+## 🌐 Interactive Web Docs & Online IDE
+
+Run the built-in documentation server and live playground locally:
 
 ```bash
 python3 server.py
 ```
-Ardından tarayıcınızdan **[http://localhost:8080](http://localhost:8080)** adresine gidebilirsiniz.
+Open **[http://localhost:6000](http://localhost:6000)** in your browser to access the full documentation, searchable API index, and interactive Web IDE with 15 templates and live GUI canvas preview.
 
 ---
 
-## 📂 Örnek Dosyalar
+## 📂 Example Scripts
 
-Tüm örnekler `examples/` klasöründe yer almaktadır:
-- `examples/01_merhaba.ccl` - Girdi/çıktı ve değişkenler
-- `examples/02_fonksiyonlar.ccl` - Fonksiyon varyasyonları ve anonim fonksiyonlar
-- `examples/03_donguler.ccl` - `for in`, `for(;;)` ve `while` döngüleri
-- `examples/04_fibonacci.ccl` - Özyinelemeli (recursive) algoritma ve zaman ölçümü
-- `examples/05_listeler_ve_sozlukler.ccl` - Dinamik listeler ve sözlükler
-- `examples/06_hesap_makinesi.ccl` - Fonksiyonel hesap makinesi
-- `examples/07_gui_pencere.ccl` - GUI temel pencere ve şekil çizimi
-- `examples/08_gui_gelismis.ccl` - İnteraktif GUI animasyon ve çizim örneği
-- `examples/09_gpu_tensor.ccl` - CUDA & GPU Tensör hesaplama ve hız testi örneği
+All examples are located in the `examples/` directory:
+- `examples/01_merhaba.ccl`: I/O, variables, and basic operators
+- `examples/02_fonksiyonlar.ccl`: Named, anonymous, and mathematical functions
+- `examples/03_donguler.ccl`: `for in`, C-style `for`, and `while` loops
+- `examples/04_fibonacci.ccl`: Recursive algorithm and execution time benchmarking
+- `examples/05_listeler_ve_sozlukler.ccl`: Dynamic arrays, negative indexing, and maps
+- `examples/06_hesap_makinesi.ccl`: Functional calculator implementation
+- `examples/07_gui_pencere.ccl`: Basic desktop GUI window with Cairo and X11
+- `examples/08_gui_gelismis.ccl`: Advanced geometric dashboard and UI components
+- `examples/09_gpu_tensor.ccl`: NVIDIA CUDA GPU tensor engine & matrix multiplication benchmark
+- `testcodes/test.ccl`: Interactive conversational chatbot (*CicekliBot*)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
