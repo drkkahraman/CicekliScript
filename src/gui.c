@@ -8,9 +8,11 @@
 #include <strings.h>
 #include <math.h>
 #include <unistd.h>
+#ifndef NO_X11
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <glob.h>
+#endif
 #include <sys/types.h>
 
 #ifndef M_PI
@@ -18,11 +20,15 @@
 #endif
 
 static bool gui_headless_mode(void) {
+#ifdef NO_X11
+    return true;
+#else
     const char* env = getenv("CICEKLI_GUI_HEADLESS");
     if (!env || env[0] == '\0') {
         env = getenv("METE_GUI_HEADLESS");
     }
     return env != NULL && env[0] != '\0';
+#endif
 }
 
 static void json_escape(const char* s, char* out, size_t out_size) {
@@ -168,6 +174,7 @@ static void parse_color_args(size_t argc, Value* args, size_t start_idx, double*
     parse_color_from_value(args[start_idx], r, g, b);
 }
 
+#ifndef NO_X11
 static Display* open_display_fallback(void) {
     Display* d = XOpenDisplay(NULL);
     if (d) return d;
@@ -193,9 +200,11 @@ static Display* open_display_fallback(void) {
     }
     return d;
 }
+#endif
 
 GuiWindow* new_gui_window(int width, int height, const char* title) {
     bool is_headless = gui_headless_mode();
+#ifndef NO_X11
     Display* d = NULL;
 
     if (!is_headless) {
@@ -205,6 +214,7 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
             is_headless = true;
         }
     }
+#endif
 
     if (is_headless) {
         GuiWindow* win = (GuiWindow*)gc_allocate(sizeof(GuiWindow), OBJ_WINDOW);
@@ -235,6 +245,7 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
         return win;
     }
 
+#ifndef NO_X11
     int screen = DefaultScreen(d);
     Window root = RootWindow(d, screen);
 
@@ -310,10 +321,15 @@ GuiWindow* new_gui_window(int width, int height, const char* title) {
     gui_window_update(win);
 
     return win;
+#else
+    return NULL;
+#endif
 }
 
 void gui_cleanup(void) {
+#ifndef NO_X11
     cairo_debug_reset_static_data();
+#endif
 }
 
 static void emit_headless_json(GuiWindow* win) {
@@ -344,6 +360,7 @@ void gui_window_destroy(GuiWindow* win) {
         return;
     }
 
+#ifndef NO_X11
     if (win->cr) {
         cairo_destroy(win->cr);
         win->cr = NULL;
@@ -368,6 +385,7 @@ void gui_window_destroy(GuiWindow* win) {
         XCloseDisplay(win->display);
         win->display = NULL;
     }
+#endif
     win->is_open = false;
     if (win->ops) {
         for (int i = 0; i < win->op_count; i++) free(win->ops[i]);
@@ -381,6 +399,7 @@ void gui_window_destroy(GuiWindow* win) {
 }
 
 void gui_window_poll_events(GuiWindow* win) {
+#ifndef NO_X11
     if (!win || win->headless || !win->display || !win->is_open) return;
 
     while (XPending(win->display) > 0) {
@@ -439,6 +458,9 @@ void gui_window_poll_events(GuiWindow* win) {
             }
         }
     }
+#else
+    (void)win;
+#endif
 }
 
 void gui_window_update(GuiWindow* win) {
@@ -448,6 +470,7 @@ void gui_window_update(GuiWindow* win) {
         return;
     }
 
+#ifndef NO_X11
     if (win->display && win->xwindow && win->pixmap && win->gc) {
         cairo_surface_flush(win->surface);
         XCopyArea(win->display, win->pixmap, win->xwindow, win->gc, 0, 0,
@@ -455,6 +478,7 @@ void gui_window_update(GuiWindow* win) {
         XFlush(win->display);
         gui_window_poll_events(win);
     }
+#endif
 }
 
 void gui_window_color(GuiWindow* win, double r, double g, double b) {
@@ -469,9 +493,11 @@ void gui_window_color(GuiWindow* win, double r, double g, double b) {
 
     if (win->headless || !win->cr) return;
 
+#ifndef NO_X11
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_paint(win->cr);
     gui_window_update(win);
+#endif
 }
 
 void gui_window_text(GuiWindow* win, const char* text, double r, double g, double b, double size, double x, double y) {
@@ -486,12 +512,14 @@ void gui_window_text(GuiWindow* win, const char* text, double r, double g, doubl
 
     if (win->headless || !win->cr) return;
 
+#ifndef NO_X11
     cairo_select_font_face(win->cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(win->cr, size > 0 ? size : 14.0);
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_move_to(win->cr, x, y + size);
     cairo_show_text(win->cr, text);
     gui_window_update(win);
+#endif
 }
 
 void gui_window_rect(GuiWindow* win, double x, double y, double w, double h, double r, double g, double b) {
@@ -503,10 +531,12 @@ void gui_window_rect(GuiWindow* win, double x, double y, double w, double h, dou
 
     if (win->headless || !win->cr) return;
 
+#ifndef NO_X11
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_rectangle(win->cr, x, y, w, h);
     cairo_fill(win->cr);
     gui_window_update(win);
+#endif
 }
 
 void gui_window_circle(GuiWindow* win, double x, double y, double radius, double r, double g, double b) {
@@ -518,10 +548,12 @@ void gui_window_circle(GuiWindow* win, double x, double y, double radius, double
 
     if (win->headless || !win->cr) return;
 
+#ifndef NO_X11
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_arc(win->cr, x, y, radius, 0, 2 * M_PI);
     cairo_fill(win->cr);
     gui_window_update(win);
+#endif
 }
 
 void gui_window_line(GuiWindow* win, double x1, double y1, double x2, double y2, double r, double g, double b, double width) {
@@ -534,12 +566,14 @@ void gui_window_line(GuiWindow* win, double x1, double y1, double x2, double y2,
 
     if (win->headless || !win->cr) return;
 
+#ifndef NO_X11
     cairo_set_source_rgb(win->cr, r, g, b);
     cairo_set_line_width(win->cr, width > 0 ? width : 1.0);
     cairo_move_to(win->cr, x1, y1);
     cairo_line_to(win->cr, x2, y2);
     cairo_stroke(win->cr);
     gui_window_update(win);
+#endif
 }
 
 Value native_mete_window(Value self, size_t argc, Value* args, int line) {

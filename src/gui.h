@@ -2,10 +2,21 @@
 #define CICEKLISCRIPT_GUI_H
 
 #include "value.h"
+#include <stdbool.h>
+
+#ifndef NO_X11
 #include <X11/Xlib.h>
 #include <cairo.h>
 #include <cairo-xlib.h>
-#include <stdbool.h>
+#else
+typedef void* Display;
+typedef unsigned long Window;
+typedef unsigned long Pixmap;
+typedef void* GC;
+typedef unsigned long Atom;
+typedef void* cairo_surface_t;
+typedef void* cairo_t;
+#endif
 
 typedef struct GuiWindow {
     Obj obj;

@@ -10,6 +10,12 @@
 #include <math.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define TokenType WindowsTokenType
+#include <windows.h>
+#undef TokenType
+#endif
 
 static void runtime_error(int line, const char* format, ...) {
     va_list args;
@@ -264,10 +270,20 @@ static Value native_float(Value self, size_t arg_count, Value* args, int line) {
 
 static Value native_time(Value self, size_t arg_count, Value* args, int line) {
     (void)self; (void)arg_count; (void)args; (void)line;
+#ifdef _WIN32
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    ULARGE_INTEGER uli;
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+    double sec = (double)(uli.QuadPart - 116444736000000000ULL) / 10000000.0;
+    return make_number(sec);
+#else
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     double sec = (double)ts.tv_sec + (double)ts.tv_nsec / 1e9;
     return make_number(sec);
+#endif
 }
 
 static Value native_sleep(Value self, size_t arg_count, Value* args, int line) {
@@ -278,10 +294,14 @@ static Value native_sleep(Value self, size_t arg_count, Value* args, int line) {
     }
     double seconds = as_number(args[0]);
     if (seconds > 0) {
+#ifdef _WIN32
+        Sleep((DWORD)(seconds * 1000.0));
+#else
         struct timespec req;
         req.tv_sec = (time_t)seconds;
         req.tv_nsec = (long)((seconds - (double)req.tv_sec) * 1e9);
         nanosleep(&req, NULL);
+#endif
     }
     return make_null();
 }

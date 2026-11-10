@@ -9,7 +9,7 @@ let extensionContext = null;
 /**
  * CicekliScript çalıştırılabilir dosyasını (binary) çözümler:
  * 1. Kullanıcı özel ayarı (cicekliscript.executablePath)
- * 2. Eklenti içindeki yerleşik derleyici (extension/bin/cicekliscript)
+ * 2. Eklenti içindeki yerleşik derleyici (extension/bin/cicekliscript.exe veya extension/bin/cicekliscript)
  * 3. Sistem dizinleri (~/.local/bin, /usr/local/bin, PATH)
  */
 function resolveExecutable() {
@@ -58,9 +58,16 @@ function resolveExecutable() {
         }
     }
 
-    // 3. Sistem dizinlerini ara (~/.local/bin, /usr/local/bin, /usr/bin)
+    // 3. Sistem dizinlerini ara (~/.local/bin, /usr/local/bin, /usr/bin, Program Files, PATH)
     const homeDir = os.homedir();
-    const candidatePaths = [
+    const candidatePaths = isWin ? [
+        path.join(homeDir, '.cicekliscript', 'bin', 'ccl.exe'),
+        path.join(homeDir, '.cicekliscript', 'bin', 'cicekliscript.exe'),
+        'ccl.exe',
+        'cicekliscript.exe',
+        'ccl',
+        'cicekliscript'
+    ] : [
         path.join(homeDir, '.local', 'bin', 'ccl'),
         path.join(homeDir, '.local', 'bin', 'cicekliscript'),
         path.join(homeDir, '.local', 'bin', 'cicekli'),
@@ -75,7 +82,7 @@ function resolveExecutable() {
     ];
 
     for (const p of candidatePaths) {
-        if (p === 'ccl' || p === 'cicekliscript' || p === 'metescript') return p;
+        if (p === 'ccl' || p === 'cicekliscript' || p === 'metescript' || p === 'ccl.exe' || p === 'cicekliscript.exe') return p;
         try {
             if (fs.existsSync(p)) return p;
         } catch (e) {
@@ -83,7 +90,7 @@ function resolveExecutable() {
         }
     }
 
-    return 'cicekliscript';
+    return isWin ? 'cicekliscript.exe' : 'cicekliscript';
 }
 
 function getTerminal() {
@@ -96,7 +103,30 @@ function getTerminal() {
 }
 
 /**
- * Eklenti içindeki derleyiciyi doğrudan sisteme (~/.local/bin) kurar.
+ * Windows (PowerShell / CMD) ve Unix için komut dizesini hazırlar.
+ * Windows PowerShell'de tırnak içine alınmış yolların doğrudan çalışabilmesi için
+ * '& "path\to\exe" "arg"' sözdizimi zorunludur.
+ */
+function formatRunCommand(exe, args = []) {
+    const isWin = process.platform === 'win32';
+    const argsStr = args.map(a => `"${a}"`).join(' ');
+
+    if (isWin) {
+        const shell = (vscode.env.shell || '').toLowerCase();
+        const isCmd = shell.endsWith('cmd.exe');
+        if (isCmd) {
+            return `"${exe}" ${argsStr}`.trim();
+        }
+        // PowerShell veya varsayılan Windows terminali
+        return `& "${exe}" ${argsStr}`.trim();
+    }
+    return `"${exe}" ${argsStr}`.trim();
+}
+
+/**
+ * Eklenti içindeki derleyiciyi doğrudan sisteme kurar:
+ * Linux/macOS: ~/.local/bin/cicekliscript ve ccl
+ * Windows: %USERPROFILE%\.cicekliscript\bin\cicekliscript.exe ve ccl.exe
  */
 async function installToSystem() {
     const extDir = (extensionContext && extensionContext.extensionPath) ? extensionContext.extensionPath : __dirname;
@@ -120,9 +150,11 @@ async function installToSystem() {
         const targetBin = path.join(targetDir, binName);
         fs.copyFileSync(sourceBin, targetBin);
 
-        if (!isWin) {
+        if (isWin) {
+            const targetCcl = path.join(targetDir, 'ccl.exe');
+            fs.copyFileSync(sourceBin, targetCcl);
+        } else {
             fs.chmodSync(targetBin, 0o755);
-            // ccl ve cicekli sembolik linklerini oluştur
             const symlinks = ['ccl', 'cicekli', 'metescript'];
             for (const sym of symlinks) {
                 const symPath = path.join(targetDir, sym);
@@ -140,16 +172,20 @@ async function installToSystem() {
         const pathEnv = process.env.PATH || '';
         const inPath = pathEnv.split(path.delimiter).some(p => path.resolve(p) === path.resolve(targetDir));
 
-        let msg = `✓ CicekliScript eklenti içinden "${targetDir}" dizinine başarıyla kuruldu!`;
-        if (!inPath && !isWin) {
-            msg += `\nNot: Bu dizini PATH değişkeninize eklemek için terminalde şunu çalıştırabilirsiniz: export PATH="$HOME/.local/bin:$PATH"`;
+        let msg = `✓ CicekliScript derleyicisi başarıyla "${targetDir}" dizinine kuruldu!`;
+        if (!inPath) {
+            if (isWin) {
+                msg += `\nNot: 'ccl' komutunu PowerShell/CMD'den her yerde kullanabilmek için bu dizini Windows Ortam Değişkenleri PATH listesine ekleyebilirsiniz.`;
+            } else {
+                msg += `\nNot: Bu dizini PATH değişkeninize eklemek için terminalde şunu çalıştırabilirsiniz: export PATH="$HOME/.local/bin:$PATH"`;
+            }
         }
 
         const choice = await vscode.window.showInformationMessage(msg, 'Terminalde Test Et', 'Tamam');
         if (choice === 'Terminalde Test Et') {
             const term = getTerminal();
             term.show(true);
-            term.sendText(`"${targetBin}" --version`);
+            term.sendText(formatRunCommand(targetBin, ['--version']));
         }
     } catch (err) {
         vscode.window.showErrorMessage(`CicekliScript kurulurken bir hata oluştu: ${err.message}`);
@@ -194,8 +230,8 @@ async function runCicekliScriptFile(uri) {
         term.sendText(process.platform === 'win32' ? 'cls' : 'clear');
     }
 
-    // Dosyayı çalıştır
-    term.sendText(`"${exe}" "${filePath}"`);
+    // Dosyayı çalıştır (PowerShell/CMD/Unix uyumlu format)
+    term.sendText(formatRunCommand(exe, [filePath]));
 }
 
 async function runSelection() {
@@ -211,15 +247,14 @@ async function runSelection() {
     term.show(true);
 
     // Kodu tek satırda -c ile çalıştır
-    const escaped = text.replace(/"/g, '\\"');
-    term.sendText(`"${exe}" -c "${escaped}"`);
+    term.sendText(formatRunCommand(exe, ['-c', text]));
 }
 
 function openRepl() {
     const exe = resolveExecutable();
     const term = getTerminal();
     term.show(true);
-    term.sendText(`"${exe}"`);
+    term.sendText(formatRunCommand(exe, []));
 }
 
 function updateStatusBarItem() {

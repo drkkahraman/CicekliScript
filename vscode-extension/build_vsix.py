@@ -17,6 +17,7 @@ CONTENT_TYPES_XML = """<?xml version="1.0" encoding="utf-8"?>
   <Default Extension=".svg" ContentType="image/svg+xml"/>
   <Default Extension=".txt" ContentType="text/plain"/>
   <Default Extension=".vsixmanifest" ContentType="text/xml"/>
+  <Default Extension=".exe" ContentType="application/vnd.microsoft.portable-executable"/>
   <Default Extension="" ContentType="application/octet-stream"/>
 </Types>
 """
@@ -120,7 +121,7 @@ def build_vsix():
             # 3. Extension files
             for full_path, arcname in all_files:
                 is_exec = False
-                if "bin/cicekliscript" in arcname or "bin/ccl" in arcname:
+                if "bin/cicekliscript" in arcname or "bin/ccl" in arcname or arcname.endswith(".exe"):
                     is_exec = True
 
                 with open(full_path, "rb") as fh:

@@ -17,6 +17,7 @@ static inline float* gpu_cuda_alloc(size_t e) { (void)e; return NULL; }
 static inline void gpu_cuda_free(float* p) { (void)p; }
 static inline void gpu_cuda_memcpy_h2d(float* d, const float* s, size_t e) { (void)d; (void)s; (void)e; }
 static inline void gpu_cuda_memcpy_d2h(float* d, const float* s, size_t e) { (void)d; (void)s; (void)e; }
+static inline void gpu_cuda_fill(float* d, float v, int n) { (void)d; (void)v; (void)n; }
 static inline void gpu_cuda_matmul(const float* A, const float* B, float* C, int M, int K, int N) { (void)A;(void)B;(void)C;(void)M;(void)K;(void)N; }
 static inline void gpu_cuda_add(const float* A, const float* B, float* C, int n) { (void)A;(void)B;(void)C;(void)n; }
 static inline void gpu_cuda_sub(const float* A, const float* B, float* C, int n) { (void)A;(void)B;(void)C;(void)n; }

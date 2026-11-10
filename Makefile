@@ -73,10 +73,20 @@ install: $(TARGET)
 	fi
 	@echo "CicekliScript ~/.local/bin/cicekliscript ve 'ccl' kısayolu başarıyla yüklendi."
 
+ZIG ?= $(HOME)/.local/zig/zig
+
 vsix: $(TARGET)
 	@mkdir -p vscode-extension/bin
 	@cp $(TARGET) vscode-extension/bin/cicekliscript
 	@strip -s vscode-extension/bin/cicekliscript
 	@ln -sf cicekliscript vscode-extension/bin/ccl
+	@if [ -x "$(ZIG)" ]; then \
+		echo "Windows için cicekliscript.exe çapraz derleniyor (cross-compile)..."; \
+		$(ZIG) cc -target x86_64-windows-gnu -O2 -std=c11 -DNO_X11 \
+			src/main.c src/lexer.c src/parser.c src/ast.c src/value.c src/env.c src/gc.c src/eval.c src/tensor.c src/gui.c \
+			-o vscode-extension/bin/cicekliscript.exe; \
+		cp vscode-extension/bin/cicekliscript.exe vscode-extension/bin/ccl.exe; \
+		rm -f vscode-extension/bin/cicekliscript.pdb; \
+	fi
 	@python3 vscode-extension/build_vsix.py
-	@echo "✓ VS Code eklentisi yerleşik derleyici ile başarıyla paketlendi."
+	@echo "✓ VS Code eklentisi (Linux + Windows PE) yerleşik derleyiciler ile başarıyla paketlendi."
