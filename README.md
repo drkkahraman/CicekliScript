@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Python Simplicity + C Performance</strong><br>
-  <em>Modern, Dynamic, Hardware-Accelerated Programming Language with Mandatory <code>;</code></em>
+  <em>Modern, Dynamic, Hardware-Accelerated Programming Language</em>
 </p>
 
 <p align="center">
@@ -29,14 +29,23 @@
 
 ---
 
-**CicekliScript** is a modern, dynamic, and hardware-accelerated programming language that combines Python's high-level syntax and developer friendliness with the raw performance, block structure (`{}`), and speed of C—where terminating every statement with a **`;` (semicolon)** is mandatory!
+**CicekliScript** is a modern, dynamic, and hardware-accelerated programming language that combines Python's high-level syntax, developer friendliness with the raw performance, block structure (`{}`), and speed of C into one language.
+
+---
+
+## 🤝 Contributors & Developers
+
+- [Doruk Kahraman](https://github.com/drkkahraman)
+- [Ali Ege Bozkurt](https://github.com/BrickFPV)
+- [Adnan Zafer Binici](https://github.com/ItsBenAdooo)
+- [Sarp Kale](https://github.com/sarpkale)
 
 ---
 
 ## 📚 Documentation & Guides
 
 - 🌐 **[Official Online Documentation & Web IDE](https://drkkahraman.github.io/CicekliScript/)**: Complete documentation, live interactive IDE, and searchable API index.
-- 🪟 **[Windows Installation Guide (docs/WINDOWS_KURULUM.md)](docs/WINDOWS_KURULUM.md)**: Step-by-step setup for Windows (WSL 2 / WSLg / MSYS2).
+- 🖥️ **[Windows Installation Guide (docs/WINDOWS_KURULUM.md)](docs/WINDOWS_KURULUM.md)**: Step-by-step setup for Windows (WSL 2 / WSLg / MSYS2).
 - 📖 **[Language & Syntax Guide (docs/DIL_REHBERI.md)](docs/DIL_REHBERI.md)**: Detailed syntax rules, data structures, and examples.
 - 📚 **[API & Standard Library Reference (docs/API_REFERANSI.md)](docs/API_REFERANSI.md)**: Complete reference of all built-in modules (`math`, `doc`, `cicekli`, `cuda`) and methods.
 
@@ -64,7 +73,7 @@
 8. **Multi-Style Comments**: `# Script comment`, `// C++ style single-line`, and `/* C block comment */`.
 9. **Interactive Shell (REPL)**: Live evaluation, multi-line blocks, and rich terminal feedback.
 10. **Official VS Code Extension (Zero-Setup!)**: Includes the compiled CicekliScript binary directly inside the extension for immediate zero-config coding and one-click system installation.
-11. **CUDA & GPU Tensor Acceleration Engine**: Native NVIDIA CUDA acceleration for tensors. PyTorch-like `cicekli.tensor()`, `A.matmul(B)`, `.relu()`, `.sigmoid()`, `.to("cuda")` delivering sub-millisecond execution on GPUs like RTX 5090.
+11. **CUDA & GPU Tensor Acceleration Engine**: Native NVIDIA CUDA acceleration for tensors. PyTorch-like `cicekli.tensor()`, `A.matmul(B)`, `.relu()`, `.sigmoid()`, `.to("cuda")` delivering sub-millisecond execution on GPUs.
 
 ---
 
@@ -97,12 +106,12 @@ sudo make install
 Verify installation:
 ```bash
 ccl --version
-# Output: CicekliScript v1.0.0
 ```
+The output should be: "CicekliScript v1.0.0"
 
 ---
 
-### 🪟 Windows (WSL 2 — Recommended)
+### 🖥️ Windows (WSL 2 — Recommended)
 
 On Windows 10/11, open Windows Terminal or PowerShell as **Administrator**:
 
