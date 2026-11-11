@@ -89,5 +89,11 @@ vsix: $(TARGET)
 		cp vscode-extension/bin/cicekliscript.exe vscode-extension/bin/ccl.exe; \
 		rm -f vscode-extension/bin/cicekliscript.pdb; \
 	fi
-	@python3 vscode-extension/build_vsix.py
-	@echo "✓ VS Code eklentisi (Linux + Windows PE) yerleşik derleyiciler ile başarıyla paketlendi."
+	@if command -v vsce >/dev/null 2>&1; then \
+		cd vscode-extension && vsce package --no-git-tag-version; \
+	elif [ -x "$(HOME)/.gemini/antigravity/bin/vsce" ]; then \
+		cd vscode-extension && $(HOME)/.gemini/antigravity/bin/vsce package --no-git-tag-version; \
+	else \
+		python3 vscode-extension/build_vsix.py; \
+	fi
+	@echo "✓ VS Code eklentisi (Linux + Windows PE) resmi vsce ile başarıyla paketlendi."

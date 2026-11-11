@@ -3,3 +3,4 @@
 **/*.vsix
 node_modules/**
 .DS_Store
+build_vsix.py
