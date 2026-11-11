@@ -133,8 +133,13 @@
       },
       {
         "command": "cicekliscript.debug",
-        "title": "CicekliScript: Debugger ile Çalıştır (CLI)",
+        "title": "CicekliScript: Hata Ayıkla (Debug)",
         "icon": "$(debug-alt)"
+      },
+      {
+        "command": "cicekliscript.debugCli",
+        "title": "CicekliScript: Terminal Debugger ile Çalıştır (CLI)",
+        "icon": "$(terminal)"
       },
       {
         "command": "cicekliscript.runInTerminal",
@@ -197,21 +202,36 @@
           "group": "1_run@1"
         },
         {
+          "command": "cicekliscript.debug",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
+          "group": "1_run@2"
+        },
+        {
+          "command": "cicekliscript.debugCli",
+          "when": "editorLangId == cicekliscript || editorLangId == metescript || resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms",
+          "group": "1_run@3"
+        },
+        {
           "command": "cicekliscript.runSelection",
           "when": "editorHasSelection && (editorLangId == cicekliscript || editorLangId == metescript)",
-          "group": "1_run@2"
+          "group": "1_run@4"
         },
         {
           "command": "cicekliscript.installToSystem",
           "when": "editorLangId == cicekliscript || editorLangId == metescript",
-          "group": "1_run@3"
+          "group": "1_run@5"
         }
       ],
       "explorer/context": [
         {
           "command": "cicekliscript.run",
           "when": "resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms || resourceExtname == .metescript",
-          "group": "1_run"
+          "group": "1_run@1"
+        },
+        {
+          "command": "cicekliscript.debug",
+          "when": "resourceExtname == .ccl || resourceExtname == .cicekli || resourceExtname == .ms || resourceExtname == .metescript",
+          "group": "1_run@2"
         }
       ]
     },

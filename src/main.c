@@ -7,7 +7,7 @@
 #include "eval.h"
 #include "debug.h"
 
-#define CICEKLISCRIPT_VERSION "1.1.0"
+#define CICEKLISCRIPT_VERSION "1.2.0"
 
 static char* read_file(const char* path) {
     FILE* file = fopen(path, "rb");

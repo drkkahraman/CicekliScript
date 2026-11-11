@@ -49,5 +49,6 @@ void debugger_clear_breakpoints(void);
 
 // DAP protocol handler
 int debugger_run_dap(void);
+void debugger_dap_output(const char* category, const char* text);
 
 #endif // CICEKLISCRIPT_DEBUG_H

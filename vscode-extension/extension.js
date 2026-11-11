@@ -5,6 +5,7 @@ const os = require('os');
 const { spawn } = require('child_process');
 
 let runStatusBarItem;
+let debugStatusBarItem;
 let extensionContext = null;
 let guiWebviewPanel = null;
 
@@ -234,6 +235,36 @@ async function runCicekliScriptFile(uri) {
 
     // Dosyayı çalıştır (PowerShell/CMD/Unix uyumlu format)
     term.sendText(formatRunCommand(exe, [filePath]));
+}
+
+/**
+ * Doğrudan VS Code Grafiksel Hata Ayıklayıcısını Başlatır (Native DAP Session)
+ */
+async function startNativeDebugging(uri) {
+    let filePath;
+
+    if (uri && uri.fsPath) {
+        filePath = uri.fsPath;
+    } else {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showWarningMessage('CicekliScript: Hata ayıklanacak aktif bir dosya bulunamadı!');
+            return;
+        }
+        if (editor.document.isDirty) {
+            await editor.document.save();
+        }
+        filePath = editor.document.uri.fsPath;
+    }
+
+    const folder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
+    return vscode.debug.startDebugging(folder, {
+        type: 'cicekliscript',
+        name: 'Debug CicekliScript File',
+        request: 'launch',
+        program: filePath,
+        stopOnEntry: false
+    });
 }
 
 async function debugCicekliScriptFile(uri) {
@@ -561,8 +592,10 @@ function updateStatusBarItem() {
     const editor = vscode.window.activeTextEditor;
     if (editor && (editor.document.languageId === 'cicekliscript' || editor.document.languageId === 'metescript' || editor.document.fileName.endsWith('.ccl') || editor.document.fileName.endsWith('.cicekli') || editor.document.fileName.endsWith('.ms'))) {
         runStatusBarItem.show();
+        debugStatusBarItem.show();
     } else {
         runStatusBarItem.hide();
+        debugStatusBarItem.hide();
     }
 }
 
@@ -611,6 +644,10 @@ function activate(context) {
     });
 
     const debugCmd = vscode.commands.registerCommand('cicekliscript.debug', (uri) => {
+        return startNativeDebugging(uri);
+    });
+
+    const debugCliCmd = vscode.commands.registerCommand('cicekliscript.debugCli', (uri) => {
         return debugCicekliScriptFile(uri);
     });
 
@@ -618,11 +655,16 @@ function activate(context) {
     const debugFactory = new CicekliDebugAdapterDescriptorFactory();
     const debugProvider = vscode.debug.registerDebugAdapterDescriptorFactory('cicekliscript', debugFactory);
 
-    // 3. Status Bar Butonu (▶ CicekliScript Çalıştır)
+    // 3. Status Bar Butonları (▶ CicekliScript Çalıştır & 🐞 Debug)
     runStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     runStatusBarItem.command = 'cicekliscript.run';
     runStatusBarItem.text = '$(play) CicekliScript';
     runStatusBarItem.tooltip = 'Aktif CicekliScript dosyasını çalıştır (Ctrl+F5)';
+
+    debugStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
+    debugStatusBarItem.command = 'cicekliscript.debug';
+    debugStatusBarItem.text = '$(debug-alt) Debug';
+    debugStatusBarItem.tooltip = 'CicekliScript: Dosyayı Doğrudan Hata Ayıkla (F5)';
 
     context.subscriptions.push(
         runCmd,
@@ -637,8 +679,10 @@ function activate(context) {
         openDocsCmdOld,
         runGuiPreviewCmd,
         debugCmd,
+        debugCliCmd,
         debugProvider,
         runStatusBarItem,
+        debugStatusBarItem,
         vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem),
         vscode.workspace.onDidOpenTextDocument(updateStatusBarItem)
     );
@@ -649,6 +693,9 @@ function activate(context) {
 function deactivate() {
     if (runStatusBarItem) {
         runStatusBarItem.dispose();
+    }
+    if (debugStatusBarItem) {
+        debugStatusBarItem.dispose();
     }
 }
 

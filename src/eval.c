@@ -19,17 +19,41 @@
 #endif
 
 static void runtime_error(int line, const char* format, ...) {
+    char err_buf[1024];
     va_list args;
     va_start(args, format);
-    fprintf(stderr, "CicekliScript Çalışma Zamanı Hatası (Satır %d): ", line);
-    vfprintf(stderr, format, args);
-    fprintf(stderr, "\n");
+    vsnprintf(err_buf, sizeof(err_buf), format, args);
     va_end(args);
+
+    if (debugger_is_dap()) {
+        char full[1200];
+        snprintf(full, sizeof(full), "CicekliScript Çalışma Zamanı Hatası (Satır %d): %s\n", line, err_buf);
+        debugger_dap_output("stderr", full);
+        return;
+    }
+    fprintf(stderr, "CicekliScript Çalışma Zamanı Hatası (Satır %d): %s\n", line, err_buf);
 }
 
 // Built-in functions
 static Value native_println(Value self, size_t arg_count, Value* args, int line) {
     (void)self; (void)line;
+    if (debugger_is_dap()) {
+        char buf[2048] = "";
+        size_t bi = 0;
+        for (size_t i = 0; i < arg_count && bi + 256 < sizeof(buf); i++) {
+            char* s = value_to_string(args[i]);
+            if (s) {
+                bi += snprintf(buf + bi, sizeof(buf) - bi, "%s%s", s, (i + 1 < arg_count) ? " " : "");
+                free(s);
+            }
+        }
+        if (bi + 2 < sizeof(buf)) {
+            buf[bi++] = '\n';
+            buf[bi] = '\0';
+        }
+        debugger_dap_output("stdout", buf);
+        return make_null();
+    }
     for (size_t i = 0; i < arg_count; i++) {
         print_value(args[i]);
         if (i + 1 < arg_count) {
@@ -43,6 +67,19 @@ static Value native_println(Value self, size_t arg_count, Value* args, int line)
 
 static Value native_print(Value self, size_t arg_count, Value* args, int line) {
     (void)self; (void)line;
+    if (debugger_is_dap()) {
+        char buf[2048] = "";
+        size_t bi = 0;
+        for (size_t i = 0; i < arg_count && bi + 256 < sizeof(buf); i++) {
+            char* s = value_to_string(args[i]);
+            if (s) {
+                bi += snprintf(buf + bi, sizeof(buf) - bi, "%s%s", s, (i + 1 < arg_count) ? " " : "");
+                free(s);
+            }
+        }
+        debugger_dap_output("stdout", buf);
+        return make_null();
+    }
     for (size_t i = 0; i < arg_count; i++) {
         print_value(args[i]);
         if (i + 1 < arg_count) {
@@ -1129,8 +1166,8 @@ Environment* init_global_environment(void) {
     Environment* env = new_environment(NULL);
 
     ObjMap* cicekli = new_map();
-    map_set(cicekli, "versiyon", make_obj((Obj*)copy_string("1.0.0")));
-    map_set(cicekli, "version", make_obj((Obj*)copy_string("1.0.0")));
+    map_set(cicekli, "versiyon", make_obj((Obj*)copy_string("1.2.0")));
+    map_set(cicekli, "version", make_obj((Obj*)copy_string("1.2.0")));
     map_set(cicekli, "dil", make_obj((Obj*)copy_string("CicekliScript")));
     map_set(cicekli, "lang", make_obj((Obj*)copy_string("CicekliScript")));
 

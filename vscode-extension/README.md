@@ -50,5 +50,5 @@ This extension **bundles the compiled CicekliScript binary directly inside the p
 
 1. In VS Code, open the **Extensions** panel (`Ctrl + Shift + X`).
 2. Click the `...` (three dots) menu in the top right and select **"Install from VSIX..."**.
-3. Select `cicekliscript-1.1.0.vsix`.
+3. Select `cicekliscript-1.2.0.vsix`.
 4. Open any `.ccl` file and hit the **"▶"** button in the top right to run!

@@ -84,7 +84,7 @@ vsix: $(TARGET)
 	@if [ -x "$(ZIG)" ]; then \
 		echo "Windows için cicekliscript.exe çapraz derleniyor (cross-compile)..."; \
 		$(ZIG) cc -target x86_64-windows-gnu -O2 -std=c11 -DNO_X11 \
-			src/main.c src/lexer.c src/parser.c src/ast.c src/value.c src/env.c src/gc.c src/eval.c src/tensor.c src/gui.c \
+			src/main.c src/lexer.c src/parser.c src/ast.c src/value.c src/env.c src/gc.c src/eval.c src/debug.c src/tensor.c src/gui.c -lgdi32 \
 			-o vscode-extension/bin/cicekliscript.exe; \
 		cp vscode-extension/bin/cicekliscript.exe vscode-extension/bin/ccl.exe; \
 		rm -f vscode-extension/bin/cicekliscript.pdb; \

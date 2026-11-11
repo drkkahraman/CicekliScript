@@ -5,6 +5,7 @@ import zipfile
 import shutil
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUT_VSIX_120 = os.path.join(BASE_DIR, "cicekliscript-1.2.0.vsix")
 OUT_VSIX_110 = os.path.join(BASE_DIR, "cicekliscript-1.1.0.vsix")
 OUT_VSIX_100 = os.path.join(BASE_DIR, "cicekliscript-1.0.0.vsix")
 
@@ -25,7 +26,7 @@ CONTENT_TYPES_XML = """<?xml version="1.0" encoding="utf-8"?>
 VSIX_MANIFEST = """<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Language="en-US" Id="cicekliscript" Version="1.1.0" Publisher="cicekliscript" />
+    <Identity Language="en-US" Id="cicekliscript" Version="1.2.0" Publisher="dorukkdev" />
     <DisplayName>CicekliScript</DisplayName>
     <Description xml:space="preserve">CicekliScript dili (.ccl) — Dahili yerleşik C11 derleyicisi, sözdizimi renklendirme, snippet'lar ve tek tıkla çalıştırma.</Description>
     <Tags>cicekliscript,ccl,cicekli,metescript,ms,compiler,cuda,programming language,python-like,c-based,theme,icon-theme,snippet,keybindings,CicekliScript,MeteScript,__ext_ccl,__ext_cicekli,__ext_ms,__ext_metescript</Tags>
@@ -111,7 +112,7 @@ def build_vsix():
 
     print(f"Paketleniyor: {len(all_files)} dosya...")
 
-    for target_path in [OUT_VSIX_110, OUT_VSIX_100]:
+    for target_path in [OUT_VSIX_120, OUT_VSIX_110, OUT_VSIX_100]:
         with zipfile.ZipFile(target_path, "w", zipfile.ZIP_DEFLATED) as z:
             # 1. [Content_Types].xml
             z.writestr("[Content_Types].xml", CONTENT_TYPES_XML.strip())

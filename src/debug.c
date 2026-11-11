@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #define MAX_FRAMES 256
 
@@ -185,14 +189,20 @@ static Breakpoint* find_breakpoint(const char* file, int line) {
         if (b->line == line) {
             if (!b->file || !file) return b;
             const char* b_base = strrchr(b->file, '/');
-            if (!b_base) b_base = strrchr(b->file, '\\');
+            const char* b_bs = strrchr(b->file, '\\');
+            if (b_bs && (!b_base || b_bs > b_base)) b_base = b_bs;
             b_base = b_base ? b_base + 1 : b->file;
 
             const char* f_base = strrchr(file, '/');
-            if (!f_base) f_base = strrchr(file, '\\');
+            const char* f_bs = strrchr(file, '\\');
+            if (f_bs && (!f_base || f_bs > f_base)) f_base = f_bs;
             f_base = f_base ? f_base + 1 : file;
 
+#if defined(_WIN32)
+            if (strcasecmp(b_base, f_base) == 0) return b;
+#else
             if (strcmp(b_base, f_base) == 0) return b;
+#endif
         }
     }
     return NULL;
@@ -308,6 +318,41 @@ static void dap_send_raw(const char* json) {
     fflush(stdout);
 }
 
+static void dap_json_escape_path(const char* src, char* dst, size_t dst_size) {
+    if (!src || !dst || dst_size == 0) return;
+    size_t di = 0;
+    for (size_t si = 0; src[si] && di + 2 < dst_size; si++) {
+        if (src[si] == '\\') {
+            dst[di++] = '\\';
+            dst[di++] = '\\';
+        } else {
+            dst[di++] = src[si];
+        }
+    }
+    dst[di] = '\0';
+}
+
+void debugger_dap_output(const char* category, const char* text) {
+    if (!dbg.active || !dbg.is_dap || !text) return;
+    char esc[4096];
+    size_t ei = 0;
+    for (size_t i = 0; text[i] && ei + 4 < sizeof(esc); i++) {
+        if (text[i] == '"') { esc[ei++] = '\\'; esc[ei++] = '"'; }
+        else if (text[i] == '\\') { esc[ei++] = '\\'; esc[ei++] = '\\'; }
+        else if (text[i] == '\n') { esc[ei++] = '\\'; esc[ei++] = 'n'; }
+        else if (text[i] == '\r') { esc[ei++] = '\\'; esc[ei++] = 'r'; }
+        else if (text[i] == '\t') { esc[ei++] = '\\'; esc[ei++] = 't'; }
+        else { esc[ei++] = text[i]; }
+    }
+    esc[ei] = '\0';
+
+    char buf[8192];
+    snprintf(buf, sizeof(buf),
+             "{\"seq\":%d,\"type\":\"event\",\"event\":\"output\",\"body\":{\"category\":\"%s\",\"output\":\"%s\"}}",
+             dbg.dap_seq++, category ? category : "stdout", esc);
+    dap_send_raw(buf);
+}
+
 static void dap_send_response(int request_seq, const char* command, bool success, const char* body_json) {
     char buf[8192];
     if (body_json && strlen(body_json) > 0) {
@@ -349,8 +394,13 @@ static char* dap_read_message(void) {
     char* content = (char*)malloc(content_length + 1);
     if (!content) return NULL;
 
-    size_t read_bytes = fread(content, 1, content_length, stdin);
-    content[read_bytes] = '\0';
+    size_t total_read = 0;
+    while (total_read < content_length) {
+        size_t n = fread(content + total_read, 1, content_length - total_read, stdin);
+        if (n == 0) break;
+        total_read += n;
+    }
+    content[total_read] = '\0';
     return content;
 }
 
@@ -384,10 +434,20 @@ static bool dap_handle_command(const char* json, Environment* env, int current_l
             int l = (i == dbg.stack_depth - 1) ? top_line : dbg.stack[i].line;
             const char* fn = dbg.stack[i].function_name ? dbg.stack[i].function_name : "<script>";
             const char* path = dbg.stack[i].file ? dbg.stack[i].file : dbg.current_file;
+            char safe_path[1024] = "";
+            char safe_name[256] = "";
+            dap_json_escape_path(path, safe_path, sizeof(safe_path));
+
+            const char* b_base = strrchr(path, '/');
+            const char* b_bs = strrchr(path, '\\');
+            if (b_bs && (!b_base || b_bs > b_base)) b_base = b_bs;
+            b_base = b_base ? b_base + 1 : path;
+            dap_json_escape_path(b_base, safe_name, sizeof(safe_name));
+
             fi += (size_t)snprintf(frames_json + fi, sizeof(frames_json) - fi,
                                    "%s{\"id\":%d,\"name\":\"%s\",\"source\":{\"name\":\"%s\",\"path\":\"%s\"},\"line\":%d,\"column\":1}",
                                    (i == dbg.stack_depth - 1) ? "" : ",",
-                                   i + 1, fn, path, path, l);
+                                   i + 1, fn, safe_name, safe_path, l);
         }
         fi += (size_t)snprintf(frames_json + fi, sizeof(frames_json) - fi, "],\"totalFrames\":%d}", dbg.stack_depth);
         dap_send_response(seq, cmd, true, frames_json);
@@ -487,6 +547,10 @@ static bool dap_handle_command(const char* json, Environment* env, int current_l
 }
 
 int debugger_run_dap(void) {
+#ifdef _WIN32
+    _setmode(_fileno(stdin), _O_BINARY);
+    _setmode(_fileno(stdout), _O_BINARY);
+#endif
     debugger_init(true);
     char program_path[1024] = "";
     bool stop_on_entry = true;
