@@ -2,7 +2,7 @@
   <img src="vscode-extension/icons/logo.png" width="128" height="128" alt="CicekliScript ccl logo">
 </p>
 
-<h1 align="center">CicekliScript 🚀</h1>
+<h1 align="center">CicekliScript</h1>
 
 <p align="center">
   <strong>Python Simplicity + C Performance</strong><br>
