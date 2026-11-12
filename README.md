@@ -44,10 +44,10 @@
 
 ##  Documentation & Guides
 
-- 🌐 **[Official Online Documentation & Web IDE](https://drkkahraman.github.io/CicekliScript/)**: Complete documentation, live interactive IDE, and searchable API index.
-- 🖥️ **[Windows Installation Guide (docs/WINDOWS_KURULUM.md)](docs/WINDOWS_KURULUM.md)**: Step-by-step setup for Windows (WSL 2 / WSLg / MSYS2).
-- 📖 **[Language & Syntax Guide (docs/DIL_REHBERI.md)](docs/DIL_REHBERI.md)**: Detailed syntax rules, data structures, and examples.
-- 📚 **[API & Standard Library Reference (docs/API_REFERANSI.md)](docs/API_REFERANSI.md)**: Complete reference of all built-in modules (`math`, `doc`, `cicekli`, `cuda`) and methods.
+-  **[Official Online Documentation & Web IDE](https://drkkahraman.github.io/CicekliScript/)**: Complete documentation, live interactive IDE, and searchable API index.
+-  **[Windows Installation Guide (docs/WINDOWS_KURULUM.md)](docs/WINDOWS_KURULUM.md)**: Step-by-step setup for Windows (WSL 2 / WSLg / MSYS2).
+-  **[Language & Syntax Guide (docs/DIL_REHBERI.md)](docs/DIL_REHBERI.md)**: Detailed syntax rules, data structures, and examples.
+-  **[API & Standard Library Reference (docs/API_REFERANSI.md)](docs/API_REFERANSI.md)**: Complete reference of all built-in modules (`math`, `doc`, `cicekli`, `cuda`) and methods.
 
 ---
 
@@ -77,9 +77,9 @@
 
 ---
 
-## 🛠️ Quick Start & Installation
+## Quick Start & Installation
 
-### 🐧 Linux (Ubuntu / Debian / Arch / Fedora)
+### Linux (Ubuntu / Debian / Arch / Fedora)
 
 Install the required compiler and Cairo/X11 development libraries:
 
@@ -111,7 +111,7 @@ The output should be: "CicekliScript v1.0.0"
 
 ---
 
-### 🖥️ Windows (WSL 2 — Recommended)
+### Windows (WSL 2 — Recommended)
 
 On Windows 10/11, open Windows Terminal or PowerShell as **Administrator**:
 
@@ -125,7 +125,7 @@ After rebooting, open the Ubuntu terminal and follow the Linux instructions abov
 
 ---
 
-### 🍎 macOS (Homebrew)
+### macOS (Homebrew)
 
 ```bash
 brew install cairo pkg-config git
@@ -137,9 +137,9 @@ sudo make install
 
 ---
 
-## 💻 Usage
+## Usage
 
-> 💡 **Tip**: You can use either the concise **`ccl`** command or the full **`cicekliscript`** command everywhere!
+>  **Tip**: You can use either the concise **`ccl`** command or the full **`cicekliscript`** command everywhere!
 
 ### 1. Interactive REPL Shell
 ```bash
@@ -205,7 +205,7 @@ With the CicekliScript extension installed:
 
 ---
 
-## 📖 Syntax Guide
+## Syntax Guide
 
 ### 1. Variables & Types
 CicekliScript uses dynamic typing. Variable assignments must terminate with a semicolon (`;`):
@@ -436,7 +436,7 @@ win.mainloop();
 
 ---
 
-## 🎨 Official VS Code Extension (Visual Studio Marketplace)
+## Official VS Code Extension (Visual Studio Marketplace)
 
 [![Install in VS Code](https://img.shields.io/badge/VS_Code_Marketplace-dorukkdev.cicekliscript-blue?logo=visual-studio-code&style=for-the-badge)](https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript)
 
@@ -448,7 +448,7 @@ The official **CicekliScript Extension** is published on the [Visual Studio Mark
 - **One-Click Run & REPL**: `Ctrl+F5` shortcut, run buttons in editor title bar, and integrated REPL terminal.
 - **Install to System**: Easily install `ccl` to `~/.local/bin/ccl` (Linux/macOS) or `%USERPROFILE%\.cicekliscript\bin\ccl.exe` (Windows) with a single command.
 
-### 📥 Installation Methods:
+### Installation Methods:
 1. **Via VS Code Quick Open (`Ctrl+P`):**
    ```bash
    ext install dorukkdev.cicekliscript
@@ -462,11 +462,11 @@ The official **CicekliScript Extension** is published on the [Visual Studio Mark
 
 ---
 
-## 🌐 Interactive Web Docs & Online IDE
+## Interactive Web Docs & Online IDE
 
 Run the built-in documentation server and live playground locally:
 
-## 🌐 Web Documentation & Local Playground
+## Web Documentation & Local Playground
 
 The official documentation is available globally at **[https://drkkahraman.github.io/CicekliScript/](https://drkkahraman.github.io/CicekliScript/)**.
 
@@ -479,7 +479,7 @@ Then visit **[http://localhost:6000](http://localhost:6000)** in your browser.
 
 ---
 
-## 📂 Example Scripts
+## Example Scripts
 
 All examples are located in the `examples/` directory:
 - `examples/01_merhaba.ccl`: I/O, variables, and basic operators
@@ -495,6 +495,6 @@ All examples are located in the `examples/` directory:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License. See the  [LICENSE](LICENSE) for details.
