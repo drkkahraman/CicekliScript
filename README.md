@@ -33,7 +33,7 @@
 
 ---
 
-## 🤝 Contributors & Developers
+## Contributors & Developers
 
 - [Doruk Kahraman](https://github.com/drkkahraman)
 - [Ali Ege Bozkurt](https://github.com/BrickFPV)
@@ -42,7 +42,7 @@
 
 ---
 
-## 📚 Documentation & Guides
+##  Documentation & Guides
 
 - 🌐 **[Official Online Documentation & Web IDE](https://drkkahraman.github.io/CicekliScript/)**: Complete documentation, live interactive IDE, and searchable API index.
 - 🖥️ **[Windows Installation Guide (docs/WINDOWS_KURULUM.md)](docs/WINDOWS_KURULUM.md)**: Step-by-step setup for Windows (WSL 2 / WSLg / MSYS2).
@@ -51,7 +51,7 @@
 
 ---
 
-## 🌟 Key Features
+## Main Features
 
 1. **Pure C11 Core**: Interpreter written from scratch in pure C11 without heavy dependencies—lightweight, rock-solid, and fast.
 2. **Pythonic Expressiveness**: Dynamic typing, native lists `[1, 2, 3]`, key-value maps `{"key": "value"}`, slicing, and negative indexing (`[-1]`).
