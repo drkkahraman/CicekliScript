@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript"><strong>🛍️ Install from VS Code Marketplace</strong></a> •
+  <a href="https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript"><strong> Install from VS Code Marketplace</strong></a> •
   <a href="#-key-features">Features</a> •
   <a href="#-quick-start--installation">Installation</a> •
   <a href="#-interactive-cli-debugger---debug--d">Debugger</a> •
