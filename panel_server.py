@@ -3,6 +3,8 @@ import os
 import json
 import re
 import subprocess
+import hashlib
+import secrets
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 
@@ -10,20 +12,37 @@ BASE_DIR = os.environ.get("CCL_PANEL_DIR", "/home/doruk/ccl-panel")
 LIBS_DIR = os.path.join(BASE_DIR, "libs")
 INC_DIR = os.path.join(BASE_DIR, "include")
 META_FILE = os.path.join(LIBS_DIR, "meta.json")
+USERS_FILE = os.path.join(BASE_DIR, "users.json")
 ADMIN_PASS = os.environ.get("CCL_ADMIN_PASS", "")
 os.makedirs(LIBS_DIR, exist_ok=True)
 
+TOKENS = {}  # token -> username
 
-def load_meta():
-    if os.path.exists(META_FILE):
-        with open(META_FILE, "r", encoding="utf-8") as f:
+
+def load_json(path, default):
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {}
+    return default
 
 
-def save_meta(meta):
-    with open(META_FILE, "w", encoding="utf-8") as f:
-        json.dump(meta, f, ensure_ascii=False, indent=2)
+def save_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def hash_pw(pw, salt=None):
+    if not salt:
+        salt = secrets.token_hex(8)
+    h = hashlib.sha256((salt + pw).encode("utf-8")).hexdigest()
+    return f"{salt}${h}"
+
+
+def verify_pw(pw, stored):
+    if "$" not in stored:
+        return False
+    salt, _ = stored.split("$", 1)
+    return hash_pw(pw, salt) == stored
 
 
 HTML_PAGE = """<!DOCTYPE html>
@@ -44,8 +63,8 @@ HTML_PAGE = """<!DOCTYPE html>
   .nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand h1 { margin: 0; font-size: 24px; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .nav-links { display: flex; gap: 10px; align-items: center; }
-  .btn-link { color: var(--text); text-decoration: none; font-size: 13px; border: 1px solid var(--border); background: var(--surface); padding: 8px 14px; border-radius: 8px; transition: 0.15s; }
+  .nav-links { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .btn-link { color: var(--text); text-decoration: none; font-size: 13px; border: 1px solid var(--border); background: var(--surface); padding: 8px 14px; border-radius: 8px; cursor: pointer; transition: 0.15s; }
   .btn-link:hover { border-color: var(--accent); color: var(--accent); }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
   .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
@@ -71,17 +90,16 @@ HTML_PAGE = """<!DOCTYPE html>
   .tabs { display: flex; gap: 6px; }
   .tab { background: #0b1120; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
   .tab.active { background: var(--accent); color: #090d16; border-color: var(--accent); }
-  .lib-item { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: #0b1120; transition: border-color 0.15s; }
-  .lib-item:hover { border-color: #3b4c6b; }
+  .lib-item { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: #0b1120; }
   .lib-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .lib-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .author-tag { font-size: 12px; color: var(--accent2); margin-left: 6px; }
   .badge { font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
   .badge.ccl { background: rgba(56,189,248,0.15); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
   .badge.so { background: rgba(34,197,94,0.15); color: var(--ok); border: 1px solid rgba(34,197,94,0.3); }
   .lib-desc { color: var(--muted); font-size: 13px; margin: 8px 0 10px; }
   .lib-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
   .cmd-box { background: #161f30; border: 1px solid var(--border); padding: 5px 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #cbd5e1; cursor: pointer; }
-  .cmd-box:hover { border-color: var(--accent); }
   .btn-sm { background: transparent; color: var(--accent); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
   .btn-sm:hover { border-color: var(--accent); }
   .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
@@ -100,6 +118,9 @@ HTML_PAGE = """<!DOCTYPE html>
       </div>
     </div>
     <div class="nav-links">
+      <span id="userBadge" style="font-size:13px;color:var(--accent2);display:none;"></span>
+      <button id="authBtn" class="btn-link" onclick="openAuthModal()">👤 Giriş / Kayıt</button>
+      <button id="logoutBtn" class="btn-link" style="display:none;" onclick="logout()">Çıkış</button>
       <a class="btn-link" href="/admin">🔐 Admin Onay Paneli</a>
     </div>
   </div>
@@ -113,7 +134,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
   <div class="grid">
     <div class="card">
-      <h2>📦 Yeni Kütüphane Gönder</h2>
+      <h2 id="formTitle">📦 Yeni Kütüphane Gönder</h2>
+      <div id="loginWarn" style="color:var(--warn);font-size:13px;margin-bottom:10px;display:none;">Kütüphane göndermek veya güncellemek için giriş yapmalısınız.</div>
       <label>Kütüphane Adı (harf, rakam, _)</label>
       <input id="name" placeholder="ör: mathx" />
       <label>Açıklama</label>
@@ -128,7 +150,7 @@ HTML_PAGE = """<!DOCTYPE html>
       <label>Kaynak Kod</label>
       <textarea id="code"></textarea>
       <div id="cHelp" class="c-help">
-        <strong>C Eklenti Rehberi:</strong> <code>#include "ccl_plugin.h"</code> ekleyin ve <code>void ccl_init(CCLRegisterFn reg)</code> içinde <code>reg("ad", fn, arity);</code> çağırın. Yardımcılar: <code>ccl_as_num</code>, <code>ccl_as_str</code>, <code>ccl_num</code>, <code>ccl_str</code>, <code>ccl_nil</code>.
+        <strong>C Eklenti Rehberi:</strong> <code>#include "ccl_plugin.h"</code> ekleyin ve <code>void ccl_init(CCLRegisterFn reg)</code> içinde <code>reg("ad", fn, arity);</code> çağırın.
       </div>
       <button class="btn" onclick="submitLib()">Onaya Gönder</button>
       <div id="msg" class="msg"></div>
@@ -137,7 +159,7 @@ HTML_PAGE = """<!DOCTYPE html>
     <div class="card">
       <h2>📚 Onaylı Kütüphaneler</h2>
       <div class="toolbar">
-        <input id="search" placeholder="Ara (ad veya açıklama)..." oninput="renderList()" />
+        <input id="search" placeholder="Ara (ad, yapımcı veya açıklama)..." oninput="renderList()" />
         <div class="tabs">
           <button class="tab active" onclick="setFilter('all', this)">Tümü</button>
           <button class="tab" onclick="setFilter('ccl', this)">CCL</button>
@@ -149,6 +171,7 @@ HTML_PAGE = """<!DOCTYPE html>
   </div>
 </div>
 
+<!-- Code Modal -->
 <div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -160,24 +183,78 @@ HTML_PAGE = """<!DOCTYPE html>
   </div>
 </div>
 
+<!-- Auth Modal -->
+<div id="authBg" class="modal-bg" onclick="if(event.target===this)closeAuthModal()">
+  <div class="modal" style="max-width:420px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;">👤 Hesap</h3>
+      <button class="btn-sm" onclick="closeAuthModal()">Kapat ✕</button>
+    </div>
+    <label>Kullanıcı Adı</label>
+    <input id="authUser" placeholder="ör: doruk" />
+    <label>Şifre</label>
+    <input id="authPass" type="password" placeholder="••••••" />
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="btn" style="margin-top:0;" onclick="doAuth('login')">Giriş Yap</button>
+      <button class="btn" style="margin-top:0;background:var(--surface);color:var(--text);border:1px solid var(--border);" onclick="doAuth('register')">Kayıt Ol</button>
+    </div>
+    <div id="authMsg" class="msg"></div>
+  </div>
+</div>
+
 <script>
-const TPL_CCL = `// ÇiçekliScript Kütüphanesi
-def topla(a, b) {
-    return a + b;
-}`;
-const TPL_C = `#include "ccl_plugin.h"
-
-static CCLVal c_topla(int argc, CCLVal* argv) {
-    if (argc < 2) return ccl_nil();
-    return ccl_num(ccl_as_num(argv[0]) + ccl_as_num(argv[1]));
-}
-
-void ccl_init(CCLRegisterFn reg) {
-    reg("c_topla", c_topla, 2);
-}`;
+const TPL_CCL = `// ÇiçekliScript Kütüphanesi\ndef topla(a, b) {\n    return a + b;\n}`;
+const TPL_C = `#include "ccl_plugin.h"\n\nstatic CCLVal c_topla(int argc, CCLVal* argv) {\n    if (argc < 2) return ccl_nil();\n    return ccl_num(ccl_as_num(argv[0]) + ccl_as_num(argv[1]));\n}\n\nvoid ccl_init(CCLRegisterFn reg) {\n    reg("c_topla", c_topla, 2);\n}`;
 
 let allLibs = [];
 let currentFilter = "all";
+let authToken = localStorage.getItem("ccl_token") || "";
+let authUsername = localStorage.getItem("ccl_user") || "";
+
+function updateAuthUI() {
+  if (authToken && authUsername) {
+    document.getElementById("userBadge").textContent = "👤 @" + authUsername;
+    document.getElementById("userBadge").style.display = "inline";
+    document.getElementById("authBtn").style.display = "none";
+    document.getElementById("logoutBtn").style.display = "inline-block";
+    document.getElementById("loginWarn").style.display = "none";
+  } else {
+    document.getElementById("userBadge").style.display = "none";
+    document.getElementById("authBtn").style.display = "inline-block";
+    document.getElementById("logoutBtn").style.display = "none";
+    document.getElementById("loginWarn").style.display = "block";
+  }
+}
+updateAuthUI();
+
+function openAuthModal() { document.getElementById("authBg").style.display = "flex"; }
+function closeAuthModal() { document.getElementById("authBg").style.display = "none"; }
+function logout() {
+  authToken = ""; authUsername = "";
+  localStorage.removeItem("ccl_token"); localStorage.removeItem("ccl_user");
+  updateAuthUI(); renderList();
+}
+
+async function doAuth(mode) {
+  const m = document.getElementById("authMsg");
+  m.style.display = "none";
+  const username = document.getElementById("authUser").value.trim();
+  const password = document.getElementById("authPass").value;
+  const res = await fetch("/api/auth/" + mode, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({username, password})
+  });
+  const data = await res.json();
+  if (res.ok) {
+    authToken = data.token; authUsername = data.username;
+    localStorage.setItem("ccl_token", authToken);
+    localStorage.setItem("ccl_user", authUsername);
+    updateAuthUI(); closeAuthModal(); renderList();
+  } else {
+    m.className = "msg err"; m.textContent = data.error || "Hata!"; m.style.display = "block";
+  }
+}
 
 function onFmtChange() {
   const fmt = document.getElementById("fmt").value;
@@ -226,20 +303,26 @@ function renderList() {
   const q = document.getElementById("search").value.toLowerCase();
   const filtered = allLibs.filter(l => {
     if (currentFilter !== "all" && l.type !== currentFilter) return false;
-    return l.name.toLowerCase().includes(q) || (l.description||"").toLowerCase().includes(q);
+    return l.name.toLowerCase().includes(q) || (l.description||"").toLowerCase().includes(q) || (l.author||"").toLowerCase().includes(q);
   });
   const el = document.getElementById("list");
   if (!filtered.length) { el.innerHTML = "<p style='color:var(--muted)'>Eşleşen kütüphane bulunamadı.</p>"; return; }
   el.innerHTML = filtered.map(l => `
     <div class="lib-item">
       <div class="lib-top">
-        <span class="lib-name">${esc(l.name)}</span>
+        <div>
+          <span class="lib-name">${esc(l.name)}</span>
+          <span class="author-tag">@${esc(l.author || "anonim")}</span>
+        </div>
         <span class="badge ${l.type}">${l.type === "so" ? "C (.so)" : "CCL"}</span>
       </div>
       <div class="lib-desc">${esc(l.description || "Açıklama yok.")}</div>
       <div class="lib-actions">
         <span class="cmd-box" onclick="copyCmd('comar install ${esc(l.name)}', this)" title="Kopyalamak için tıkla">comar install ${esc(l.name)}</span>
-        <button class="btn-sm" onclick="viewCode('${esc(l.name)}')">Kodu Gör</button>
+        <div style="display:flex;gap:6px;">
+          ${authUsername && l.author === authUsername ? `<button class="btn-sm" onclick="editLib('${esc(l.name)}')">✏️ Güncelle</button>` : ""}
+          <button class="btn-sm" onclick="viewCode('${esc(l.name)}')">Kodu Gör</button>
+        </div>
       </div>
     </div>
   `).join("");
@@ -252,11 +335,24 @@ function copyCmd(text, el) {
   setTimeout(() => el.textContent = old, 1200);
 }
 
+async function editLib(name) {
+  const lib = allLibs.find(l => l.name === name);
+  const res = await fetch("/api/libs/" + name + "/code");
+  const data = await res.json();
+  document.getElementById("name").value = name;
+  document.getElementById("desc").value = lib ? lib.description : "";
+  document.getElementById("fmt").value = data.type === "so" ? "c" : "ccl";
+  onFmtChange();
+  document.getElementById("code").value = data.code || "";
+  document.getElementById("formTitle").textContent = "✏️ Kütüphane Güncelle: " + name;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 async function viewCode(name) {
   const res = await fetch("/api/libs/" + name + "/code");
   const data = await res.json();
   document.getElementById("mTitle").textContent = name + (data.type === "so" ? " (C)" : " (.ccl)");
-  document.getElementById("mMeta").textContent = "Kullanım: import " + name + ";";
+  document.getElementById("mMeta").textContent = "Yapımcı: @" + (data.author || "anonim") + "  |  Kullanım: import " + name + ";";
   document.getElementById("mCode").textContent = data.code || "// Kod bulunamadı";
   document.getElementById("modalBg").style.display = "flex";
 }
@@ -266,16 +362,22 @@ function closeModal() { document.getElementById("modalBg").style.display = "none
 async function submitLib() {
   const msg = document.getElementById("msg");
   msg.className = "msg"; msg.style.display = "none";
+  if (!authToken) { openAuthModal(); return; }
   const body = {
     name: document.getElementById("name").value.trim(),
     description: document.getElementById("desc").value.trim(),
     format: document.getElementById("fmt").value,
     code: document.getElementById("code").value
   };
-  const res = await fetch("/api/libs", { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) });
+  const res = await fetch("/api/libs", {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Authorization": "Bearer " + authToken},
+    body: JSON.stringify(body)
+  });
   const data = await res.json();
   if (res.ok) {
     msg.className = "msg ok"; msg.textContent = data.message || "Gönderildi!"; msg.style.display = "block";
+    document.getElementById("formTitle").textContent = "📦 Yeni Kütüphane Gönder";
     loadLibs();
   } else {
     msg.className = "msg err"; msg.textContent = data.error || "Hata!"; msg.style.display = "block";
@@ -297,7 +399,7 @@ ADMIN_PAGE = """<!DOCTYPE html>
   :root { --bg: #090d16; --card: #161f30; --border: #263248; --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8; --ok: #22c55e; --err: #ef4444; --warn: #f59e0b; }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
-  .wrap { max-width: 960px; margin: 0 auto; }
+  .wrap { max-width: 980px; margin: 0 auto; }
   .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
   h1 { margin: 0; font-size: 22px; color: var(--accent); }
   a { color: var(--muted); text-decoration: none; font-size: 13px; }
@@ -307,7 +409,7 @@ ADMIN_PAGE = """<!DOCTYPE html>
   .btn-ok { background: var(--ok); color: #052e16; }
   .btn-del { background: transparent; color: var(--err); border: 1px solid var(--err); }
   .item { border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #0b1120; }
-  .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
   .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 700; }
   .badge.pending { background: rgba(245,158,11,0.2); color: var(--warn); }
   .badge.approved { background: rgba(34,197,94,0.2); color: var(--ok); }
@@ -328,8 +430,12 @@ ADMIN_PAGE = """<!DOCTYPE html>
   </div>
   <div id="panel" style="display:none;">
     <div class="card">
-      <h2 style="margin-top:0;font-size:17px;">⏳ Onay Bekleyen Kütüphaneler</h2>
+      <h2 style="margin-top:0;font-size:17px;">⏳ Onay Bekleyen Yeni Kütüphaneler</h2>
       <div id="pendingList"></div>
+    </div>
+    <div class="card">
+      <h2 style="margin-top:0;font-size:17px;">🔄 Onay Bekleyen Güncellemeler</h2>
+      <div id="updateList"></div>
     </div>
     <div class="card">
       <h2 style="margin-top:0;font-size:17px;">✅ Onaylı Kütüphaneler</h2>
@@ -372,11 +478,13 @@ function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 
 function renderLibs(libs) {
   const pend = libs.filter(l => l.status === "pending");
+  const upd = libs.filter(l => l.pending_update);
   const appr = libs.filter(l => l.status !== "pending");
+
   document.getElementById("pendingList").innerHTML = pend.length ? pend.map(l => `
     <div class="item">
       <div class="top">
-        <div><strong>${esc(l.name)}</strong> (${l.type}) <span class="badge pending">Onay Bekliyor</span></div>
+        <div><strong>${esc(l.name)}</strong> (@${esc(l.author)}) (${l.type}) <span class="badge pending">Onay Bekliyor</span></div>
         <div>
           <button class="btn-ok" onclick="approveLib('${esc(l.name)}')">Onayla</button>
           <button class="btn-del" onclick="delLib('${esc(l.name)}')">Reddet / Sil</button>
@@ -385,12 +493,26 @@ function renderLibs(libs) {
       <div style="color:var(--muted);font-size:13px;margin:6px 0;">${esc(l.description)}</div>
       <pre>${esc(l.code)}</pre>
     </div>
-  `).join("") : "<p style='color:var(--muted)'>Onay bekleyen kütüphane yok.</p>";
+  `).join("") : "<p style='color:var(--muted)'>Onay bekleyen yeni kütüphane yok.</p>";
+
+  document.getElementById("updateList").innerHTML = upd.length ? upd.map(l => `
+    <div class="item">
+      <div class="top">
+        <div><strong>${esc(l.name)}</strong> (@${esc(l.author)}) <span class="badge pending">Güncelleme Bekliyor</span></div>
+        <div>
+          <button class="btn-ok" onclick="approveUpdate('${esc(l.name)}')">Güncellemeyi Onayla</button>
+          <button class="btn-del" onclick="rejectUpdate('${esc(l.name)}')">Reddet</button>
+        </div>
+      </div>
+      <div style="color:var(--muted);font-size:13px;margin:6px 0;">Yeni Açıklama: ${esc(l.pending_update.description)}</div>
+      <pre>${esc(l.pending_update.code)}</pre>
+    </div>
+  `).join("") : "<p style='color:var(--muted)'>Onay bekleyen güncelleme yok.</p>";
 
   document.getElementById("approvedList").innerHTML = appr.length ? appr.map(l => `
     <div class="item">
       <div class="top">
-        <div><strong>${esc(l.name)}</strong> (${l.type}) <span class="badge approved">Yayında</span></div>
+        <div><strong>${esc(l.name)}</strong> (@${esc(l.author)}) (${l.type}) <span class="badge approved">Yayında</span></div>
         <button class="btn-del" onclick="delLib('${esc(l.name)}')">Sil</button>
       </div>
       <div style="color:var(--muted);font-size:13px;margin-top:4px;">${esc(l.description)}</div>
@@ -402,7 +524,14 @@ async function approveLib(name) {
   await fetch("/api/admin/approve/" + name, { method: "POST", headers: { "X-Admin-Pass": adminPass } });
   loadAdminLibs();
 }
-
+async function approveUpdate(name) {
+  await fetch("/api/admin/approve-update/" + name, { method: "POST", headers: { "X-Admin-Pass": adminPass } });
+  loadAdminLibs();
+}
+async function rejectUpdate(name) {
+  await fetch("/api/admin/reject-update/" + name, { method: "POST", headers: { "X-Admin-Pass": adminPass } });
+  loadAdminLibs();
+}
 async function delLib(name) {
   if (!confirm(name + " silinsin mi?")) return;
   await fetch("/api/libs/" + name, { method: "DELETE", headers: { "X-Admin-Pass": adminPass } });
@@ -433,6 +562,13 @@ class Handler(BaseHTTPRequestHandler):
     def _is_admin(self):
         return bool(ADMIN_PASS) and self.headers.get("X-Admin-Pass") == ADMIN_PASS
 
+    def _get_user(self):
+        auth = self.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            tok = auth[7:].strip()
+            return TOKENS.get(tok)
+        return None
+
     def do_GET(self):
         p = urlparse(self.path).path
         if p == "/":
@@ -442,9 +578,14 @@ class Handler(BaseHTTPRequestHandler):
             self._send_html(ADMIN_PAGE)
             return
         if p == "/api/libs":
-            meta = load_meta()
+            meta = load_json(META_FILE, {})
             out = [
-                {"name": k, "type": v.get("type", "ccl"), "description": v.get("description", "")}
+                {
+                    "name": k,
+                    "type": v.get("type", "ccl"),
+                    "description": v.get("description", ""),
+                    "author": v.get("author", "anonim"),
+                }
                 for k, v in sorted(meta.items())
                 if v.get("status", "approved") == "approved"
             ]
@@ -453,7 +594,7 @@ class Handler(BaseHTTPRequestHandler):
         m_code = re.match(r"^/api/libs/([a-zA-Z0-9_]+)/code$", p)
         if m_code:
             name = m_code.group(1)
-            meta = load_meta()
+            meta = load_json(META_FILE, {})
             if name not in meta or meta[name].get("status", "approved") != "approved":
                 self._send_json(404, {"error": "Not found"})
                 return
@@ -464,13 +605,13 @@ class Handler(BaseHTTPRequestHandler):
             if os.path.exists(src_path):
                 with open(src_path, "r", encoding="utf-8", errors="replace") as f:
                     code = f.read()
-            self._send_json(200, {"name": name, "type": ltype, "code": code})
+            self._send_json(200, {"name": name, "type": ltype, "author": meta[name].get("author", "anonim"), "code": code})
             return
         if p == "/api/admin/libs":
             if not self._is_admin():
                 self._send_json(401, {"error": "Unauthorized"})
                 return
-            meta = load_meta()
+            meta = load_json(META_FILE, {})
             out = []
             for k, v in sorted(meta.items()):
                 ltype = v.get("type", "ccl")
@@ -483,16 +624,18 @@ class Handler(BaseHTTPRequestHandler):
                 out.append({
                     "name": k,
                     "type": ltype,
+                    "author": v.get("author", "anonim"),
                     "description": v.get("description", ""),
                     "status": v.get("status", "approved"),
                     "code": code,
+                    "pending_update": v.get("pending_update"),
                 })
             self._send_json(200, out)
             return
         m = re.match(r"^/api/libs/([a-zA-Z0-9_]+)/download$", p)
         if m:
             name = m.group(1)
-            meta = load_meta()
+            meta = load_json(META_FILE, {})
             if name not in meta or meta[name].get("status", "approved") != "approved":
                 self._send_json(404, {"error": "Not found or not approved"})
                 return
@@ -515,26 +658,102 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         p = urlparse(self.path).path
+        length = int(self.headers.get("Content-Length", 0))
+        raw = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+        body = json.loads(raw) if raw.strip() else {}
+
+        if p in ("/api/auth/register", "/api/auth/login"):
+            uname = body.get("username", "").strip()
+            pw = body.get("password", "")
+            if not re.match(r"^[a-zA-Z0-9_]{3,24}$", uname) or len(pw) < 3:
+                self._send_json(400, {"error": "Kullanıcı adı (3-24 harf/rakam) ve şifre (min 3) geçerli olmalı."})
+                return
+            users = load_json(USERS_FILE, {})
+            if p.endswith("/register"):
+                if uname in users:
+                    self._send_json(400, {"error": "Bu kullanıcı adı zaten alınmış."})
+                    return
+                users[uname] = hash_pw(pw)
+                save_json(USERS_FILE, users)
+            else:
+                if uname not in users or not verify_pw(pw, users[uname]):
+                    self._send_json(401, {"error": "Hatalı kullanıcı adı veya şifre."})
+                    return
+            tok = secrets.token_hex(24)
+            TOKENS[tok] = uname
+            self._send_json(200, {"token": tok, "username": uname})
+            return
+
         m = re.match(r"^/api/admin/approve/([a-zA-Z0-9_]+)$", p)
         if m:
             if not self._is_admin():
                 self._send_json(401, {"error": "Unauthorized"})
                 return
             name = m.group(1)
-            meta = load_meta()
+            meta = load_json(META_FILE, {})
             if name not in meta:
                 self._send_json(404, {"error": "Not found"})
                 return
             meta[name]["status"] = "approved"
-            save_meta(meta)
+            save_json(META_FILE, meta)
+            self._send_json(200, {"ok": True})
+            return
+
+        m_upd = re.match(r"^/api/admin/approve-update/([a-zA-Z0-9_]+)$", p)
+        if m_upd:
+            if not self._is_admin():
+                self._send_json(401, {"error": "Unauthorized"})
+                return
+            name = m_upd.group(1)
+            meta = load_json(META_FILE, {})
+            if name not in meta or not meta[name].get("pending_update"):
+                self._send_json(404, {"error": "Not found"})
+                return
+            upd = meta[name].pop("pending_update")
+            ltype = upd["type"]
+            meta[name]["type"] = ltype
+            meta[name]["description"] = upd["description"]
+            if ltype == "so":
+                c_path = os.path.join(LIBS_DIR, name + ".c")
+                so_path = os.path.join(LIBS_DIR, name + ".so")
+                with open(c_path, "w", encoding="utf-8") as f:
+                    f.write(upd["code"])
+                pend_so = os.path.join(LIBS_DIR, name + "_pending.so")
+                if os.path.exists(pend_so):
+                    os.replace(pend_so, so_path)
+            else:
+                ccl_path = os.path.join(LIBS_DIR, name + ".ccl")
+                with open(ccl_path, "w", encoding="utf-8") as f:
+                    f.write(upd["code"])
+            save_json(META_FILE, meta)
+            self._send_json(200, {"ok": True})
+            return
+
+        m_rej = re.match(r"^/api/admin/reject-update/([a-zA-Z0-9_]+)$", p)
+        if m_rej:
+            if not self._is_admin():
+                self._send_json(401, {"error": "Unauthorized"})
+                return
+            name = m_rej.group(1)
+            meta = load_json(META_FILE, {})
+            if name in meta and "pending_update" in meta[name]:
+                meta[name].pop("pending_update", None)
+                save_json(META_FILE, meta)
+            pend_so = os.path.join(LIBS_DIR, name + "_pending.so")
+            if os.path.exists(pend_so):
+                os.remove(pend_so)
             self._send_json(200, {"ok": True})
             return
 
         if p != "/api/libs":
             self._send_json(404, {"error": "Not found"})
             return
-        length = int(self.headers.get("Content-Length", 0))
-        body = json.loads(self.rfile.read(length).decode("utf-8"))
+
+        user = self._get_user()
+        if not user:
+            self._send_json(401, {"error": "Giriş yapmalısınız!"})
+            return
+
         name = body.get("name", "").strip()
         fmt = body.get("format", "ccl")
         desc = body.get("description", "").strip()
@@ -542,7 +761,31 @@ class Handler(BaseHTTPRequestHandler):
         if not re.match(r"^[a-zA-Z0-9_]+$", name):
             self._send_json(400, {"error": "Geçersiz kütüphane adı!"})
             return
-        meta = load_meta()
+
+        meta = load_json(META_FILE, {})
+        is_existing_approved = name in meta and meta[name].get("status", "approved") == "approved"
+        if is_existing_approved:
+            if meta[name].get("author") not in (None, "anonim", user):
+                self._send_json(403, {"error": "Bu kütüphane başka bir yapımcıya ait!"})
+                return
+            if fmt == "c":
+                pend_c = os.path.join(LIBS_DIR, name + "_pending.c")
+                pend_so = os.path.join(LIBS_DIR, name + "_pending.so")
+                with open(pend_c, "w", encoding="utf-8") as f:
+                    f.write(code)
+                proc = subprocess.run(["gcc", "-shared", "-fPIC", "-O2", f"-I{INC_DIR}", pend_c, "-o", pend_so, "-lm"], capture_output=True, text=True)
+                os.remove(pend_c)
+                if proc.returncode != 0:
+                    self._send_json(400, {"error": "GCC Derleme Hatası:\n" + proc.stderr})
+                    return
+                ltype = "so"
+            else:
+                ltype = "ccl"
+            meta[name]["pending_update"] = {"type": ltype, "description": desc, "code": code}
+            save_json(META_FILE, meta)
+            self._send_json(200, {"message": f"{name} güncellemesi admin onayına gönderildi!"})
+            return
+
         if fmt == "c":
             c_path = os.path.join(LIBS_DIR, name + ".c")
             so_path = os.path.join(LIBS_DIR, name + ".so")
@@ -552,13 +795,13 @@ class Handler(BaseHTTPRequestHandler):
             if proc.returncode != 0:
                 self._send_json(400, {"error": "GCC Derleme Hatası:\n" + proc.stderr})
                 return
-            meta[name] = {"type": "so", "description": desc, "status": "pending"}
+            meta[name] = {"type": "so", "description": desc, "author": user, "status": "pending"}
         else:
             ccl_path = os.path.join(LIBS_DIR, name + ".ccl")
             with open(ccl_path, "w", encoding="utf-8") as f:
                 f.write(code)
-            meta[name] = {"type": "ccl", "description": desc, "status": "pending"}
-        save_meta(meta)
+            meta[name] = {"type": "ccl", "description": desc, "author": user, "status": "pending"}
+        save_json(META_FILE, meta)
         self._send_json(200, {"message": f"{name} onaya gönderildi! Admin onayından sonra yayınlanacaktır."})
 
     def do_DELETE(self):
@@ -570,11 +813,11 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Not found"})
             return
         name = m.group(1)
-        meta = load_meta()
+        meta = load_json(META_FILE, {})
         if name in meta:
             del meta[name]
-            save_meta(meta)
-        for ext in (".ccl", ".c", ".so"):
+            save_json(META_FILE, meta)
+        for ext in (".ccl", ".c", ".so", "_pending.so"):
             fp = os.path.join(LIBS_DIR, name + ext)
             if os.path.exists(fp):
                 os.remove(fp)
