@@ -180,6 +180,7 @@ ccl --debug script.ccl
 cicekliscript -d script.ccl
 ```
 
+
 #### Debugger Commands:
 | Command | Alias | Description |
 | :--- | :--- | :--- |
