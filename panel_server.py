@@ -10,7 +10,7 @@ BASE_DIR = os.environ.get("CCL_PANEL_DIR", "/home/doruk/ccl-panel")
 LIBS_DIR = os.path.join(BASE_DIR, "libs")
 INC_DIR = os.path.join(BASE_DIR, "include")
 META_FILE = os.path.join(LIBS_DIR, "meta.json")
-ADMIN_PASS = "2288"
+ADMIN_PASS = os.environ.get("CCL_ADMIN_PASS", "")
 os.makedirs(LIBS_DIR, exist_ok=True)
 
 
