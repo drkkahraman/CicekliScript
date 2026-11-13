@@ -1236,7 +1236,28 @@ static Value native_import(Value self, size_t argc, Value* args, int line) {
     }
 
     Environment* env_to_use = g_active_env ? g_active_env : init_global_environment();
-    EvalResult res = eval_statements(stmts, count, env_to_use);
+    Environment* mod_env = new_environment(env_to_use);
+    EvalResult res = eval_statements(stmts, count, mod_env);
+
+    /* Extract module name from path (e.g. "r.ccl" -> "r") */
+    const char* slash = strrchr(resolved, '/');
+    const char* base = slash ? slash + 1 : resolved;
+    char mod_name[128];
+    snprintf(mod_name, sizeof(mod_name), "%s", base);
+    char* dot = strrchr(mod_name, '.');
+    if (dot) *dot = '\0';
+
+    ObjMap* mod_map = new_map();
+    for (size_t i = 0; i < mod_env->capacity; i++) {
+        if (mod_env->entries[i].key != NULL) {
+            const char* k = mod_env->entries[i].key;
+            Value v = mod_env->entries[i].value;
+            env_define(env_to_use, k, v);
+            map_set(mod_map, k, v);
+        }
+    }
+    env_define(env_to_use, mod_name, make_obj((Obj*)mod_map));
+
     free(stmts);
     free(buffer);
 
