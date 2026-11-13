@@ -19,7 +19,7 @@ else
 endif
 
 CFLAGS ?= -Wall -Wextra -O2 -std=c11 -D_POSIX_C_SOURCE=200809L $(PKG_CFLAGS) $(CUDA_CFLAGS)
-LDFLAGS ?= -lm $(PKG_LIBS) $(CUDA_LDFLAGS)
+LDFLAGS ?= -lm -ldl $(PKG_LIBS) $(CUDA_LDFLAGS)
 
 SRC_DIR = src
 BIN_DIR = bin

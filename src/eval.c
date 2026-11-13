@@ -4,6 +4,7 @@
 #include "tensor.h"
 #include "parser.h"
 #include "debug.h"
+#include "ccl_plugin.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,6 +17,8 @@
 #define TokenType WindowsTokenType
 #include <windows.h>
 #undef TokenType
+#else
+#include <dlfcn.h>
 #endif
 
 static void runtime_error(int line, const char* format, ...) {
@@ -1083,6 +1086,90 @@ static Value native_clear(Value self, size_t argc, Value* args, int line) {
     return make_null();
 }
 
+#ifndef _WIN32
+#define MAX_PLUGIN_FUNCS 64
+static CCLPluginFunc g_plugin_funcs[MAX_PLUGIN_FUNCS];
+static size_t g_plugin_func_count = 0;
+static Environment* g_plugin_target_env = NULL;
+
+static Value call_plugin_idx(size_t idx, size_t argc, Value* args) {
+    CCLVal cargs[32];
+    size_t n = argc < 32 ? argc : 32;
+    for (size_t i = 0; i < n; i++) {
+        if (is_number(args[i])) cargs[i] = ccl_num(as_number(args[i]));
+        else if (is_bool(args[i])) cargs[i] = ccl_bool(as_bool(args[i]));
+        else if (is_string(args[i])) cargs[i] = ccl_str(as_string(args[i])->chars);
+        else cargs[i] = ccl_nil();
+    }
+    CCLVal res = g_plugin_funcs[idx]((int)n, cargs);
+    switch (res.type) {
+        case CCL_BOOL: return make_bool(res.as.b != 0);
+        case CCL_NUM:  return make_number(res.as.n);
+        case CCL_STR:  return make_obj((Obj*)copy_string(res.as.s ? res.as.s : ""));
+        default:       return make_null();
+    }
+}
+
+static void define_native(Environment* env, ObjMap* cicekli_map, const char* name, NativeFn fn, int arity);
+
+#define DEF_TRAMP(N) static Value plugin_tramp_##N(Value s, size_t a, Value* v, int l) { (void)s;(void)l; return call_plugin_idx(N, a, v); }
+#define DEF_TRAMP8(a,b,c,d,e,f,g,h) DEF_TRAMP(a) DEF_TRAMP(b) DEF_TRAMP(c) DEF_TRAMP(d) DEF_TRAMP(e) DEF_TRAMP(f) DEF_TRAMP(g) DEF_TRAMP(h)
+DEF_TRAMP8(0,1,2,3,4,5,6,7)
+DEF_TRAMP8(8,9,10,11,12,13,14,15)
+DEF_TRAMP8(16,17,18,19,20,21,22,23)
+DEF_TRAMP8(24,25,26,27,28,29,30,31)
+DEF_TRAMP8(32,33,34,35,36,37,38,39)
+DEF_TRAMP8(40,41,42,43,44,45,46,47)
+DEF_TRAMP8(48,49,50,51,52,53,54,55)
+DEF_TRAMP8(56,57,58,59,60,61,62,63)
+
+static NativeFn g_plugin_tramps[MAX_PLUGIN_FUNCS] = {
+    plugin_tramp_0,  plugin_tramp_1,  plugin_tramp_2,  plugin_tramp_3,  plugin_tramp_4,  plugin_tramp_5,  plugin_tramp_6,  plugin_tramp_7,
+    plugin_tramp_8,  plugin_tramp_9,  plugin_tramp_10, plugin_tramp_11, plugin_tramp_12, plugin_tramp_13, plugin_tramp_14, plugin_tramp_15,
+    plugin_tramp_16, plugin_tramp_17, plugin_tramp_18, plugin_tramp_19, plugin_tramp_20, plugin_tramp_21, plugin_tramp_22, plugin_tramp_23,
+    plugin_tramp_24, plugin_tramp_25, plugin_tramp_26, plugin_tramp_27, plugin_tramp_28, plugin_tramp_29, plugin_tramp_30, plugin_tramp_31,
+    plugin_tramp_32, plugin_tramp_33, plugin_tramp_34, plugin_tramp_35, plugin_tramp_36, plugin_tramp_37, plugin_tramp_38, plugin_tramp_39,
+    plugin_tramp_40, plugin_tramp_41, plugin_tramp_42, plugin_tramp_43, plugin_tramp_44, plugin_tramp_45, plugin_tramp_46, plugin_tramp_47,
+    plugin_tramp_48, plugin_tramp_49, plugin_tramp_50, plugin_tramp_51, plugin_tramp_52, plugin_tramp_53, plugin_tramp_54, plugin_tramp_55,
+    plugin_tramp_56, plugin_tramp_57, plugin_tramp_58, plugin_tramp_59, plugin_tramp_60, plugin_tramp_61, plugin_tramp_62, plugin_tramp_63
+};
+
+static void ccl_register_bridge(const char* name, CCLPluginFunc fn, int arity) {
+    if (!g_plugin_target_env || g_plugin_func_count >= MAX_PLUGIN_FUNCS) return;
+    size_t idx = g_plugin_func_count++;
+    g_plugin_funcs[idx] = fn;
+    define_native(g_plugin_target_env, NULL, name, g_plugin_tramps[idx], arity);
+}
+#endif
+
+static int file_exists_readable(const char* p) {
+    FILE* f = fopen(p, "rb");
+    if (f) { fclose(f); return 1; }
+    return 0;
+}
+
+static int resolve_lib_path(const char* path, char* out, size_t out_sz) {
+    if (file_exists_readable(path)) { snprintf(out, out_sz, "%s", path); return 1; }
+    char base[256];
+    snprintf(base, sizeof(base), "%s", path);
+    size_t blen = strlen(base);
+    if (blen > 4 && strcmp(base + blen - 4, ".ccl") == 0) base[blen - 4] = '\0';
+
+    const char* home = getenv("HOME");
+    const char* exts[] = {".ccl", ".so", ".ms"};
+    for (int e = 0; e < 3; e++) {
+        snprintf(out, out_sz, "%s%s", base, exts[e]);
+        if (file_exists_readable(out)) return 1;
+        snprintf(out, out_sz, "libs/%s%s", base, exts[e]);
+        if (file_exists_readable(out)) return 1;
+        if (home) {
+            snprintf(out, out_sz, "%s/.cicekliscript/libs/%s%s", home, base, exts[e]);
+            if (file_exists_readable(out)) return 1;
+        }
+    }
+    return 0;
+}
+
 static Value native_import(Value self, size_t argc, Value* args, int line) {
     (void)self;
     if (argc < 1 || !is_string(args[0])) {
@@ -1090,19 +1177,38 @@ static Value native_import(Value self, size_t argc, Value* args, int line) {
         return make_bool(false);
     }
     const char* path = as_string(args[0])->chars;
-    FILE* f = fopen(path, "rb");
-    if (!f) {
-        char try_ccl[512];
-        snprintf(try_ccl, sizeof(try_ccl), "%s.ccl", path);
-        f = fopen(try_ccl, "rb");
+    char resolved[512];
+    if (!resolve_lib_path(path, resolved, sizeof(resolved))) {
+        runtime_error(line, "import: '%s' kütüphanesi/dosyası bulunamadı!", path);
+        return make_bool(false);
     }
-    if (!f) {
-        char try_ms[512];
-        snprintf(try_ms, sizeof(try_ms), "%s.ms", path);
-        f = fopen(try_ms, "rb");
+
+    size_t rlen = strlen(resolved);
+    if (rlen > 3 && strcmp(resolved + rlen - 3, ".so") == 0) {
+#ifndef _WIN32
+        void* handle = dlopen(resolved, RTLD_LAZY);
+        if (!handle) {
+            runtime_error(line, "import: '%s' C kütüphanesi yüklenemedi: %s", resolved, dlerror());
+            return make_bool(false);
+        }
+        typedef void (*InitFn)(CCLRegisterFn);
+        InitFn init_fn = (InitFn)dlsym(handle, "ccl_init");
+        if (!init_fn) {
+            runtime_error(line, "import: '%s' içinde 'ccl_init' bulunamadı!", resolved);
+            return make_bool(false);
+        }
+        g_plugin_target_env = g_active_env ? g_active_env : init_global_environment();
+        init_fn(ccl_register_bridge);
+        return make_bool(true);
+#else
+        runtime_error(line, "import: .so kütüphaneleri Windows'ta desteklenmiyor!");
+        return make_bool(false);
+#endif
     }
+
+    FILE* f = fopen(resolved, "rb");
     if (!f) {
-        runtime_error(line, "import: '%s' dosyası açılamadı!", path);
+        runtime_error(line, "import: '%s' dosyası açılamadı!", resolved);
         return make_bool(false);
     }
     fseek(f, 0L, SEEK_END);
