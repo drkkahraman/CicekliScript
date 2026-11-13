@@ -31,52 +31,95 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ÇiçekliScript — Comar Kütüphane Paneli</title>
+<title>🌸 Comar — ÇiçekliScript Kütüphane Deposu</title>
 <style>
-  :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8; --ok: #22c55e; --err: #ef4444; }
+  :root {
+    --bg: #090d16; --surface: #111827; --card: #161f30; --border: #263248;
+    --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8; --accent2: #818cf8;
+    --ok: #22c55e; --err: #ef4444; --warn: #f59e0b;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
-  .wrap { max-width: 1100px; margin: 0 auto; }
-  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  h1 { margin: 0; font-size: 24px; color: var(--accent); }
-  .admin-link { color: var(--muted); text-decoration: none; font-size: 13px; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; }
-  .admin-link:hover { color: var(--text); border-color: var(--accent); }
-  .sub { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
-  .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; }
-  @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-  label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
-  input, select, textarea { width: 100%; background: #0b1220; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 14px; }
-  textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; min-height: 220px; resize: vertical; }
-  button { margin-top: 14px; background: var(--accent); color: #0f172a; border: none; border-radius: 8px; padding: 10px 18px; font-weight: 700; cursor: pointer; font-size: 14px; }
-  button:hover { opacity: 0.9; }
-  .msg { margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 13px; white-space: pre-wrap; display: none; }
-  .msg.ok { display: block; background: rgba(34,197,94,0.15); border: 1px solid var(--ok); color: #86efac; }
-  .msg.err { display: block; background: rgba(239,68,68,0.15); border: 1px solid var(--err); color: #fca5a5; }
-  .lib-item { border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; background: #0b1220; }
-  .lib-top { display: flex; justify-content: space-between; align-items: center; }
-  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 700; }
-  .badge.ccl { background: rgba(56,189,248,0.2); color: var(--accent); }
-  .badge.so { background: rgba(34,197,94,0.2); color: var(--ok); }
-  code { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #cbd5e1; }
+  body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: radial-gradient(circle at top right, #172554 0%, var(--bg) 45%); color: var(--text); min-height: 100vh; padding: 24px; }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+  .nav { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand h1 { margin: 0; font-size: 24px; background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; gap: 10px; align-items: center; }
+  .btn-link { color: var(--text); text-decoration: none; font-size: 13px; border: 1px solid var(--border); background: var(--surface); padding: 8px 14px; border-radius: 8px; transition: 0.15s; }
+  .btn-link:hover { border-color: var(--accent); color: var(--accent); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .stat-val { font-size: 26px; font-weight: 800; color: var(--accent); }
+  .stat-lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: 1.05fr 1.15fr; gap: 22px; align-items: start; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+  .card h2 { margin: 0 0 14px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin: 12px 0 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  input, select, textarea { width: 100%; background: #0b1120; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; outline: none; transition: border-color 0.15s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; min-height: 220px; resize: vertical; line-height: 1.45; }
+  .btn { margin-top: 14px; background: linear-gradient(90deg, var(--accent), var(--accent2)); color: #090d16; border: none; border-radius: 8px; padding: 11px 20px; font-weight: 700; cursor: pointer; font-size: 14px; width: 100%; }
+  .btn:hover { opacity: 0.92; }
+  .c-help { margin-top: 12px; padding: 12px; background: #0b1120; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; color: var(--muted); display: none; }
+  .c-help code { color: var(--accent); }
+  .msg { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; white-space: pre-wrap; display: none; }
+  .msg.ok { display: block; background: rgba(34,197,94,0.12); border: 1px solid var(--ok); color: #86efac; }
+  .msg.err { display: block; background: rgba(239,68,68,0.12); border: 1px solid var(--err); color: #fca5a5; }
+  .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .toolbar input { flex: 1; min-width: 180px; }
+  .tabs { display: flex; gap: 6px; }
+  .tab { background: #0b1120; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .tab.active { background: var(--accent); color: #090d16; border-color: var(--accent); }
+  .lib-item { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 12px; background: #0b1120; transition: border-color 0.15s; }
+  .lib-item:hover { border-color: #3b4c6b; }
+  .lib-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .lib-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
+  .badge.ccl { background: rgba(56,189,248,0.15); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
+  .badge.so { background: rgba(34,197,94,0.15); color: var(--ok); border: 1px solid rgba(34,197,94,0.3); }
+  .lib-desc { color: var(--muted); font-size: 13px; margin: 8px 0 10px; }
+  .lib-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .cmd-box { background: #161f30; border: 1px solid var(--border); padding: 5px 10px; border-radius: 6px; font-family: monospace; font-size: 12px; color: #cbd5e1; cursor: pointer; }
+  .cmd-box:hover { border-color: var(--accent); }
+  .btn-sm { background: transparent; color: var(--accent); border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+  .btn-sm:hover { border-color: var(--accent); }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; max-width: 760px; width: 100%; padding: 22px; max-height: 85vh; overflow-y: auto; }
+  .modal pre { background: #0b1120; border: 1px solid var(--border); padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.45; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="header">
-    <h1>🌸 ÇiçekliScript — Comar Kütüphane Paneli</h1>
-    <a class="admin-link" href="/admin">🔐 Admin Onay Paneli</a>
+  <div class="nav">
+    <div class="brand">
+      <span style="font-size:28px;">🌸</span>
+      <div>
+        <h1>Comar Kütüphane Deposu</h1>
+        <div style="font-size:12px;color:var(--muted);">ÇiçekliScript (.ccl) & C (.so) Paket Sistemi</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a class="btn-link" href="/admin">🔐 Admin Onay Paneli</a>
+    </div>
   </div>
-  <div class="sub">Kütüphane gönderin (.ccl veya C). Admin onayından sonra <code>comar install &lt;ad&gt;</code> ile indirilebilir.</div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="stTotal">-</div><div class="stat-lbl">Onaylı Kütüphane</div></div>
+    <div class="stat"><div class="stat-val" id="stCcl">-</div><div class="stat-lbl">ÇiçekliScript (.ccl)</div></div>
+    <div class="stat"><div class="stat-val" id="stSo">-</div><div class="stat-lbl">C Eklentisi (.so)</div></div>
+    <div class="stat"><div class="stat-val" style="font-size:15px;padding-top:6px;font-family:monospace;">comar install &lt;ad&gt;</div><div class="stat-lbl">Hızlı Kurulum Komutu</div></div>
+  </div>
+
   <div class="grid">
     <div class="card">
-      <h2 style="margin-top:0;font-size:18px;">Yeni Kütüphane Gönder</h2>
+      <h2>📦 Yeni Kütüphane Gönder</h2>
       <label>Kütüphane Adı (harf, rakam, _)</label>
       <input id="name" placeholder="ör: mathx" />
       <label>Açıklama</label>
-      <input id="desc" placeholder="Kısa açıklama..." />
+      <input id="desc" placeholder="Ne işe yarar?" />
       <label>Format</label>
-      <select id="fmt" onchange="setTemplate()">
+      <select id="fmt" onchange="onFmtChange()">
         <option value="ccl">ÇiçekliScript (.ccl)</option>
         <option value="c">C Kütüphanesi (.c -> .so)</option>
       </select>
@@ -84,15 +127,39 @@ HTML_PAGE = """<!DOCTYPE html>
       <input type="file" id="fileInput" accept=".ccl,.c,.ms" onchange="loadFromFile(event)" />
       <label>Kaynak Kod</label>
       <textarea id="code"></textarea>
-      <button onclick="submitLib()">Onaya Gönder</button>
+      <div id="cHelp" class="c-help">
+        <strong>C Eklenti Rehberi:</strong> <code>#include "ccl_plugin.h"</code> ekleyin ve <code>void ccl_init(CCLRegisterFn reg)</code> içinde <code>reg("ad", fn, arity);</code> çağırın. Yardımcılar: <code>ccl_as_num</code>, <code>ccl_as_str</code>, <code>ccl_num</code>, <code>ccl_str</code>, <code>ccl_nil</code>.
+      </div>
+      <button class="btn" onclick="submitLib()">Onaya Gönder</button>
       <div id="msg" class="msg"></div>
     </div>
+
     <div class="card">
-      <h2 style="margin-top:0;font-size:18px;">Onaylı Kütüphaneler</h2>
+      <h2>📚 Onaylı Kütüphaneler</h2>
+      <div class="toolbar">
+        <input id="search" placeholder="Ara (ad veya açıklama)..." oninput="renderList()" />
+        <div class="tabs">
+          <button class="tab active" onclick="setFilter('all', this)">Tümü</button>
+          <button class="tab" onclick="setFilter('ccl', this)">CCL</button>
+          <button class="tab" onclick="setFilter('so', this)">C (.so)</button>
+        </div>
+      </div>
       <div id="list">Yükleniyor...</div>
     </div>
   </div>
 </div>
+
+<div id="modalBg" class="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 id="mTitle" style="margin:0;"></h3>
+      <button class="btn-sm" onclick="closeModal()">Kapat ✕</button>
+    </div>
+    <div id="mMeta" style="color:var(--muted);font-size:13px;margin-bottom:10px;"></div>
+    <pre id="mCode"></pre>
+  </div>
+</div>
+
 <script>
 const TPL_CCL = `// ÇiçekliScript Kütüphanesi
 def topla(a, b) {
@@ -108,21 +175,26 @@ static CCLVal c_topla(int argc, CCLVal* argv) {
 void ccl_init(CCLRegisterFn reg) {
     reg("c_topla", c_topla, 2);
 }`;
-function setTemplate() {
+
+let allLibs = [];
+let currentFilter = "all";
+
+function onFmtChange() {
   const fmt = document.getElementById("fmt").value;
+  document.getElementById("cHelp").style.display = fmt === "c" ? "block" : "none";
   const ta = document.getElementById("code");
   if (!ta.value.trim() || ta.value === TPL_CCL || ta.value === TPL_C) {
     ta.value = fmt === "c" ? TPL_C : TPL_CCL;
   }
 }
-setTemplate();
+onFmtChange();
 
 function loadFromFile(e) {
   const file = e.target.files[0];
   if (!file) return;
   const ext = file.name.split(".").pop().toLowerCase();
-  if (ext === "c") document.getElementById("fmt").value = "c";
-  else document.getElementById("fmt").value = "ccl";
+  document.getElementById("fmt").value = ext === "c" ? "c" : "ccl";
+  onFmtChange();
   const nameEl = document.getElementById("name");
   if (!nameEl.value.trim()) {
     nameEl.value = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9_]/g, "_");
@@ -132,21 +204,64 @@ function loadFromFile(e) {
   reader.readAsText(file);
 }
 
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderList();
+}
+
+function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
 async function loadLibs() {
   const res = await fetch("/api/libs");
-  const libs = await res.json();
+  allLibs = await res.json();
+  document.getElementById("stTotal").textContent = allLibs.length;
+  document.getElementById("stCcl").textContent = allLibs.filter(l => l.type !== "so").length;
+  document.getElementById("stSo").textContent = allLibs.filter(l => l.type === "so").length;
+  renderList();
+}
+
+function renderList() {
+  const q = document.getElementById("search").value.toLowerCase();
+  const filtered = allLibs.filter(l => {
+    if (currentFilter !== "all" && l.type !== currentFilter) return false;
+    return l.name.toLowerCase().includes(q) || (l.description||"").toLowerCase().includes(q);
+  });
   const el = document.getElementById("list");
-  if (!libs.length) { el.innerHTML = "<p style=color:#94a3b8>Henüz onaylı kütüphane yok.</p>"; return; }
-  el.innerHTML = libs.map(l => `
+  if (!filtered.length) { el.innerHTML = "<p style='color:var(--muted)'>Eşleşen kütüphane bulunamadı.</p>"; return; }
+  el.innerHTML = filtered.map(l => `
     <div class="lib-item">
       <div class="lib-top">
-        <div><strong>${l.name}</strong> <span class="badge ${l.type}">${l.type === "so" ? "C (.so)" : "CCL"}</span></div>
+        <span class="lib-name">${esc(l.name)}</span>
+        <span class="badge ${l.type}">${l.type === "so" ? "C (.so)" : "CCL"}</span>
       </div>
-      <div style="color:#94a3b8;font-size:13px;margin:6px 0;">${l.description || ""}</div>
-      <code>comar install ${l.name}</code>
+      <div class="lib-desc">${esc(l.description || "Açıklama yok.")}</div>
+      <div class="lib-actions">
+        <span class="cmd-box" onclick="copyCmd('comar install ${esc(l.name)}', this)" title="Kopyalamak için tıkla">comar install ${esc(l.name)}</span>
+        <button class="btn-sm" onclick="viewCode('${esc(l.name)}')">Kodu Gör</button>
+      </div>
     </div>
   `).join("");
 }
+
+function copyCmd(text, el) {
+  navigator.clipboard.writeText(text);
+  const old = el.textContent;
+  el.textContent = "✔ Kopyalandı!";
+  setTimeout(() => el.textContent = old, 1200);
+}
+
+async function viewCode(name) {
+  const res = await fetch("/api/libs/" + name + "/code");
+  const data = await res.json();
+  document.getElementById("mTitle").textContent = name + (data.type === "so" ? " (C)" : " (.ccl)");
+  document.getElementById("mMeta").textContent = "Kullanım: import " + name + ";";
+  document.getElementById("mCode").textContent = data.code || "// Kod bulunamadı";
+  document.getElementById("modalBg").style.display = "flex";
+}
+
+function closeModal() { document.getElementById("modalBg").style.display = "none"; }
 
 async function submitLib() {
   const msg = document.getElementById("msg");
@@ -179,7 +294,7 @@ ADMIN_PAGE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Onay Paneli — ÇiçekliScript</title>
 <style>
-  :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8; --ok: #22c55e; --err: #ef4444; --warn: #f59e0b; }
+  :root { --bg: #090d16; --card: #161f30; --border: #263248; --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8; --ok: #22c55e; --err: #ef4444; --warn: #f59e0b; }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
   .wrap { max-width: 960px; margin: 0 auto; }
@@ -187,11 +302,11 @@ ADMIN_PAGE = """<!DOCTYPE html>
   h1 { margin: 0; font-size: 22px; color: var(--accent); }
   a { color: var(--muted); text-decoration: none; font-size: 13px; }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-  input { background: #0b1220; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 14px; }
-  button { background: var(--accent); color: #0f172a; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; font-size: 13px; }
+  input { background: #0b1120; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 14px; }
+  button { background: var(--accent); color: #090d16; border: none; border-radius: 8px; padding: 8px 14px; font-weight: 700; cursor: pointer; font-size: 13px; }
   .btn-ok { background: var(--ok); color: #052e16; }
   .btn-del { background: transparent; color: var(--err); border: 1px solid var(--err); }
-  .item { border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #0b1220; }
+  .item { border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; background: #0b1120; }
   .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 700; }
   .badge.pending { background: rgba(245,158,11,0.2); color: var(--warn); }
@@ -316,7 +431,7 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(b)
 
     def _is_admin(self):
-        return self.headers.get("X-Admin-Pass") == ADMIN_PASS
+        return bool(ADMIN_PASS) and self.headers.get("X-Admin-Pass") == ADMIN_PASS
 
     def do_GET(self):
         p = urlparse(self.path).path
@@ -334,6 +449,22 @@ class Handler(BaseHTTPRequestHandler):
                 if v.get("status", "approved") == "approved"
             ]
             self._send_json(200, out)
+            return
+        m_code = re.match(r"^/api/libs/([a-zA-Z0-9_]+)/code$", p)
+        if m_code:
+            name = m_code.group(1)
+            meta = load_meta()
+            if name not in meta or meta[name].get("status", "approved") != "approved":
+                self._send_json(404, {"error": "Not found"})
+                return
+            ltype = meta[name].get("type", "ccl")
+            src_ext = ".c" if ltype == "so" else ".ccl"
+            src_path = os.path.join(LIBS_DIR, name + src_ext)
+            code = ""
+            if os.path.exists(src_path):
+                with open(src_path, "r", encoding="utf-8", errors="replace") as f:
+                    code = f.read()
+            self._send_json(200, {"name": name, "type": ltype, "code": code})
             return
         if p == "/api/admin/libs":
             if not self._is_admin():
