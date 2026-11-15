@@ -809,28 +809,7 @@ class Handler(BaseHTTPRequestHandler):
             if meta[name].get("author") not in (None, "anonim", user):
                 self._send_json(403, {"error": "Bu kütüphane başka bir yapımcıya ait!"})
                 return
-            if fmt == "bundle":
-            files = body.get("files", [])
-            if not files:
-                self._send_json(400, {"error": "Paket dosyaları boş!"})
-                return
-            bdir = os.path.join(LIBS_DIR, name)
-            os.makedirs(bdir, exist_ok=True)
-            saved_names = []
-            for fobj in files:
-                fname = os.path.basename(fobj.get("name", ""))
-                if not fname:
-                    continue
-                raw_bytes = base64.b64decode(fobj.get("data_b64", ""))
-                fpath = os.path.join(bdir, fname)
-                with open(fpath, "wb") as f:
-                    f.write(raw_bytes)
-                saved_names.append(fname)
-                if fname.endswith(".c"):
-                    so_out = os.path.join(bdir, fname[:-2] + ".so")
-                    subprocess.run(["gcc", "-shared", "-fPIC", "-O2", f"-I{INC_DIR}", fpath, "-o", so_out, "-lm"], capture_output=True, text=True)
-            meta[name] = {"type": "bundle", "description": desc, "author": user, "status": "pending", "files": saved_names}
-        elif fmt == "c":
+            if fmt == "c":
                 pend_c = os.path.join(LIBS_DIR, name + "_pending.c")
                 pend_so = os.path.join(LIBS_DIR, name + "_pending.so")
                 with open(pend_c, "w", encoding="utf-8") as f:
