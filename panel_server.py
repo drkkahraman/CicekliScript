@@ -5,6 +5,9 @@ import re
 import subprocess
 import hashlib
 import secrets
+import base64
+import io
+import zipfile
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 
@@ -144,11 +147,18 @@ HTML_PAGE = """<!DOCTYPE html>
       <select id="fmt" onchange="onFmtChange()">
         <option value="ccl">ÇiçekliScript (.ccl)</option>
         <option value="c">C Kütüphanesi (.c -> .so)</option>
+        <option value="bundle">Çoklu Dosya / Paket (.c, .ccl, .onnx, .dll, .so)</option>
       </select>
-      <label>Dosyadan Seç (.ccl / .c)</label>
-      <input type="file" id="fileInput" accept=".ccl,.c,.ms" onchange="loadFromFile(event)" />
-      <label>Kaynak Kod</label>
-      <textarea id="code"></textarea>
+      <div id="singleFileBox">
+        <label>Dosyadan Seç (.ccl / .c)</label>
+        <input type="file" id="fileInput" accept=".ccl,.c,.ms" onchange="loadFromFile(event)" />
+        <label>Kaynak Kod</label>
+        <textarea id="code"></textarea>
+      </div>
+      <div id="bundleBox" style="display:none;">
+        <label>Paket Dosyaları (Birden fazla seçebilirsiniz: .c, .ccl, .onnx, .dll, .so)</label>
+        <input type="file" id="bundleFiles" multiple />
+      </div>
       <div id="cHelp" class="c-help">
         <strong>C Eklenti Rehberi:</strong> <code>#include "ccl_plugin.h"</code> ekleyin ve <code>void ccl_init(CCLRegisterFn reg)</code> içinde <code>reg("ad", fn, arity);</code> çağırın.
       </div>
@@ -259,6 +269,8 @@ async function doAuth(mode) {
 function onFmtChange() {
   const fmt = document.getElementById("fmt").value;
   document.getElementById("cHelp").style.display = fmt === "c" ? "block" : "none";
+  document.getElementById("singleFileBox").style.display = fmt === "bundle" ? "none" : "block";
+  document.getElementById("bundleBox").style.display = fmt === "bundle" ? "block" : "none";
   const ta = document.getElementById("code");
   if (!ta.value.trim() || ta.value === TPL_CCL || ta.value === TPL_C) {
     ta.value = fmt === "c" ? TPL_C : TPL_CCL;
@@ -363,12 +375,28 @@ async function submitLib() {
   const msg = document.getElementById("msg");
   msg.className = "msg"; msg.style.display = "none";
   if (!authToken) { openAuthModal(); return; }
+  const fmt = document.getElementById("fmt").value;
   const body = {
     name: document.getElementById("name").value.trim(),
     description: document.getElementById("desc").value.trim(),
-    format: document.getElementById("fmt").value,
+    format: fmt,
     code: document.getElementById("code").value
   };
+  if (fmt === "bundle") {
+    const fl = document.getElementById("bundleFiles").files;
+    if (!fl.length) {
+      msg.className = "msg err"; msg.textContent = "En az bir dosya seçmelisiniz!"; msg.style.display = "block";
+      return;
+    }
+    body.files = [];
+    for (const f of fl) {
+      const buf = await f.arrayBuffer();
+      let bin = "";
+      const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      body.files.push({ name: f.name, data_b64: btoa(bin) });
+    }
+  }
   const res = await fetch("/api/libs", {
     method: "POST",
     headers: {"Content-Type": "application/json", "Authorization": "Bearer " + authToken},
@@ -640,13 +668,26 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(404, {"error": "Not found or not approved"})
                 return
             ltype = meta[name].get("type", "ccl")
-            ext = ".so" if ltype == "so" else ".ccl"
-            fpath = os.path.join(LIBS_DIR, name + ext)
-            if not os.path.exists(fpath):
-                self._send_json(404, {"error": "File missing"})
-                return
-            with open(fpath, "rb") as f:
-                data = f.read()
+            if ltype == "bundle":
+                bdir = os.path.join(LIBS_DIR, name)
+                if not os.path.isdir(bdir):
+                    self._send_json(404, {"error": "Bundle missing"})
+                    return
+                buf = io.BytesIO()
+                with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+                    for fn in os.listdir(bdir):
+                        fp = os.path.join(bdir, fn)
+                        if os.path.isfile(fp):
+                            zf.write(fp, fn)
+                data = buf.getvalue()
+            else:
+                ext = ".so" if ltype == "so" else ".ccl"
+                fpath = os.path.join(LIBS_DIR, name + ext)
+                if not os.path.exists(fpath):
+                    self._send_json(404, {"error": "File missing"})
+                    return
+                with open(fpath, "rb") as f:
+                    data = f.read()
             self.send_response(200)
             self.send_header("Content-Type", "application/octet-stream")
             self.send_header("X-Lib-Type", ltype)
@@ -768,7 +809,28 @@ class Handler(BaseHTTPRequestHandler):
             if meta[name].get("author") not in (None, "anonim", user):
                 self._send_json(403, {"error": "Bu kütüphane başka bir yapımcıya ait!"})
                 return
-            if fmt == "c":
+            if fmt == "bundle":
+            files = body.get("files", [])
+            if not files:
+                self._send_json(400, {"error": "Paket dosyaları boş!"})
+                return
+            bdir = os.path.join(LIBS_DIR, name)
+            os.makedirs(bdir, exist_ok=True)
+            saved_names = []
+            for fobj in files:
+                fname = os.path.basename(fobj.get("name", ""))
+                if not fname:
+                    continue
+                raw_bytes = base64.b64decode(fobj.get("data_b64", ""))
+                fpath = os.path.join(bdir, fname)
+                with open(fpath, "wb") as f:
+                    f.write(raw_bytes)
+                saved_names.append(fname)
+                if fname.endswith(".c"):
+                    so_out = os.path.join(bdir, fname[:-2] + ".so")
+                    subprocess.run(["gcc", "-shared", "-fPIC", "-O2", f"-I{INC_DIR}", fpath, "-o", so_out, "-lm"], capture_output=True, text=True)
+            meta[name] = {"type": "bundle", "description": desc, "author": user, "status": "pending", "files": saved_names}
+        elif fmt == "c":
                 pend_c = os.path.join(LIBS_DIR, name + "_pending.c")
                 pend_so = os.path.join(LIBS_DIR, name + "_pending.so")
                 with open(pend_c, "w", encoding="utf-8") as f:
@@ -786,7 +848,28 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"message": f"{name} güncellemesi admin onayına gönderildi!"})
             return
 
-        if fmt == "c":
+        if fmt == "bundle":
+            files = body.get("files", [])
+            if not files:
+                self._send_json(400, {"error": "Paket dosyaları boş!"})
+                return
+            bdir = os.path.join(LIBS_DIR, name)
+            os.makedirs(bdir, exist_ok=True)
+            saved_names = []
+            for fobj in files:
+                fname = os.path.basename(fobj.get("name", ""))
+                if not fname:
+                    continue
+                raw_bytes = base64.b64decode(fobj.get("data_b64", ""))
+                fpath = os.path.join(bdir, fname)
+                with open(fpath, "wb") as f:
+                    f.write(raw_bytes)
+                saved_names.append(fname)
+                if fname.endswith(".c"):
+                    so_out = os.path.join(bdir, fname[:-2] + ".so")
+                    subprocess.run(["gcc", "-shared", "-fPIC", "-O2", f"-I{INC_DIR}", fpath, "-o", so_out, "-lm"], capture_output=True, text=True)
+            meta[name] = {"type": "bundle", "description": desc, "author": user, "status": "pending", "files": saved_names}
+        elif fmt == "c":
             c_path = os.path.join(LIBS_DIR, name + ".c")
             so_path = os.path.join(LIBS_DIR, name + ".so")
             with open(c_path, "w", encoding="utf-8") as f:
