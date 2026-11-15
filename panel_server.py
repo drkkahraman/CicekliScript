@@ -159,6 +159,8 @@ HTML_PAGE = """<!DOCTYPE html>
         <label>Paket Dosyaları (Birden fazla seçebilirsiniz: .c, .ccl, .onnx, .dll, .so)</label>
         <input type="file" id="bundleFiles" multiple />
       </div>
+      <label>README / Kurulum Talimatları (Opsiyonel)</label>
+      <textarea id="readme" style="min-height:90px;" placeholder="Kurulum talimatları, örnek kullanım..."></textarea>
       <div id="cHelp" class="c-help">
         <strong>C Eklenti Rehberi:</strong> <code>#include "ccl_plugin.h"</code> ekleyin ve <code>void ccl_init(CCLRegisterFn reg)</code> içinde <code>reg("ad", fn, arity);</code> çağırın.
       </div>
@@ -189,6 +191,10 @@ HTML_PAGE = """<!DOCTYPE html>
       <button class="btn-sm" onclick="closeModal()">Kapat ✕</button>
     </div>
     <div id="mMeta" style="color:var(--muted);font-size:13px;margin-bottom:10px;"></div>
+    <div id="mReadmeBox" style="display:none;margin-bottom:12px;">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:4px;">📖 README / Kurulum Talimatları</div>
+      <pre id="mReadme" style="white-space:pre-wrap;font-family:inherit;background:#0b1120;"></pre>
+    </div>
     <pre id="mCode"></pre>
   </div>
 </div>
@@ -363,8 +369,15 @@ async function editLib(name) {
 async function viewCode(name) {
   const res = await fetch("/api/libs/" + name + "/code");
   const data = await res.json();
-  document.getElementById("mTitle").textContent = name + (data.type === "so" ? " (C)" : " (.ccl)");
+  document.getElementById("mTitle").textContent = name + (data.type === "so" ? " (C)" : data.type === "bundle" ? " (Paket)" : " (.ccl)");
   document.getElementById("mMeta").textContent = "Yapımcı: @" + (data.author || "anonim") + "  |  Kullanım: import " + name + ";";
+  const rb = document.getElementById("mReadmeBox");
+  if (data.readme && data.readme.trim()) {
+    document.getElementById("mReadme").textContent = data.readme;
+    rb.style.display = "block";
+  } else {
+    rb.style.display = "none";
+  }
   document.getElementById("mCode").textContent = data.code || "// Kod bulunamadı";
   document.getElementById("modalBg").style.display = "flex";
 }
@@ -379,6 +392,7 @@ async function submitLib() {
   const body = {
     name: document.getElementById("name").value.trim(),
     description: document.getElementById("desc").value.trim(),
+    readme: document.getElementById("readme").value,
     format: fmt,
     code: document.getElementById("code").value
   };
@@ -633,7 +647,7 @@ class Handler(BaseHTTPRequestHandler):
             if os.path.exists(src_path):
                 with open(src_path, "r", encoding="utf-8", errors="replace") as f:
                     code = f.read()
-            self._send_json(200, {"name": name, "type": ltype, "author": meta[name].get("author", "anonim"), "code": code})
+            self._send_json(200, {"name": name, "type": ltype, "author": meta[name].get("author", "anonim"), "readme": meta[name].get("readme", ""), "code": code})
             return
         if p == "/api/admin/libs":
             if not self._is_admin():
@@ -798,6 +812,7 @@ class Handler(BaseHTTPRequestHandler):
         name = body.get("name", "").strip()
         fmt = body.get("format", "ccl")
         desc = body.get("description", "").strip()
+        readme = body.get("readme", "")
         code = body.get("code", "")
         if not re.match(r"^[a-zA-Z0-9_]+$", name):
             self._send_json(400, {"error": "Geçersiz kütüphane adı!"})
@@ -847,7 +862,7 @@ class Handler(BaseHTTPRequestHandler):
                 if fname.endswith(".c"):
                     so_out = os.path.join(bdir, fname[:-2] + ".so")
                     subprocess.run(["gcc", "-shared", "-fPIC", "-O2", f"-I{INC_DIR}", fpath, "-o", so_out, "-lm"], capture_output=True, text=True)
-            meta[name] = {"type": "bundle", "description": desc, "author": user, "status": "pending", "files": saved_names}
+            meta[name] = {"type": "bundle", "description": desc, "readme": readme, "author": user, "status": "pending", "files": saved_names}
         elif fmt == "c":
             c_path = os.path.join(LIBS_DIR, name + ".c")
             so_path = os.path.join(LIBS_DIR, name + ".so")
@@ -857,12 +872,12 @@ class Handler(BaseHTTPRequestHandler):
             if proc.returncode != 0:
                 self._send_json(400, {"error": "GCC Derleme Hatası:\n" + proc.stderr})
                 return
-            meta[name] = {"type": "so", "description": desc, "author": user, "status": "pending"}
+            meta[name] = {"type": "so", "description": desc, "readme": readme, "author": user, "status": "pending"}
         else:
             ccl_path = os.path.join(LIBS_DIR, name + ".ccl")
             with open(ccl_path, "w", encoding="utf-8") as f:
                 f.write(code)
-            meta[name] = {"type": "ccl", "description": desc, "author": user, "status": "pending"}
+            meta[name] = {"type": "ccl", "description": desc, "readme": readme, "author": user, "status": "pending"}
         save_json(META_FILE, meta)
         self._send_json(200, {"message": f"{name} onaya gönderildi! Admin onayından sonra yayınlanacaktır."})
 
