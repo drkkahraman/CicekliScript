@@ -518,7 +518,13 @@ static Value native_random(Value self, size_t argc, Value* args, int line) {
     (void)self; (void)line;
     static bool seeded = false;
     if (!seeded) {
-        srand((unsigned int)time(NULL));
+#ifdef _WIN32
+        srand((unsigned int)GetTickCount64());
+#else
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        srand((unsigned int)((ts.tv_sec * 1000ULL) + (ts.tv_nsec / 1000000ULL)));
+#endif
         seeded = true;
     }
     if (argc == 0) {
