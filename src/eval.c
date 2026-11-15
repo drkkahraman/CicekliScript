@@ -516,16 +516,18 @@ static Value native_max(Value self, size_t argc, Value* args, int line) {
 
 static Value native_random(Value self, size_t argc, Value* args, int line) {
     (void)self; (void)line;
-    static bool seeded = false;
-    if (!seeded) {
+    static unsigned long long last_ms = 0;
+    unsigned long long now_ms = 0;
 #ifdef _WIN32
-        srand((unsigned int)GetTickCount64());
+    now_ms = (unsigned long long)GetTickCount64();
 #else
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        srand((unsigned int)((ts.tv_sec * 1000ULL) + (ts.tv_nsec / 1000000ULL)));
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    now_ms = (unsigned long long)ts.tv_sec * 1000ULL + (unsigned long long)(ts.tv_nsec / 1000000ULL);
 #endif
-        seeded = true;
+    if (now_ms != last_ms) {
+        srand((unsigned int)now_ms);
+        last_ms = now_ms;
     }
     if (argc == 0) {
         return make_number((double)rand() / ((double)RAND_MAX + 1.0));
