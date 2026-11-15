@@ -329,10 +329,10 @@ function renderList() {
     <div class="lib-item">
       <div class="lib-top">
         <div>
-          <span class="lib-name">${esc(l.name)}</span>
+          <a href="/lib/${esc(l.name)}" class="lib-name" style="text-decoration:none;">${esc(l.name)}</a>
           <span class="author-tag">@${esc(l.author || "anonim")}</span>
         </div>
-        <span class="badge ${l.type}">${l.type === "so" ? "C (.so)" : "CCL"}</span>
+        <span class="badge ${l.type}">${l.type === "so" ? "C (.so)" : l.type === "bundle" ? "Paket" : "CCL"}</span>
       </div>
       <div class="lib-desc">${esc(l.description || "Açıklama yok.")}</div>
       <div class="lib-actions">
@@ -584,6 +584,69 @@ async function delLib(name) {
 </html>"""
 
 
+LIB_PAGE = """<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__NAME__ — Comar Kütüphanesi</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root { --bg: #090d16; --card: #161f30; --border: #263248; --text: #f1f5f9; --muted: #94a3b8; --accent: #38bdf8; --accent2: #818cf8; --ok: #22c55e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px; }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  a { color: var(--accent); text-decoration: none; font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; margin-bottom: 20px; }
+  h1 { margin: 0 0 6px; font-size: 28px; color: var(--accent); }
+  .meta { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  .cmd { background: #0b1120; border: 1px solid var(--border); padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: 13px; display: inline-block; margin-right: 10px; }
+  .md-body { line-height: 1.65; font-size: 15px; }
+  .md-body h1, .md-body h2, .md-body h3 { color: var(--accent); margin-top: 18px; }
+  .md-body pre, .md-body code { background: #0b1120; border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; font-family: monospace; }
+  .md-body pre { padding: 14px; overflow-x: auto; }
+  pre.code { background: #0b1120; border: 1px solid var(--border); padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav">
+    <a href="/">← Tüm Kütüphanelere Dön</a>
+    <a href="/admin">🔐 Admin</a>
+  </div>
+  <div class="card">
+    <h1>🌸 __NAME__</h1>
+    <div class="meta">Yapımcı: <strong>@__AUTHOR__</strong> &nbsp;|&nbsp; Tür: <strong>__TYPE__</strong></div>
+    <p style="color:#cbd5e1;">__DESC__</p>
+    <div>
+      <span class="cmd">comar install __NAME__</span>
+      <span class="cmd">import __NAME__;</span>
+    </div>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0;font-size:18px;">📖 README</h2>
+    <div id="md" class="md-body"></div>
+  </div>
+  <div class="card">
+    <h2 style="margin-top:0;font-size:18px;">💻 Kaynak Kod / Dosyalar</h2>
+    <pre class="code" id="src"></pre>
+  </div>
+</div>
+<script>
+const rawMd = __README_JSON__;
+const rawSrc = __CODE_JSON__;
+document.getElementById("src").textContent = rawSrc || "// Kod yok";
+if (rawMd && rawMd.trim()) {
+  document.getElementById("md").innerHTML = typeof marked !== "undefined" ? marked.parse(rawMd) : "<pre>" + rawMd + "</pre>";
+} else {
+  document.getElementById("md").innerHTML = "<p style='color:#94a3b8'>Bu kütüphane için README eklenmemiş.</p>";
+}
+</script>
+</body>
+</html>"""
+
+
 class Handler(BaseHTTPRequestHandler):
     def _send_json(self, code, obj):
         b = json.dumps(obj, ensure_ascii=False).encode("utf-8")
@@ -618,6 +681,34 @@ class Handler(BaseHTTPRequestHandler):
             return
         if p == "/admin":
             self._send_html(ADMIN_PAGE)
+            return
+        m_lib = re.match(r"^/lib/([a-zA-Z0-9_]+)$", p)
+        if m_lib:
+            name = m_lib.group(1)
+            meta = load_json(META_FILE, {})
+            if name not in meta or meta[name].get("status", "approved") != "approved":
+                self._send_json(404, {"error": "Not found"})
+                return
+            info = meta[name]
+            ltype = info.get("type", "ccl")
+            if ltype == "bundle":
+                code = "Paket dosyaları:\n" + "\n".join(" - " + fn for fn in info.get("files", []))
+            else:
+                src_ext = ".c" if ltype == "so" else ".ccl"
+                src_path = os.path.join(LIBS_DIR, name + src_ext)
+                code = ""
+                if os.path.exists(src_path):
+                    with open(src_path, "r", encoding="utf-8", errors="replace") as f:
+                        code = f.read()
+            html = (
+                LIB_PAGE.replace("__NAME__", name)
+                .replace("__AUTHOR__", info.get("author", "anonim"))
+                .replace("__TYPE__", ltype)
+                .replace("__DESC__", info.get("description", ""))
+                .replace("__README_JSON__", json.dumps(info.get("readme", "")))
+                .replace("__CODE_JSON__", json.dumps(code))
+            )
+            self._send_html(html)
             return
         if p == "/api/libs":
             meta = load_json(META_FILE, {})
