@@ -147,7 +147,7 @@ ccl
 ```
 ```text
 ╔═══════════════════════════════════════════════════╗
-║          CicekliScript v1.0.0 REPL                ║
+║          CicekliScript v1.3.4 REPL                ║
 ║  Python simplicity + C power + Mandatory ';'      ║
 ║  To exit: exit(); or cicekli.exit();              ║
 ╚═══════════════════════════════════════════════════╝
