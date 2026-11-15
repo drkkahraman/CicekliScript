@@ -362,6 +362,7 @@ async function editLib(name) {
   document.getElementById("fmt").value = data.type === "so" ? "c" : "ccl";
   onFmtChange();
   document.getElementById("code").value = data.code || "";
+  document.getElementById("readme").value = data.readme || "";
   document.getElementById("formTitle").textContent = "✏️ Kütüphane Güncelle: " + name;
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -859,6 +860,8 @@ class Handler(BaseHTTPRequestHandler):
             ltype = upd["type"]
             meta[name]["type"] = ltype
             meta[name]["description"] = upd["description"]
+            if "readme" in upd:
+                meta[name]["readme"] = upd["readme"]
             if ltype == "so":
                 c_path = os.path.join(LIBS_DIR, name + ".c")
                 so_path = os.path.join(LIBS_DIR, name + ".so")
@@ -928,7 +931,7 @@ class Handler(BaseHTTPRequestHandler):
                 ltype = "so"
             else:
                 ltype = "ccl"
-            meta[name]["pending_update"] = {"type": ltype, "description": desc, "code": code}
+            meta[name]["pending_update"] = {"type": ltype, "description": desc, "readme": readme, "code": code}
             save_json(META_FILE, meta)
             self._send_json(200, {"message": f"{name} güncellemesi admin onayına gönderildi!"})
             return
