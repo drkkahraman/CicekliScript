@@ -944,6 +944,7 @@ class Handler(BaseHTTPRequestHandler):
             bdir = os.path.join(LIBS_DIR, name)
             os.makedirs(bdir, exist_ok=True)
             saved_names = []
+            c_files = []
             for fobj in files:
                 fname = os.path.basename(fobj.get("name", ""))
                 if not fname:
@@ -954,8 +955,10 @@ class Handler(BaseHTTPRequestHandler):
                     f.write(raw_bytes)
                 saved_names.append(fname)
                 if fname.endswith(".c"):
-                    so_out = os.path.join(bdir, fname[:-2] + ".so")
-                    subprocess.run(["gcc", "-shared", "-fPIC", "-O2", f"-I{INC_DIR}", fpath, "-o", so_out, "-lm"], capture_output=True, text=True)
+                    c_files.append(fpath)
+            if c_files:
+                so_out = os.path.join(bdir, name + ".so")
+                subprocess.run(["gcc", "-shared", "-fPIC", "-O2", f"-I{INC_DIR}"] + c_files + ["-o", so_out, "-lm"], capture_output=True, text=True)
             meta[name] = {"type": "bundle", "description": desc, "readme": readme, "author": user, "status": "pending", "files": saved_names}
         elif fmt == "c":
             c_path = os.path.join(LIBS_DIR, name + ".c")
