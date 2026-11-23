@@ -40,6 +40,7 @@
 - [Adnan Zafer Binici](https://github.com/ItsBenAdooo)
 - [Sarp Kale](https://github.com/sarpkale)
 - [Tuna Karakuş](https://github.com/tuna35tuna35)
+- [Mert Coşar](https://github.com/mrtc123)
 
 ---
 
