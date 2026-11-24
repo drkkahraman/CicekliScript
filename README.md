@@ -35,7 +35,7 @@
 
 ## Contributors & Developers
 
-- [Doruk Kahraman](https://github.com/drkkahraman)
+- [MAIN CONTRIBUTER: Doruk Kahraman](https://github.com/drkkahraman)
 - [Ali Ege Bozkurt](https://github.com/BrickFPV)
 - [Adnan Zafer Binici](https://github.com/ItsBenAdooo)
 - [Sarp Kale](https://github.com/sarpkale)
