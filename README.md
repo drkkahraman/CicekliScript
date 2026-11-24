@@ -39,8 +39,6 @@
 - [Ali Ege Bozkurt](https://github.com/BrickFPV)
 - [Adnan Zafer Binici](https://github.com/ItsBenAdooo)
 - [Sarp Kale](https://github.com/sarpkale)
-- [Tuna Karakuş](https://github.com/tuna35tuna35)
-- [Mert Coşar](https://github.com/mrtc123)
 
 ---
 
@@ -149,7 +147,7 @@ ccl
 ```
 ```text
 ╔═══════════════════════════════════════════════════╗
-║          CicekliScript v1.3.5 REPL                ║
+║          CicekliScript v1.6.0 REPL                ║
 ║  Python simplicity + C power + Mandatory ';'      ║
 ║  To exit: exit(); or cicekli.exit();              ║
 ╚═══════════════════════════════════════════════════╝
@@ -460,7 +458,7 @@ The official **CicekliScript Extension** is published on the [Visual Studio Mark
    Install directly with one click from [marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript](https://marketplace.visualstudio.com/items?itemName=dorukkdev.cicekliscript).
 3. **Via VSIX File:**
    ```bash
-   code --install-extension vscode-extension/cicekliscript-1.2.0.vsix
+   code --install-extension vscode-extension/cicekliscript-1.6.0.vsix
    ```
 
 ---
@@ -482,6 +480,100 @@ Then visit **[http://localhost:6000](http://localhost:6000)** in your browser.
 
 ---
 
+## CicekliSCRIPT ESP — IDE & `.ino`-Free ESP8266 Flasher (User Guide)
+
+**CicekliSCRIPT ESP** lets you write ESP8266 firmware in a clean, hardware-first English syntax and flash it directly to your board **without Arduino IDE or `.ino` files**.
+
+### Launching the IDE
+- **Desktop App / CLI:**
+  ```bash
+  cicekliscript-esp
+  ```
+  (Or launch **CicekliSCRIPT ESP** from your system application menu.)
+- **Manual Server Start:**
+  ```bash
+  python3 ide_server.py
+  # Open http://localhost:8080
+  ```
+
+### CicekliSCRIPT ESP Syntax Reference
+
+| Command | Description |
+| :--- | :--- |
+| `boot { ... };` | Runs once on startup (`setup`) |
+| `forever { ... };` | Runs continuously (`loop`) |
+| `pin 2 out;` / `in` / `pullup` | Sets GPIO pin mode |
+| `on 2;` / `off 2;` | Turns pin/LED ON or OFF |
+| `set 2, 1;` / `pwm 2, 512;` | Digital write or PWM output |
+| `read_pin(4)` / `read_analog(0)` | Reads digital pin or A0 analog sensor |
+| `wait 500;` | Delays in milliseconds |
+| `serial 115200;` / `say "Hello!";` | Starts serial and prints a line |
+| `connect_wifi "SSID", "PASS";` / `wifi_ip()` | Connects to Wi-Fi and returns IP |
+| `when (...) { } else_when (...) { } otherwise { };` | Conditional branches |
+| `repeat (5) { ... };` | Repeats a block `N` times |
+
+#### Example: ESP8266 LED Blink + Wi-Fi (No `.ino`)
+```javascript
+boot {
+    serial 115200;
+    pin 2 out;
+    connect_wifi "MyWiFi", "MyPassword";
+    say wifi_ip();
+};
+
+forever {
+    repeat (3) {
+        on 2;
+        wait 300;
+        off 2;
+        wait 300;
+    };
+    wait 1000;
+};
+```
+
+### Flashing ESP8266 (No `.ino` Required)
+1. **IDE USB Flash**: Plug in your ESP8266, select the serial port in the top bar, and click **⚡ ESP8266 Flashla**.
+2. **Browser Direct (Web Serial)**: In Chrome/Edge, click **🌐 Web Serial** to flash directly over USB from the browser.
+3. **CLI Flasher**:
+   ```bash
+   python3 esp8266/flasher.py --list-ports
+   python3 esp8266/flasher.py --file examples/10_esp8266_blink.ccl --port /dev/ttyUSB0
+   ```
+4. **Virtual ESP8266 Simulator**: No board connected? Click **🔌 Sanal ESP8266** in the IDE to test LEDs, Wi-Fi, and Serial output virtually.
+
+---
+
+## Çomar (`comar`) — Package & Library Manager
+
+**Çomar** (`bin/comar`) is the official package manager for CicekliScript. It downloads and manages `.ccl` script libraries, native C shared libraries (`.so`), and multi-file bundles into `~/.cicekliscript/libs`.
+
+### Commands
+
+```bash
+# List all available libraries in the repository
+./bin/comar list
+
+# Install a library (.ccl, native C .so, or bundle)
+./bin/comar install <library_name>
+
+# Show locally installed libraries
+./bin/comar installed
+
+# Remove an installed library
+./bin/comar remove <library_name>
+```
+
+### Using an Installed Library
+Once installed with `comar install`, import it directly in any `.ccl` file:
+```javascript
+import <library_name>;
+```
+
+> **Tip:** You can point `comar` to a custom registry server using the `COMAR_SERVER` environment variable (default: `http://92.249.61.108:8090`).
+
+---
+
 ## Example Scripts
 
 All examples are located in the `examples/` directory:
@@ -494,6 +586,8 @@ All examples are located in the `examples/` directory:
 - `examples/07_gui_pencere.ccl`: Basic desktop GUI window with Cairo and X11
 - `examples/08_gui_gelismis.ccl`: Advanced geometric dashboard and UI components
 - `examples/09_gpu_tensor.ccl`: NVIDIA CUDA GPU tensor engine & matrix multiplication benchmark
+- `examples/10_esp8266_blink.ccl`: ESP8266 LED blink without `.ino`
+- `examples/11_esp8266_wifi.ccl`: ESP8266 Wi-Fi & analog sensor reading without `.ino`
 - `testcodes/test.ccl`: Interactive conversational chatbot (*CicekliBot*)
 
 ---
