@@ -39,6 +39,7 @@
 - [Ali Ege Bozkurt](https://github.com/BrickFPV)
 - [Adnan Zafer Binici](https://github.com/ItsBenAdooo)
 - [Sarp Kale](https://github.com/sarpkale)
+- [Mert Coşar](https://github.com/mrtc123)
 
 ---
 
