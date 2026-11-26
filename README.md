@@ -29,7 +29,7 @@
 
 ---
 
-**CicekliScript** is a modern, dynamic, and hardware-accelerated programming language that combines Python's high-level syntax, developer friendliness with the raw performance, block structure (`{}`), and speed of C into one language.
+**CicekliScript** is a modern and dynamic, and hardware-accelerated programming language that combines Python's high-level syntax, developer friendliness with the raw performance, block structure (`{}`), and speed of C into one language.
 
 ---
 
